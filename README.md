@@ -1,7 +1,7 @@
-phd-thesis-template
-===================
+A Computer Science PhD Thesis Template
+======================================
 
-A template for a PhD thesis based on my own thesis ([The Web of Things Application Architecture] (http://www.webofthings.org/2011/12/01/phd-web-of-things-app-archi/)).
+A template for a PhD thesis based on my own thesis (shameless plug: [The Web of Things Application Architecture] (http://www.webofthings.org/2011/12/01/phd-web-of-things-app-archi/)).
 It's obviously not here for you to copy its content (not really a good way of earning your PhD ;-)) 
 but just to provide an idea of structure as well as a template with a nice look-and-feel...
 Note that I removed all the figures from the source to make it lighter. 

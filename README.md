@@ -15,12 +15,16 @@ Install tex and latex as well as the following two packages:
 * texlive-latex-extra
 
 # Compiling the thesis
-Run:
+On *Nix, run:
 ```bash
 ./compile-thesis.sh
 ```
 with either of the following options:
 * compile: compiles the whole thesis.
 * compile-clean: cleans all the files and compiles the whole thesis.
+
+On Windows, run:
+Seriously? You are planning to write your CS thesis on a Windows machine? Ahem... then write your own bash script
+and push it back here!
 
 Enjoy!

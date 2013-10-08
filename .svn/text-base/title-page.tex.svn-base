@@ -1,0 +1,38 @@
+\pagestyle{empty}
+Diss. ETH No. 19891
+
+\begin{centering}
+
+{\setlength{\baselineskip}{2\baselineskip}
+\vskip 2cm % Hline
+\sffamily
+{\huge A Web of Things Application Architecture - Integrating the Real-World into the Web}
+\vskip 2cm % Hline
+}  % Title specific environment
+
+
+A dissertation submitted to\\
+%SWISS FEDERAL INSTITUTE OF TECHNOLOGY ZURICH\\
+\textsc{ETH Zurich}\\
+\vskip 0.5cm
+
+for the degree of \\
+\textsc{Doctor of Science}
+\vskip 3.3cm
+
+Presented by\\
+\textbf{Dominique Guinard}\\
+M.Sc. in Computer Science, University of Fribourg\\
+born February 27, 1981\\
+citizen of Switzerland
+\vskip 1.5cm
+
+accepted on the recommendation of\\ 
+Prof. Dr. Friedemann Mattern, examiner, ETH Zurich\\
+Prof. Dr. Gustavo Alonso, co-examiner, ETH Zurich\\ 
+Prof. Dr. Sanjay Sarma, co-examiner, MIT Boston\\
+\vskip 1cm
+
+2011
+
+\end{centering}

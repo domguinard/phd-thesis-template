@@ -1,0 +1,214 @@
+\section{Developers Perspectives on the WS-* Alternative Architecture}\label{alternatives}
+
+The application architecture proposed in this chapter is definitely not the only way to create a uniform integration layer for \sts{} and we will discuss several alternatives in the related work section (see \sectRef{relatedWork}). 
+
+However, in this section we consider WS-* services as an important alternative\footnote{An introduction to WS-* services is out of the scope of this thesis and we invited the reader to refer to books such as~\cite{Alonso2010} or~\cite{Erl2004} for an exhaustive overview of the underlying technologies}. Out of the possible alternatives, WS-* services stand out for two reasons: First their current market penetration, especially in the field of enterprise software business is significant~\citeweb{soapundead}. Second, rather than proposing a simple network layer integration, the WS-* galaxy of standards forms an ecosystem that addresses in a standard way several layers of the \WoTA{}.
+
+WS-* services declare their functionality and interfaces in a Web Services Description Language (WSDL) file. Client request and service response objects are encapsulated using the Simple Object Access Protocol (SOAP) and transmitted over the network, usually using the HTTP protocol. Further WS-* standards define concepts such as addressing, security, discovery or service composition. Although WS-* was initially created to achieve interoperability of enterprise applications, work has been done to adapt it to the needs of resource-constrained devices \cite{Helander2005,Priyantha2008,Yazar2009}. Furthermore, lighter forms of WS-* services, such as the Devices Profile for Web Services (DPWS)~\citeweb{ws4d}, were proposed~\cite{Jammes2005-DPWS}. 
+
+While they share similar goals, REST and WS-* are not compatible; they tackle loose coupling and interoperability differently. Consequently, work has been done to evaluate these two approaches. In~\cite{Pautasso2009,Pautasso2008}, REST and WS-* are compared in terms of re-usability and loose coupling for business applications. The authors suggest that WS-* services should be preferred for \quote{professional enterprise application integration scenarios} and RESTful services for {tactical, ad-hoc integration over the Web}. 
+
+Internet of Things applications pose novel requirements and challenges as neither WS-* nor RESTful Web services were primarily designed to run and be used on \sts{}, but rather on business or Web servers. This development thus necessitates assessing the suitability of the two approaches for devices with limited capabilities. Yazar et al.~\cite{Yazar2009} analyze the performance of WS-* and RESTful applications when deployed on wireless sensor nodes with limited resources and conclude that REST performs better. 
+
+However, evaluating the performance of a system when deployed on a particular platform is not enough to make the architectural decision that will foster adoption and third-party (public) innovation. Indeed, studies like the Technology Acceptance Model~\cite{Gefen1998} and more recent extensions~\cite{Mathieson2001} show that the perceived ease of use of an IT system is key to its adoption. As many manufacturers of \sts{} are moving from providing devices with a few applications to building devices as platforms with APIs, they increasingly rely on external communities of developers to build innovative services for their hardware (e.g., the Apple App Store or Android Marketplace). An easy to learn API is, therefore, key in fostering a broad community of developers for \sts{}. Hence, choosing the service architecture that provides the best developer experience is instrumental to the success of the Internet of Things and the Web of Things on a larger scale.
+
+In this section we complement the decision framework that can be used when picking the right architecture for IoT applications and platforms. We supplement previous work~\cite{Pautasso2009,Pautasso2008,Yazar2009} by evaluating, in a structured way, the actual \important{developers' experience} when using each architecture in an IoT context. We analyze the perceived ease of use and suitability of WS-* and RESTful Web service architectures for IoT applications. We base our study on the qualitative feedback and quantitative results from 69 computer science students who developed two applications that accesses temperature and light measurements from wireless sensor nodes. For the one of the applications, the participants used a sensor node implementing the \devLayer{} and \findLayer{} of the \WoTA{}, thus offering a semantically annotated RESTful Web API. In the second case, they were accessing a WS-* (WSDL + SOAP based) sensor node.
+
+Our results show that participants almost unanimously found RESTful Web services easier to learn, more intuitive and more suitable for programming IoT applications than WS-*. The main advantages of REST as reported by the participants are, intuitiveness, flexibility, and the fact that it is lightweight. WS-* is perceived to support more advanced security requirements and benefits from a clearer standardization process.
+
+This section is structured as follows. \sectRef{devStudyMethodology} describes the study methodology. Section \sectRef{devStudyResults} presents and analyses the results. Finally, \sectRef{devStudyConclusion} discusses the implications of our findings and devises guidelines.
+
+\subsection{Methodology}\label{devStudyMethodology}
+\begin{figure}
+\imgMedium{wot/study-rest-vs-ws}
+\caption{Setup of the user study. Two \sunspots{} sensor nodes are connected to a \sg{} through a sync-based Device Driver (left). Their functionality is exposed through a RESTful Web API. Two other \sunspots{} are connected are accessible through a WS-* SOAP + WSDL interface deployed in an application server (right).}
+\label{fig:studySetup}
+\end{figure}
+
+%In this section we discuss out study setup, participants' demographics and data analysis techniques used.
+Our study is based on a programming exercise and the feedback received from a group of 69 computer science students who had to learn RESTful and WS-* Web service architecture and implement, in teams, mobile phone applications that accessed sensor data from different sensor nodes using both approaches as shown in \figRef{studySetup}. The exercise was part of an assignment in the Distributed Systems course at ETH Zurich\footnote{The assignment is available online: \url{tinyurl.com/vs-assignment}}.
+
+To get and parse the RESTful sensor response, participants used the HTTP and JSON libraries, which are already available on Android phones. To perform the WS-* request, the external \newterm{kSoap2} library~\citeweb{ksoap} was used. Averaging over the 25 submissions, the programs had 105 lines of code for the WS-* implementation ($SD=50.19$, where SD is the Standard Deviation), opposed to 98 lines of code for the REST implementation ($SD=48.31$). 
+
+The two coding tasks were solved in teams of two or three members who were able to freely decide how to split up the tasks amongst team members, which models industry practice. The coding tasks were successfully completed by all teams within two weeks. To ensure that every team member had understood the solution of each task, individual reports describing the design and architecture choices had to be submitted. Additionally, every student had to submit a structured questionnaire about both technologies and a voluntary feedback form on the learning process. Students were informed that answers in the feedback form were not part of the assignment, and that responses would be used in a research study. To encourage them to give honest answers about the amount of effort invested in solving both coding tasks, perception, and attitudes towards both technologies, entries in the feedback form were made anonymously. \tableRef{methodology} summarizes the data collection sources.
+
+\textbf{Demographics:}
+The participants were from ETH Zurich, in their third or fourth year of Bachelor studies. Teams were formed of two or three members. They were taught both technologies for the first time, in a short introduction during the tutorial class. 89\% reported not having had any previous knowledge of WS-* and 62\% none of REST. From the 35\% that had already used REST before the course, half reported that they had previously been unaware that the technology they used actually was based on the REST architecture. 5\% (2 students) had programmed WS-* applications. 
+
+\textbf{Additional Tasks:}
+Subsequent tasks involved creating visualization mechanisms for the retrieved data, both locally and through cloud visualization solutions. 
+
+\begin{table}[htdp]
+\begin{center}
+\begin{tabular}{|l| c | c |}
+%\rowcolors {1}{orange!35 }{ }
+\hline
+\textbf{Data Source}& \textbf{Type}&\textbf{N} \\
+\hline
+RESTful and WS-* Applications & Team &25 \\
+%WS-* Application & \\
+%Other &  &\\
+%\hline
+%Documentation & Individual& 73\\
+\hline
+Structured Questionnaire & Individual & 69\\
+ \hline
+Feedback Questionnaire & Anonymous& 37\\
+\hline
+ \end{tabular}
+\end{center}
+\caption{Data was collected from different programming tasks and questionnaires.}
+\label{tab:methodology}
+\end{table}
+
+\subsection{Results}\label{devStudyResults}
+Here, we present our results on the perceived differences, learning curve, and suitability of the technologies for smart things related use cases.
+
+\subsubsection{Perceived Differences}
+Using the structured questionnaire, we collected qualitative data on the perceived advantages of both technologies with respect to each other (see \tableRef{perdiff}). While REST was perceived to be \participantSaid{very easy to understand, learn, and implement,} lightweight and scalable, WS-* \participantSaid{allows for more complex operations,} provides higher security, and a better level of abstraction.
+
+\begin{table}[h]
+\begin{center}
+  \begin{tabular}{ | l  l | l |}
+    \hline
+    \multicolumn{2}{|l|}{\rule{0cm}{0.3cm}\textbf{REST} ($N=69$)} & \#\\
+    \hline
+    & Easy to understand, learn, and implement & 36\\
+    & Lightweight & 27\\
+    & Easy to use for clients & 25\\
+    & More scalable & 21\\
+    & No libraries required & 17\\
+    & Accessible in browser and bookmarkable & 14\\
+    & Reuses HTTP functionality (e.g., caching) & 10\\
+    \hline
+    \multicolumn{2}{|l|}{\rule{0cm}{0.3cm}\textbf{WS-*} ($N=69$)} & \#\\
+    \hline
+    & WSDL allows to publish a WS-* interface & 31\\
+    & Allows for more complex operations & 24\\
+    & Offers better security & 19\\
+    & Provides higher level of abstraction & 11\\
+    & Has more features & 10\\
+    \hline
+  \end{tabular}
+  \caption{Participants felt that WS-* provides better abstraction, but REST is easy to learn and use.}
+  \label{tab:perdiff}
+\end{center}
+\end{table}
+
+
+\subsubsection{Learning Curve}
+\begin{figure}
+\imgMedium{wot/learning-speed}
+\caption{Participants reported that REST was (a) faster}
+\label{fig:learning-speed}
+\end{figure}
+In the feedback form, we asked participants to rate on a 5 point Likert scale how easy and how fast it was to learn each technology (1=not easy at all, ..., 5=very easy).  As shown in \figRef{learning-easiness}, 70\% rated REST \quote{easy} or \quote{very easy} to learn.  WS-* services, on the other hand, were perceived to be more complex: only 11\% respondents rated them easy to learn. Event if all participants were required to learn and explain the concepts of both technologies, compare their advantages, analyze their suitability and explain design decisions, we restricted the sample to participants who reported to have worked on programming both REST and WS-* assignments within their teams (N=19) to avoid bias. We then applied a paired two sample t-test to compare the learning curve for REST and WS-*. Our results show that REST (with an average $M=3.85$ and a Standard Deviation $SD=1.09$) was reported to be significantly easier to learn than WS-* ($M=2.50, SD=1.10, t(19)=4.23, p<0.001$. Similarly, REST ($M=2.21, SD=0.80$) was perceived to be significantly faster to learn than WS-* ($M=3.43, SD=1.09, t(13)=-3.46, p=0.002, N=14$).
+
+Furthermore, in the feedback form, we collected qualitative data on the challenges of learning both technologies, asking the participants: \quote{What were the challenges you encountered in learning each of the technologies? Which one was faster and easier to learn?} Nine participants explained that REST was easier and faster to learn because RESTful Web services are based on technologies, such as HTTP and HTML, which are well-known to most tech-savvy people: \participantSaid{Everybody who is using a browser already knows a little about [REST].} 
+
+WS-* was perceived to be overly complicated: \participantSaid{REST is easy and WS-* is just a complicated mess.} Reasons for such  strong statements were the complexity of extracting useful information out of the WSDL and SOAP files (mentioned by 8), as well as the number and poor documentation of parameters for a SOAP call. The lack of clear documentation was perceived as a problem for REST as well: Seven participants said that further request examples, alongside with the traditional documentation (e.g., Javadoc) for both REST and WS-*, would be very useful. Eight participants explicitly mentioned that they had had previous experience with REST during their spare time. This illustrates the accessibility and appeal of RESTful Web services, and it positions them as an ideal candidate for smart things APIs in terms of lowering the entry barrier for creating apps. 
+In the feedback form, 25 participants said that REST made it easier to understand what services the sensor nodes offered. Eight participants explained this by the fact that, for REST, an HTML interface was provided. This emphasizes that RESTful smart things should offer an HTML representation by default. Seven participants found WS-* easier for this matter. They noted that a WSDL file was not necessarily easy to read, but they liked the fact that it was \participantSaid{standard}.
+\begin{figure}
+\imgMedium{wot/learning-easiness}
+\caption{Participants reported (b) easier to learn than WS-*}
+\label{fig:learning-easiness}
+\end{figure}
+
+\subsubsection{Suitability for Use-Cases}
+In the feedback form, we asked participants to rate on a Likert scale (1=WS-*, ..., 5=REST) which one of the two technologies they would recommend in specific scenarios. REST was considered more suitable than WS-* for IoT applications running on embedded devices and mobile phones (see \figRef{programming-suitability}). The one sample t-test confirmed that the sample average was statistically higher than the neutral 3, and therefore inclined towards REST. This was the case both for embedded devices ($M=3.86, SD=1.03, t(36)=5.10, p<0.001$), and for mobile phone applications ($M=3.51, SD=1.12, t(36)=2.79, p=0.004$). For business applications, however, a higher preference for WS-* was stated but the preference emphasized enough to be satistically significant ($M=2.67, SD=1.33, t(36)=-1.48, p=0.07$).
+
+\paragraph{General Use-Cases}
+We asked our participants to discuss the general use-cases for which each technology appeared suitable. When asked: \quote{For what kind of applications is REST suitable?}, 23 people mentioned that REST was well adapted for simple applications offering limited and atomic functionality: \participantSaid{for applications where you only need create/read/update and delete [operations]}. 8 participants also advised the use of REST when security is not a core requirement of the application: \participantSaid{Application where no hight security level than the one of HTTP[s] is needed}. This is supported by the fact that the WS-* security specification offers more levels of security than the use of HTTPS and SSL in REST~\cite{Richardson2007,Kubert2011}. 
+6 participants suggested that REST was more adapted for user-targeted applications: \participantSaid{[...] for applications that present received content directly to the user}. Along these lines, 14 users said that REST was more adapted for Web applications or applications requiring to integrate Web content: \participantSaid{[for] Web Mashups, REST services compose easily}.
+
+We then asked: \quote{For what kind of applications is WS-* more suitable?}. 20 participants mentioned that WS-* was more adapted for secure applications: \participantSaid{applications that require extended security features, where SSL is not enough}. 16 participants suggested to use WS-* when strong contracts on the message formats were required, often referring to the use of WSDL files: \participantSaid{with WS-* [...] specifications can easily be written in a standard machine-readable format (WSDL, XSD)}.
+
+\begin{table}[h]
+\begin{center}
+  \begin{tabular}{ | l  l | l |}
+    \hline
+
+    \multicolumn{2}{|l|}{\rule{0cm}{0.3cm}\textbf{REST} (N=37)} & \textbf{\#} \\
+    \hline
+    & For simple applications, with atomic functionality & 23\\
+    & For Web applications and Mashups & 14\\
+    & If security is not a core requirement & 8\\
+    & For user-centered applications & 6\\
+    & For heterogeneous environments &6\\
+   \hline
+    \multicolumn{2}{|l|}{\rule{0cm}{0.3cm}\textbf{WS-*} (N=37)} & \textbf{\#}\\
+    \hline
+    & For secure applications & 20\\
+    & When contracts on message formats are needed & 16\\
+    \hline
+  \end{tabular}
+  \caption{REST was perceived to be more suited for simple applications, and WS-* for application where security is important.}
+  \label{tab:suitability}
+\end{center}
+\end{table}
+
+
+\paragraph{For \sts{}} 
+Both WS-* and RESTful Web Services were not primarily designed to run on embedded devices and mobile phones but rather on business or Web servers. Thus, assessing the suitability of the two approaches for devices with limited capabilities is relevant. 
+
+% Which solution would you recommend for providing services from embedded devices?
+% Which technology do you think would be more suitable for low-end devices like embedded computers and mobile phones?
+As shown on the first part of \figRef{programming-suitability}, for providing services on embedded devices, 66\% of the participants suggested that REST was either \quote{adapted} to \quote{very-adapted}. When asked to elaborate on their answers, 6 participants suggested that for heterogeneous environments REST was more suitable: \participantSaid{for simple application, running on several clients (PC, iPhone, Android) [...]}. 7 participants said that REST was adapted for embedded and mobile devices because it was more lightweight and better suited for such devices in general: \participantSaid{the mapping of a sensor network to the REST verbs is natural [...]}. To confirm this, we investigated the size of the application packages for both approaches. The average footprint of the REST application was 17.46 kB while the WS-* application had a size of 83.27 kB on average. The difference here is mainly due to the necessity to include the \textit{kSoap2} library with every WS-* application. These results confirm earlier performance and footprint evaluations~\cite{Drytkiewicz2004-pREST,Yazar2009,Guinard2010-WoT}.
+
+\subparagraph{Smart Home Applications}
+We then went into more specific use cases, asking: \participantSaid{Imagine you want to deploy a sensor network in your home. Which technology would you use and why?}. Sixty-two respondents recommended REST to deploy a sensor network in the home, 5 recommended WS-*, and 2 were undecided. Twenty-four participants justified the choice of REST by invoking its simplicity both in terms of use and development: \participantSaid{REST [...] requires less effort to be set up}, \participantSaid{Easier to use REST, especially in connection with a Web interface}. Eight participants said that REST is more lightweight, which is important in a home environment populated by heterogeneous home appliances. Interestingly enough, 14 participants mentioned that in home environments there are very little concerns about security and thus, the advanced security features of WS-* were not required: \participantSaid{I would not care if my neighbor can read these values}, \participantSaid{The information isn't really sensitive}.
+
+\subparagraph{For Mobile Phones}
+Since the mobile phone is a key interaction device for creating IoT applications, we asked the participants to assess the suitability of each platform for creating mobile phone clients to smart things. As shown on the second part of \figRef{programming-suitability}, 53\% of the participants would use REST, 16\% would use WS-* and 32\% were undecided. They explained these contrasted results by the fact that mobile phones are getting very powerful. 7 participants explained that the amount of data to be processed was smaller with REST which was perceived as an important fact for mobile clients. Interestingly enough, some participants considered the customers of mobile platforms to have different requirements: \participantSaid{I would use REST, since customers prefer speed and fun over security for smaller devices}. The lack of native WS-* support on Android (which natively supports HTTP calls) and the required use of external libraries was also mentioned as a decision factor as REST calls can be simply implemented only using the native HTTP libraries.
+
+\paragraph{For Business Applications}
+The results are much more inclined towards WS-* when considering \quote{business} applications. As shown in the third part of \figRef{programming-suitability}, the majority of our participants (52\%) would choose WS-* and 24\% for servicing business applications. Twenty-one (out of 69, see Table~\ref{tab:methodology}) justify their decision by the security needs of enterprise applications: \participantSaid{I would rely on the more secure WS-* technology}. Eighteen participants talk about the better described service contracts when using WS-*: \participantSaid{I propose WS-* because we could use WSDL and XSD to agree on a well-specified interface early on [...]}. Amongst the participants suggesting the use of REST, 10 justify their decision for its simplicity and 10 for its better scalability.
+
+\begin{figure}
+\imgMedium{wot/programming-suitability}
+\caption{Participants reported that it is better suited for Internet of Things applications, involving mobile and embedded devices.}
+\label{fig:programming-suitability}
+\end{figure}
+
+\section{Discussion and Summary}\label{devStudyConclusion}
+A central concern in the Internet of Things and thus in the \WoTLong{} is the interoperability between smart objects and existing standards and applications. Two service-oriented approaches are currently at the center of research and development: REST and WS-*. Decisions on which approach to adopt have important consequences for an IoT system and should be made carefully. In this section, we complement existing studies on performance metrics with an evaluation of the developers' preferences, and IoT programming experiences with REST and WS-*. Our results show that REST stands out as the favorite service architecture.
+Future studies should conduct a long-term assessment of the developers' experience, beyond the initial phase of getting started with the technologies. Furthermore, work could be done to compare the experience of advanced, not just novice developers, possibly within industry projects. However, the more experienced the developers are, the more they are likely to develop a bias towards one or the other technology.
+We summarize the decision criteria used by developers in our study and devise guidelines in \tableRef{guidelines}. 
+
+\begin{table}[h]
+\begin{center}
+  \begin{tabular}{ | p{5cm}  l  l  p{5cm} | }
+    \hline
+    \textbf{Requirement} & \textbf{REST} & \textbf{WS-*} & \textbf{Justification}\\
+    \hline
+    Mobile \& Embedded & + & - & Lightweight, IP/HTTP support\\
+\hline
+    Ease of use & ++ & - & Easy to learn\\
+\hline
+    Foster third-party adoption & ++ & - & Easy to prototype\\
+\hline
+    Scalability & ++ & + & Web mechanisms\\
+\hline
+    Web integration & +++ & + & Web is RESTful\\
+\hline
+    Business & + & ++ & QoS \& security\\
+\hline
+    Service contracts & + & ++ & WSDL\\
+\hline
+    Adv. security& - & +++ & WS-Security\\
+   \hline
+  \end{tabular}
+  \caption{Guidelines for choosing a service architecture for IoT platforms.}
+  \label{tab:guidelines}
+\end{center}
+\end{table}
+%Based on the results, in  we propose guidelines for making the right architectural decision when creating an IoT platform. 
+While our results confirm several other research projects that take a more performance-centric approach~\cite{Drytkiewicz2004-pREST,Yazar2009,Guinard2010-WoT}, they contradict several industry trends. In home and industrial automation, standards such as UPnP, DLNA or DPWS expose their services using WS-* standards. One of the reasons for this, also noted by participants, is the lack of formal service contracts (such as WSDL and SOAP) for RESTful services. This is an arguable point as Web experts~\cite{Richardson2007} already illustrated how a well-designed RESTful interface combined with HTTP content negotiation results in a service contract similar to what WS-* offers~\cite{Richardson2007,Kubert2011}, with no overhead and more adapted to services of \sts{}~\cite{Guinard2010-WoT}.
+Yet, this illustrates an important weakness of RESTful Web services identified by participants: RESTful Web services are a relatively \important{fuzzy} concept. Even if the basics of REST are very simple, the lack of a clear stakeholder managing \quote{standard} RESTful architectures is subject to many (wrong) interpretations of the concept. Until this is improved, resources such as~\cite{Fielding2000,Richardson2007} profile themselves as de-facto standards.
+
+In cases with strong security requirements, WS-* has a competitive advantage~\cite{Richardson2007,Kubert2011}. The WS-Security standard offers a greater number of options than HTTPS (TLS/SSL) such as encryption and authentication beyond the communication channel, endpoint-to-endpoint. In theory, these could also be implemented for RESTful Web services. However, the lack of standard HTTP support of these techniques would result in tight coupling between the secured things and their clients. Nevertheless, in the context of \sts{}, it is also important to realize that WS-Security standards are much more resource intensive than those of HTTPS and, thus, rarely fit resource-constrained devices.
+
+Furthermore it is important to consider \important{how accessible smart things should be}. Participants identified that RESTful Web services represent the most straightforward and simple way of achieving a global network of smart things because RESTful Web services seamlessly integrate with the Web. This goes along the lines of recent developments, such as 6LoWPAN and the IPSO alliance~\citeweb{ipso}, CoRE~\citeweb{core}, or the \WoTA{} presented in this thesis,
+where \sts{} are increasingly becoming part and leveraging the infrastructure of the Internet and the Web.
+
+Lastly, it is worth noting that while the decision of adopting a WS-* or RESTful architecture for a \sts{} platform is important, bridges between the two architectures can be created with some efforts~\cite{Engelke2010,Guinard2011a,Karnouskos2010}, for instance through the use of application layer gateways or \sgs{} drivers (see \sectRef{gateways}) as we suggested in~\cite{Guinard2010-Search}.

@@ -1,0 +1,257 @@
+\section{\shareLayer{}}\label{sharing}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{figures/wot/sharingLayer}
+\end{center}
+With the \devLayer{} of the \WoTA{} we ensure that digitally augmented everyday objects are seamlessly integrated to the Web. With the \findLayer{} we enable humans and applications to find the \st's services they look for directly from the Web and leveraging contextual information.
+
+% The success of Web as a service platform is closely dependent upon the trend for Web 2.0 services to provide access to some of their services through relatively simple and often REST-based open APIs on the Web. 
+
+Enabling this model for the \WoTLong{} requires a sharing mechanism for \sts{}, by allowing access to services offered by devices as Web resources. An implementation of the two previous layers fulfills this requirement as devices become openly available to the world directly from the Web and without restrictions. For example, one could share the energy consumption sensors in his house with the community. However, since these devices are part of our everyday lives, their unrestricted public sharing might result in serious privacy violations~\cite{Mazurek2010,Langheinrich2005}. In this section we propose a Web architecture that tackles these challenges.
+
+\subsection{Requirements for a \WoT{} Sharing Platform}
+HTTP already provides authentication mechanisms for securely sharing resources. The HTTP Basic Access Authentication~\cite{Franks1999} is a method that allows Web clients (and in particular Web browsers) to provide credentials (user names and passwords) when making an HTTP request on a server.  In practice, HTTP Basic Access Authentication~\cite{Franks1999} is coupled with SSL/TLS in order to make sure that the user names and passwords are not transmitted in clear text over the wire. HTTP Digest Authentication on the other hand, ensures that the credentials are always encrypted.
+
+While these two solutions are already available on (embedded) Web servers they present a number of drawbacks. First, when considering a large number of \sts{} it becomes quite unmanageable to create and share credentials for each of them and for each contact one wants to share with. Then, the credentials used in these systems are often impersonal and do not reflect any social or trust structures already in place. Then, as the shared resources are not advertised anywhere, sharing also requires the use of (unsecured) secondary channels such as sending emails containing credentials to people. Looking at pitfalls of the existing solutions we propose three requirements for a sharing platform for the \WoT{}:
+
+\begin{description}
+ \item[Security] The most basic requirement for a \WoT{} sharing platform is to be secure in order to make sure that access to \sts{} is not granted to attackers.
+ \item[Ease of Use] People are concerned with the security of their private data, for example in home environments~\cite{Mazurek2010}. However, it has been shown that the ease of use of a secure sharing system has a significant influence on its adoption and effective usage~\cite{Ion2010}. Hence, a \WoT{} sharing platform should be straightforward and easy to use. 
+ \item[Reflect existing trust models] The sharing platform should also reflect mental models users are already familiar with~\cite{Mazurek2010}. In particular it should as much as possible reflect the existing trust and social models of users. 
+ \item[Interoperability] In order not to hinder the benefits of adopting an interoperable Web architecture, as for the \devLayer{} and \findLayer{}, the protocols used by the sharing platforms should be interoperable with the Web and understood by most Web tools and clients. Furthermore, the sharing platform should not be bound to a specific social model but should be able to adapt to several systems. 
+ \item[Integrated Advertisement] A \WoT{} sharing platform should also support advertising the shared things directly on the Web. In order to reduce the load for users and improve security, sharing a \st{} and advertising the fact that it was shared should occur on the same channel without explicitly disclosing credentials.
+\end{description}
+
+First meant for creating groups of people and enabling communication amongst these groups, social networks rapidly evolved into data sharing hubs~\cite{Boyd2008}. Social networks make it very easy to share data (e.g., pictures) with groups of people such as family and friends~\cite{Miller2007}. The social network takes care of the authentication of these individuals and manages \important{access control lists} for the users' data.
+
+We propose leveraging social networks as sharing hubs for \sts{}. In the \shareLayer{} we introduce an architecture and its implementation in a platform that enables the selective sharing of \sts{}. It uses social networks and their social graphs already in place for sharing \sts{} with people relevant to \sts{} owners, creating a \important{Social Web of Things}. 
+
+Furthermore we illustrate how social networks can be used as service advertising platforms and how they support the implementation of the physical feeds aggregators components of the \WoTA{}.
+
+\subsection{Social Access Control: An Architecture for the Social Web of Things}\label{SAC}
+\begin{figure}
+\imgLine{wot/sac-fat-architecture}
+\caption{Simplified components architecture of the Social Access Controller. SAC serves as authentication proxy between clients and embedded devices. It holds the credentials for accessing \sts{} and provides access to selected trusted connections of the owners' social networks. It further offers an API upon which applications can be built.}
+\label{fig:componentArchitecture}
+\end{figure}
+A promising solution to the problem of sharing \sts{} is to leverage existing social structures and build upon social networks (e.g. Facebook, Linkedin, Twitter, etc.) and in particular their social graphs accessible through data access APIs (e.g., OpenSocial) and their authorization APIs (e.g., OAuth). 
+
+Using social networks enables users to share things with people they know and trust such as relatives, friends, colleagues, fellow researchers, etc. This is achieved without the need to recreate yet another social network or user database from scratch on a new online service. Additionally, it enables advertising and sharing through a unique channel: users can tell their friends about the sensors they shared with them by automatically posting messages to their profile or newsfeeds. 
+
+We propose a system to share things and facilitate access to real-world services offering a RESTful Web API.
+Our core contribution is a Web architecture and its implementation called \sacLong{}~\cite{Guinard2010-sharing,MathiasFischer2009} (\sac{}) which offers the following functionality:
+
+\begin{description}
+ \item[Authentication Proxy] A \sac{} identifies users based on existing credentials rather than requiring the creation of new, impersonal credentials for each \st{} or \sg{}.
+ \item[Authorization Proxy] A \sac{} is an authorization proxy that sits between clients and \sts{} and authorizes clients applications (e.g., browsers) to access the \sts{}.
+ \item[Access Control Manager] A \sac{} helps users to fine-tune the nature of interactions they want to allow for their objects (e.g., read-only, read-write, etc.) and manages access control based on existing social graphs.
+ \item[Advertisement Channel] A \sac{} can advertise shared \sts{} using the notification services of social networks such as user newsfeeds or walls.
+\end{description}
+
+Overall, the architecture enables owners of Web-enabled \sts{} to easily share them on the Web. Consider for example an smart meter that implements the \devLayer{}. Sharing the energy consumption recorded by all these smart meters on the Web, enables the creation of very interesting applications. For instance a mashup on a map can show the the consumption of each individual in a group of friends. Similarly, a Web-enabled Hi-Fi system can enable songs to be played remotely through a RESTful interface. Sharing it with close friends enables them to remotely play songs for you. You can also use the system to inform all your friends, on their favorite target device (e.g., mobile phone, laptop, TV, etc.) that you will be a little late. The global system architecture shown in \figRef{componentArchitecture} addresses these use-cases. It is composed of a central Web application, the \sac{} server, which creates the link between social networks and \sts{}. 
+
+In this section, we define \newterm{owners} as people owing or administrating \sts{} (e.g., a Web-enabled sensor node) and \newterm{trusted connections} as the people owners share their \sts{} with (e.g., friends, colleagues or relatives). It is worth noting, however, that owners and trusted connections can also be applications. 
+
+\subsection{Retrieving the Owners' Social Graphs}
+The process of sharing \sts{} with trusted connections occurs in three phases. In the first phase, the owner accesses the \sac{} server by logging in using one or several of his social networks credentials as shown in the step 1 of \figRef{sacRegisterShare}. Then, the owner's lists of trusted connections (i.e., social graphs) need to be retrieved using delegated authorization on the social networks as shown in step 2 of \figRef{sacRegisterShare}.
+
+
+\subsubsection{Leveraging Web Authorization Protocols: OAuth}
+As mentioned before a \sac{} is an authorization and authentication proxy between clients (e.g., Web browsers) and the \sts{}. Rather than maintaining its own database or list of trusted connections and credentials -- as it would be done with Basic or Digest HTTP Authentication -- it connects to a number of social networks to extract all potential users and groups one could share with. As a consequence owners need to be authenticated to their social networks and a \sac{} need to be authorized to retrieve lists of trusted connections.
+
+To achieve this first step, we use the OAuth 1.0 protocol~\cite{Eran2010-oauth}. OAuth is a delegated authorization protocol that enables users to allow client applications to access their data without revealing the users credentials~\cite{Allamaraju2010}. OAuth has the advantage of fulfilling our requirements for a \sacLong{}. First, it is supported by a vast majority of social networks. Secondly, as an open standard it is backed by a large community of developers and security experts and is being monitored for security breaches which makes it a rather secure option. Thirdly, it is built on top of HTTP and thus is well integrated to the Web and interoperable. Finally, since the user-facing part of the protocol is relying on the existing login systems of social networks, users are familiar with them and thus the system can be considered as relatively easy to use.
+\begin{figure}
+\imgHalf{wot/oauth-sac}
+\caption{Using OAuth for a \sac{} to retrieve an owners' trusted connections: 1) Click on social network button 2) RequestToken? 3) OK, RequestToken + RequestSecret 4) Redirect to social network with RequestToken 5) Login + Grant permission to SAC 6) OK, Redirect to SAC Server 7) Exchange RequestToken to AccessToken? 8) Owner login OK, AccessToken + AccessSecret 9) List of Friends? 10) AccessToken + ConsumerKey OK, List of Friends}
+\label{fig:oauth}
+\end{figure}
+%\todo{1: possibly provide a better figure...} 
+
+The OAuth protocol is based on a so called three-legged scheme because there are three parties involved in the protocol~\cite{Allamaraju2010}. The client, the service provider and a user. In the context of a \sac{}, the client is the \sac{} server, the user is the owner of a \st{} and the service providers are the social networks the owner has an account with. The communication to authenticate the user and authorize a \sac{} to access the trusted connections of the owner is shown in \figRef{oauth} and detailed here:
+
+\begin{enumerate}
+ \setcounter{enumi}{0}
+ \item The \sac{} server gets a \code{ConsumerKey} and \code{ConsumerSecret} from the social network.
+ \item The owner selects a social network by clicking on its corresponding button on the \sac{} server login page.
+ \item The \sac{} server asks the selected social network for a \code{RequestToken}.
+ \item The \code{RequestToken} is granted together with a \code{RequestSecret}.
+ \item The owner is redirected to the social network where he logs in and grants the permissions to the \sac{} server.
+ \item The login was successful and the owner is redirected to the \sac{} server.
+ \item The \sac{} server asks to exchange its \code{RequestToken} for an \code{AccessToken}.
+ \item Since the owner login was successful the \code{AccessToken} is granted by the social network.
+ \item The \sac{} server can now request owner related data from the social network.
+  \item The data is granted since the \sac{} has a valid \code{AccessToken} and \code{ConsumerKey}.
+\end{enumerate}
+
+\paragraph{Ensuring Statelessness}
+It is worth noting that in order to respect the constraint of Stateless Interactions of RESTful architecture described in \sectRef{deviceLayer}, a \sac{} should not store the access tokens and secrets given by the social networks upon successful authentication and authorization. Indeed, this ensures that requests to a \sac{} can be cached and proxied~\cite{Richardson2007}. Hence, the \sac{} requires clients to store this information. This is best achieved by storing it in the form of cookies~\cite{Kristol1997-cookies}. These cookies are then sent in the header of each subsequent request to a \sac{}. As a consequence, the transmission of this information should occur over an encrypted channel (e.g., HTTPS) as an attacker could use the unencrypted tokens to impersonate a user.
+
+However, an attacker could not use these tokens to compromise and use the user's social data. Indeed, access to the data is only granted to particular server application here, a \sac{} server. This is ensured through signing the request with an API secret key only known to the \sac{} server.
+
+
+
+\subsubsection{Leveraging Social Network APIs}
+OAuth is meant to authorize applications to access, on users' behalves, other applications such as social networks. However, the specification does not propose a standard way of accessing the social network data once authorized and authenticated, it does not standardize the reads/writes API of a social network. Nevertheless, providing an open Web API is one of the success factors of social networks themselves. Indeed, these APIs allow third-parties Web applications to be built using partial data extracted from the social networks and thus to enhance the functionality and value of the social networks. 
+
+\paragraph{OpenSocial}The OpenSocial~\cite{OpenSocial2010} specification was created to fulfill the need for standard social network APIs. It defines a common API for application to access data across several social networks. OpenSocial uses OAuth for authorizing an application to access the social network. Then, the access to the standard social API is using a REST or RPC architecture.
+
+When building a \sacLong{}, this type of standard is central as it enables to retrieve lists of trusted connections from any compliant social network and thus keeps to architecture open for integrating new and existing social networks. Once authorized to access the social data with OAuth, a \sac{} server has a standard way of accessing trusted connections. As an example, the OpenSocial RESTful API~\citeweb{OpenSocRESTSpec} call for downloading all the contacts of a user is a \code{GET} request on: \RESTURL{/people/{USER_ID}/@all}.
+
+Unfortunately, some major social networks such as Facebook or Twitter do not comply with OpenSocial. For these networks, proprietary APIs such as the Facebook (Connect) API have to be used. While similar to OpenSocial in terms of functionality, the APIs significantly differ, making it impossible to access the data of these networks in a uniform manner.
+
+Thus, we suggest for \sac{} servers to support access to social network data using a plugin architecture, enabling the support of both OpenSocial based and proprietary APIs. We further describe this plugin architecture in \sectRef{sac-architecture}.
+
+For each social network a user is currently logged in with, the \sac{} server uses the Web API of the social networks (through an OAuth authorization) and queries them for lists of friends and other connections as shown in \figRef{sacRegisterShare}. All these connections are then compiled into a global list of potential connections that the owner can share with.
+
+%\todo{3: Explain how a social network API works in a generic way}
+
+\subsection{Registering and Sharing \stsBig{} and \sgs{}}
+In the second phase of the sharing process, the owner registers the \sts{} and \sgs{} he owns.
+\begin{figure}
+\imgLine{wot/sac_fat_register_share}
+\caption{Process for registering and sharing a \st{} using a \sac{} server. The owner authenticates himself using a social network (1,2). He then provides his credentials to access the \st{} (3). The \st{} is crawled for resources (4) that the owner can share (5). The shared resources are advertised on social networks (6).}
+\label{fig:sacRegisterShare}
+\end{figure}
+The prerequisites for a \st{} to be shared with a \sac{} are based on a relaxed subset of the \devLayer{} presented in \sectRef{deviceLayer} that can be summarized as follow:
+\begin{itemize}
+ \item \textbf{Addressability:} All the shareable functions offered by \sts{} should be modeled as resources~\cite{Fielding2000} which are addressable and identified by resolvable URIs.
+ \item \textbf{Uniform Interface:} The actions available on resources should comply with the HTTP verbs (e.g., a \code{GET} on a resource retrieves a representation of that resource).
+ \item \textbf{Resource Description:} The embedded Web servers on \sts{} (or \sg{}) should support one of the service metadata description methods proposed in \sectRef{discoveryByCrawling}. It is worth noting that the only real requirement is to respect the \important{connectedness} constraint as the core information required to share \sts{} with a \sac{} can be obtained simply by crawling the RESTful Web API. Additional metadata can be used to provide owners and trusted connections with more detailed descriptions of the resources thus improving the system's usability.
+ \end{itemize}
+Additionally, to ensure that the \sts{} are secured, their direct access should be restricted as shown in the rightmost part of \figRef{componentArchitecture} using a standard HTTP method (e.g., HTTP Basic Authentication with SSL/TLS or HTTP Digest Authentication). If not provided \quote{out-of-the-box}, this can be done by setting up the Web server at the device level or at the gateway level to accept only authenticated HTTPS traffic and require credentials for any incoming request.  
+
+The actual registration and sharing process is depicted in \figRef{sacRegisterShare}. First, the owner logs in to one or more of his social networks using the \sac{} cross-network OAuth client. He can start registering the \sts{} and \sgs{} that belong to him and sharing them with the trusted connections retrieved by the \sac{} server (step 2 in \figRef{sacRegisterShare}). To do so, he provides the credentials to access a \st{} or the credentials of a \sg{} that manages several \sts{} as shown on step 3 of \figRef{sacRegisterShare}. 
+
+Using these credentials, the \sac{} server accesses the \sts{} and crawls them (step 4 of \figRef{sacRegisterShare}). This is done by using an \transService{} (see \sectRef{translationService}). Using this service, the \sac{} server is able to identify the available services and expose them for sharing in a user-friendly manner as show in \figRef{FAT-share}.
+
+The owner can then share the discovered services of \sts{} with trusted connections such as friends, relatives, or colleagues (step 5 of \figRef{sacRegisterShare}). He can either share complete \sts{} (e.g., a sensor node) or their sub-resources only (e.g., the temperature sensor of the sensor node only). Furthermore, he can choose to share resources in read-only (i.e., allowing the \code{GET} verb only) or read-write (i.e., giving access to all the available HTTP methods). \figRef{FAT-share} shows a user interface to share \sts{} implemented on top of a \sac{} server.  
+
+Finally, for each shared resource of a \st{}, the \sac{} server uses the corresponding social network messaging system to post a notification to the trusted connection the resource was shared with as shown in step 6 of \figRef{sacRegisterShare}. As for retrieving lists of trusted connections, this is done through the social network API. In the case of an OpenSocial compliant social network, this is done simply with a \code{POST} request on:
+\RESTURL{/messages/{USER-ID}}.
+
+In the case of other social networks, the \sac{} server has to use the proprietary API for sending notifications through the network. In our implementation, for Facebook, the \sac{} server publishes a message to the newsfeed of the trusted connection. In the case of Twitter it simply tweets a message to the trusted connection. Note that the posted message does not contain any credentials but a link pointing back to the \sac{} server where the data of the shared resource can be fetched by the trusted connection once authenticated.
+
+\subsection{Accessing Shared \stsBig{}}\label{sac-accessing}
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\linewidth]{figures/wot/sac-fat-access.png}
+\caption{Accessing shared objects using delegated authentication through the \sacLong{}. The trusted connection requests the shared resource's URI (1). If not logged in with the corresponding social network, the \sac{} server asks the trusted connection to login (2). The \sac{} server then access the \st{} and redirects the results to the trusted connection's client (3, 4).}
+\label{fig:sac-access}
+\end{figure}
+Once a trusted connection gets notified of the fact that resources of a \st{} were shared with him, he uses the provided URI to access it as shown in step 1 of \figRef{sac-access}.
+
+The shared URI points back to an instance of a \sac{}. When receiving the HTTP request, the \sac{} server prompts the trusted connection for log in if no cookie corresponding to a successful authentication on one of the \sac{} recognized social network is found. Indeed, just as \st{} owners need to be authenticated and to grant access to their social network data, trusted connections wanting to access the shared \sts{} need to get authenticated. Because it authorizes applications in the name of users, OAuth can also be used to authenticate trusted connections. However, as trusted connections simply use the system as a proxy there is no need for a complete delegated authorization process.
+
+In this case, the \sac{} server simply needs to confirm that the trusted connection is the person it pretends to be as shown in step 2 of \figRef{sac-access}. A simple, user-friendly manner to ensure this on the Web is through delegated authentication.
+
+\paragraph{Leveraging Delegated Authentication}
+A delegated authentication for a \sac{} presents two advantages. First, trusted connections do not need special credentials or a dedicated registration for accessing the shared resources, as they can use the credentials of any social network or service on the Web that supports delegated authentication. Second, the \sac{} does not need to hold profile information about the users (a user ID is enough) and can support several social networks for a single trusted connection. 
+
+OpenId is the dominating protocol for delegated authentication on the Web. Its core idea is to offer Web users a mechanism for transporting their identity from site to site, avoiding for them to have to go through a registration process for each site. Unlike OAuth, which is both a user authentication and an application authorization protocol, OpenId does not grant data access to the client Web site beyond a limited user profile.
+
+After the \sac{} server successfully confirmed the identity of the trusted connection using a delegated authentication client (OpenId or OAuth), it internally checks whether this person also has access to the requested resource. If it is the case the \sac{} server logs on the shared resource using the credentials provided by the owner when registering the resource. It then redirects the HTTP request of the trusted connection to the shared resource as shown in step 3 of \figRef{sac-access}. Finally, it redirects the result  directly to the HTTP client of the trusted connection (step 4), e.g., to a Web browser. 
+
+
+\subsection{Physical Feeds Aggregation}
+%Explain how we enable grouping and simple composition through the use of Atom
+%Explaing Twitter.
+%Talk about the way apps can use that.
+While direct access to a single device might be interesting for control scenarios, as for instance playing a song on a Hi-Fi system or turning off a device remotely, monitoring use-cases require a system that allows to group several events coming from \sts{} together and publish them to a messaging or feeds server on the Web.
+
+Thus, \sac{} provides a syndication mechanism that can be used to monitor several \sts{} at once. It consists of an \code{Updater} component which periodically polls the \sts{} for updates and sends the updates to a syndication server (e.g., an Atom server). \code{Updater}s can be parameterized by specifying the amount (number of characters or percentage of change) of content that should be changed in order to generate a new event. A regular expression which should be satisfied can also be specified. Finally, another regular expression can be used to reformat the content of the event before publishing it. The new events are then published by the \code{Publisher} components which are abstraction of Web publishing mechanisms. Similarly to the \code{NetworkConnector}s, \code{Publisher}s rely on an extensible architecture to be able to quickly add support for new services.  
+
+An example scenario for this system is a friend who can be informed when you leave work. By monitoring the energy consumption of your computer, a notification will be generated and transmitted when your computer is turned off. Another scenario is a friend who creates a simple physical mashup with Google Maps that shows friends available in the neighborhood. This mashup could be simply based on an Atom feed to which the \code{Publisher} Component sends update events whenever a friend leaves his workplace.
+
+
+%\todo{1: this should be described more, with examples, with screen-shots and it should be explained
+%as an additional component, that allows first level physical mashups. Tal about period, reg exp (see %page 17 of Mat. report)}
+
+
+\subsection{Software Architecture}\label{sac-architecture}
+\begin{figure}
+\imgMedium{wot/sac-components-archi}
+\caption{Overview of the \sac{} software architecture. At the core of the architecture, the \code{AuthenticationManager} is responsible for managing a list of the connected users. The \code{NetworkConnector}s are used to authenticate and authorize users with all supported social networks. The \code{GatewayManager} manages the \sgs{} and the \code{ProxyRedirector} fetches resources from the \sgs{} in the name of trusted connections. Finally, \code{Updater}s and \code{Publisher}s manage the feeds.}
+\label{fig:sac-archi}
+\end{figure}
+In this section, we present the software architecture of our \sac{} implementation, based on a Resource Oriented Architecture implemented using the Object Oriented paradigm. 
+
+Our architecture further uses the EJB (Enterprise Java Beans) patterns~\cite{Monson-Haefel2006} and thus is organized around a data model describing the actors, or entities of the system, managed by a number of managers implementing the business logic. We first present the data model and then the most important manager components.
+
+\paragraph{Data Model}
+A \sac{} server is implemented around a relatively small set of data classes, also called \code{Entities} in the Object Oriented terminology, that we briefly describe here. 
+
+\begin{description}
+  \item[Administrators and Gateways] The primary purpose of \sac{} is to enforce rules for accessing \WoT{} devices. Hence, the \code{Gateway}s data classes represent either actual \sgs{} or \sts{} since they both expose the same type of \devLayer{}. Owners of \sts{} i.e., users who registered the \sts{}, are called \code{Administrator}s.
+  
+  \item[Social Networks and Accounts] \code{SocialNetwork} entities represent social networks that can be used for authentication and authorization. These entities are linked to users through the \code{Account} classes. \code{Account} classes represent all the social network a user (owner or trusted connection) logged in successfully with using the \sac{} OAuth client.
+
+  \item[Resources and Shares] These entities represent the \sts{}. A \code{Resource} is a shareable functionality on a \st{} (e.g., the \code{temperature} resource of a sensor node). Once shared, a \code{Resource} is linked to a \code{Share} entity which is turn is linked to \code{Permission} entities representing whether the resource is shared in read-only or read-write mode.
+
+  \item[Publish Systems and Updater] \code{Publishsystem}s represent Web services where updates of a resource can be published. A \code{RegisteredFeed} is a scheduled periodic task that takes care of posting an update to a \code{PublishSystem} if the new state of the \code{Share} it monitors meets the specified conditions.
+\end{description} 
+
+The entities are stored and loaded through a \code{PersistenceLayer} as shown in \figRef{sac-archi} which is a simplified overview of the software architecture of our \sac{} implementation. Following the EJB patterns~\cite{Monson-Haefel2006}, entities are managed by a number of \code{Manager} components that can be seen in \figRef{sac-archi}.
+
+\paragraph{Business Logic} Just as \sts{} in the Web of Things are accessible through RESTful APIs, access to \sac{} functionality is done through a REST architecture. As shown in \figRef{sac-archi}, incoming HTTP requests reach the \code{ResourceRouter}. This component is based on a REST framework enclosing an HTTP 1.1 compliant Web server and is in charge of forwarding the incoming requests to the matching components which can be a resource, another router or a guard. A resource component simply corresponds to the implementation of a REST resource. Guards are used to protect sensitive components of the architecture and authorize their access only to authenticated and authorized requests.
+
+At the core of the platform lies the components which implement the business logic of the \sac{} and use the entities of our data model. We briefly describe the most important business logic components of the \sac{} architecture:
+
+\begin{figure}
+\imgLine{wot/sac-network-connectors}
+\caption{Simplified class diagram of the network connectors architecture of \sac{}. Thanks to the modular architecture new connectors can be easily added to the system.}
+\label{fig:sac-network-connectors}
+\end{figure}
+\begin{description}
+  \item[Proxies and Gateways Managers] The \code{ProxyRedirector} is a central component of \sac{} as it implements the access to shared \sts{} as described in \sectRef{sac-accessing}. The \code{ResourceRouter} redirects all requests from trusted connections to access \sts{} to the \code{ProxyRedirector}. The \code{ProxyRedirector} then adds the required credentials to the request and forwards it to the secured \sts{}. It finally returns the results back to the client of the trusted connection. When an owner shares a resource with a trusted connection he also, by default, allows access to all resources below the shared one. As a consequence, the \code{ProxyRedirector} must also parse the responses and replace all the absolute links (as well as \code{Location} headers) pointing directly to the \sts{} in order for them to point to the \sts{} proxy.
+
+  The \code{GatewayManager} is in charge of securely holding the credentials to access the \sts{} as well as discovering the services they provide. To do so, it either uses the internal \code{CrawlingModule} or uses an external \transService{} (see \sectRef{translationService}). 
+  
+  \item[Network Connectors] The \code{NetworkConnector}s are the \sac{} link to social networks: They encapsulate the necessary logic to login to a social networks using delegated authentication as well as to extract data from it using delegated authorization. While OAuth and OpenSocial compliant networks can be accessed using a generic Network Connector, other networks need dedicated connectors that understand their specific (non-standard) API. The \code{NetworkConnector} architecture of \sac{} is presented in \figRef{sac-network-connectors}. It features an abstract \code{NetworkConnector} which can be extended to created dedicated connectors with OAuth, OpenSocial support or with proprietary authentication and authorization protocols (e.g., \code{FacebookConnect}).
+ 
+  \item[Authentication Manager] The \code{AuthenticationManager} works between the proxies and the network connectors. It manages a list of the connected users and their respective social networks. As mentioned before, \sac{} does not store the access tokens and secrets returned by each social network. These are rather sent along by clients in the HTTP header of each request. As a consequence, the authentication manager is responsible for extracting the information from the cookie and using it on the corresponding \code{NetworkConnector} to ensure that the user is still authenticated.
+
+  \item[Updaters and Publishers] In order to enable the aggregation of physical feeds from shared \sts{}, \sac{} uses an \code{Updater} which is in charge of monitoring a resource and pushing their updates to a \code{Publisher}. As shown in \figRef{sac-publisher-archi}, \code{Publisher} is an abstract component that can be extended to support a concrete publishing mechanism. We implemented an \code{AtomPublisher} supporting any AtomPub compliant server and a \code{TwitterPublisher} to publish notifications through the Twitter service. 
+\end{description}
+\begin{figure}
+\imgHalf{wot/sac-publisher-archi}
+\caption{Simplified class diagram of the publishers architecture of \sac{}.}
+\label{fig:sac-publisher-archi}
+\end{figure}
+
+\paragraph{RESTful API}
+\begin{figure}
+\imgLine{wot/sac-api}
+\caption{Tree visualization of the \sac{} RESTful Web API.}
+\label{fig:sac-api}
+\end{figure}
+In order for applications to leverage it, a \sac{} server should implement a RESTful Web API. Our implementation of the \sac{} server offers an API that can be used to: share, add, manage, syndicate, and interact with shared \sts{}. This makes \sac{} an integral part of the \WoT{} since its API is accessible on the Web and can be used to further build applications. For example, a new Smart Gateway or \st{} can be added to \sac{} for sharing by sending a \code{POST} request to \url{/gateways} alongside with the data of the new element (URI, name, description, etc.) as payload.
+
+All the resources available in the API are shown in \figRef{sac-api}. Each resource can be delivered as an HTML, JSON or XML representation.
+
+\subsection{Friends and Things: A Social WoT Web Application}
+To exemplify how applications can be built on top of the implementation of \sac{}, we developed the Friends and Things (FAT) application. FAT is a Web application that allows users to share and use shared \sts{} in a user-friendly manner. FAT is written in JavaScript and HTML and uses the \sac{} RESTful Web API. It basically provides a user interface to access the main functionality of the \sac{} server. It helps owners to login with several social networks in parallel, lets them manage \sts{} and \sgs{} and share them with trusted connections (see \figRef{FAT-share}). Finally, it provides owners with usage statistics (see \sectRef{epcSharing} for a concrete example).
+\begin{figure}
+\imgLine{wot/fat-share}
+\caption{Screenshot of the FAT (Friends and Things) application built on top of \sac{}. The owner can select the \sts{} he wants to share with some of his trusted connections.}
+\label{fig:FAT-share}
+\end{figure}
+
+Furthermore, FAT helps trusted connections leveraging \sts{} that were shared with them. Upon login, trusted connections find a list of \sts{} that were shared with them. As shown in \figRef{FAT-invoke}, using the RESTful Invocation Tool, they can directly test all the authorized HTTP methods (e.g., \code{PUT}, \code{POST}, \code{GET}) and add HTTP payloads to their requests.
+\begin{figure}
+\imgLine{wot/fat-invoke.png}
+\caption{Using the RESTful Invocation Tool, a trusted connection can directly test all the HTTP methods available to him and add HTTP payloads.}
+\label{fig:FAT-invoke}
+\end{figure}
+Finally, trusted connections can create feeds combining different \sts{} that were shared with them and have these feeds automatically updated according to rules specified using regular expressions.
+
+
+%-------------------------------------------------------------------------
+\subsection{Summary and Applications}
+Bringing devices to the Web paves the way for a new breed of applications that seamlessly blend the physical world with existing services on the Web. \sac{} and FAT are simple examples of the possibilities revealed by Web-enabling physical objects.
+
+In this section we have presented a system for sharing and controlling access to resources in the \WoTLong{}. The core idea is to leverage existing online social structures rather than relying on closed databases of credentials. Thus, the \sac{} architecture provides a framework which builds upon fast growing social networks such as Facebook, Twitter or LinkedIn to allow users to share physical objects with actual friends, relatives or colleagues.
+
+\sac{} also provides a programmable basis upon which composite Web applications can built. Thanks to the RESTful API of \sac{}, physical mashups and other Web applications can use the \sac{} functionality to share and use shared \sts{}. To illustrate this we introduced the Friends and Things Web application which directly builds upon the API for our implementation of a \sac{} server.
+
+The architecture described in this section and its implementation are evaluated with Wireless Sensor Networks in \chapterRef{wsn} (see \sectRef{wsn-sharing}) where the overhead of using the architecture and its underlying protocol is assessed. Finally, it is used to share access to traces of RFID-tagged objects in \chapterRef{autoid} (see \sectRef{epcSharing}).
+
+\newpage

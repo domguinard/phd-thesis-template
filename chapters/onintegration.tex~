@@ -1,0 +1,22 @@
+\chapter{On Real-World Integration}
+
+  \section{Real-World Service Integration Paradigms}
+Talk about the two alternatives we extensively looked at: WS-* and REST.
+
+    \subsection{WS-*}
+    \subsection{REST}
+    \subsection{UpnP}
+    \subsection{A Web-Service Integration Infrastructure for the Real-World}
+    SOCRADES Integration Architecture~\cite{souza_socrades:_2008,guinard_tsc}.  In~\cite{dominique_guinard_are_2009} we implemented Web proxies for Smart Meters.
+
+  \section{Understanding Differences between Integration Models}
+Explain why we think that REST (and the WoT) is more adapted: because it's easier, because it leverages the web were current application developments migrate to...
+
+    \subsection{Qualitative}
+    Show that it is easier for people to use. Use the results of the Distributed Sys. lecture and the results of the evaluation of our open-source frameworks (RFID + energy).
+
+    \subsection{Quantitative}
+    Studies of~\cite{Guinard09} and~\cite{guinard_giving_2010}, and the work we did together with Simon.
+
+    \subsection{Federative Architecture}
+    Both fields (REST and WS-* for devices) are developing quite fast, we can build bridges: we proposed a system federating both RESTful and WS-* services for things in~\cite{guinard_interacting_2010}.

@@ -1,0 +1,19 @@
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="text">[Title of Aggregation]</title>
+		<author><name>[Name of the SmartGateway]</name></author>
+		<link href="[Parent]" rel="related" type="[Type of representation]"/>
+		<link href="[Child1]" rel="related" type="[Type of representation]"/>
+		<link href="[Child2]" rel="related" type="[Type of representation]"/>
+		<id>[uuid]</id>
+		<entry>
+			<title>[Content Description]</title>
+			<id>[Unique ID for this event]</id>
+			<author><name>[ID of the Smart Thing]</name></author>
+			<uri>[Root URI of the Smart Thing]</uri>
+			<published>[Date and time of event]</published>
+			<content type="[text|html|xml|...]"</content>
+		</entry>
+		<entry>
+			[...]		
+		</entry>
+</feed>

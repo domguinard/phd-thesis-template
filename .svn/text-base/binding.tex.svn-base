@@ -1,0 +1,15 @@
+\documentclass[a4paper,12pt,twoside]{scrbook} 
+\usepackage[margin=1.5cm]{geometry}
+\usepackage[T1]{fontenc} % use 'ec' fonts
+\usepackage[american]{babel} % last lang (american) default
+\usepackage{rotating}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+
+\begin{document}
+\begin{sideways}
+\sffamily
+\makebox[\textheight]{Dominique Guinard \hspace{20mm} A Web of Things Application Architecture -- Integrating the Real-World into the Web}
+\end{sideways}
+\end{document}

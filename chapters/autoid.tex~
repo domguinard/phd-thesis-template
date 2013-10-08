@@ -1,0 +1,529 @@
+\chapter{Resource-Oriented RFID Networks}\label{autoid}
+\minitoc
+
+
+In \chapterRef{wsn}, we introduced how wireless sensor networks and embedded computers can be integrated to the \WoTLong{}. In this chapter, we look at the integration of every-day objects through Auto-ID (Automatic IDentification)~\cite{O'Gorman1999}. Swartz identified 6 types of core Auto-ID techniques~\cite{Swartz1999}: one and two-dimensional barcodes, OCR (Optical Character Recognition), magnetic stripes, automatic speech identification and RFID (Radio Frequency IDentification). More recently, new techniques such as image recognition have been added to the available technologies~\cite{Quack2008,Hull2010}.
+
+Auto-ID technologies have long been used in ubiquitous computing to create a link between the physical and the digital world~\cite{Weiser1991}. As an example researchers have been using one dimensional~\cite{Adelmann2006} or two dimensional barcodes~\cite{Rohs2005,Broll2007a,Rukzio2007} to create a link between every-day objects and mobile phones.
+
+Amongst the Auto-ID technologies, RFID is particular since it allows to make every-day objects, that do not have intrinsic computing and communication capabilities, part of a wireless network. Moreover, in the EPC Network (Electronic Product Code)~\cite{Sarma2001}, tagged objects become part of an \important{Internet of Things}. Indeed, the RFID standards community has developed a number of wireless interfaces and software standards to provide interoperability across RFID deployments. The EPC Network is a set of standards~\citeweb{gs1archi} established by industrial key players as well as research institutions towards a uniform platform for tracking and discovering RFID tagged objects and goods~\cite{Florkemeier2005,Floerkemeier2010}. Fourteen standards are currently forming the EPC Network, addressing every step required from encoding data on RFID tags to reading them and sharing their traces.
+
+From an industrial and real-world view-point, the EPC Network is an ideal IoT system. Indeed, most of its components, from the tags to the IT backend, are standardized which should considerably facilitate deployments. However, the EPC Network, as many other IoT infrastructures~\cite{Riedel2010,Bungo2011}, is hard and expensive to deploy, maintain and develop upon. Hence, the adoption of the software standards within the EPC Network has been slower than projected (e.g.,~\cite{Linden2005}). Indeed, the deployment of RFID applications that implement the EPC Network standards often remains complex and cost-intensive mostly because they involve rather large and heterogeneous distributed systems. As a consequence, these systems are often only suitable for big corporations and large implementations and do not fit the limited resources of small to mid-size businesses and small scale applications both in terms of required skill-set and costs~\cite{Schmitt2008}. 
+
+While there is most likely no universal solution to these problems, the success of the Web in bringing complex, distributed and heterogeneous systems together through the use of simple design patterns appears as a viable approach to address these challenges. Hence, in this chapter, we design and implement a \WoTA{} for the EPC Network. We discuss the pain-points of RFID applications that have made deployments challenging and describe how they can be addressed using solutions inspired from the Web and the \WoTA{}. The resulting component architecture is shown in \figRef{epcCloud}. It basically offers a cloud infrastructure featuring a number of adapters that make standard EPC Network components integrated to the Web. On top of this infrastructure RFID applications can be easily created using standard Web languages and tools as shown in the leftmost part of \figRef{epcCloud}. This illustrates how, using RFID and leveraging our Web implementation of the EPC Network, objects without computing or communication capabilities can become part of the \WoTLong{} simply by attaching or embedding RFID tags into them.
+
+This chapter is based on work published in~\cite{Guinard2010d,Guinard2011,Guinard2011a,Muller2009} and is structured as follows. We begin by briefly describing the EPC Network, focusing on the standards that are especially important for our use-cases. We then look at three important pain points of EPC Network deployments. Then, for each pain point we propose a solution using the \WoTA{} and its components. First, we illustrate how cloud computing can foster the adoption of software implementations of the EPC standards. Then, we discuss how the \devLayer{} and a REST architecture can be used to enable an easy access to EPC information systems and RFID readers. Finally, we demonstrate how the \WoTA{} enables developers and end-users to create physical mashups using data and devices of the EPC Network.
+\begin{figure}
+\imgMedium{autoid/epc-cloud-new}
+\caption{Overview of the \epcCloud{} component architecture. Web components are added to the existing EPC Network components and packaged into virtual machines that can be deployed in public or private clouds. Web and mobile applications can be built on top of the new components' Web APIs.}
+\label{fig:epcCloud}
+\end{figure}
+
+\section{The EPC Network in a Nutshell}\label{epcNet}
+\begin{figure}
+\imgMedium{autoid/epc-net}
+\caption{Simplified overview of the EPC Network. The standards help tracking and tracing a product through its life-cycle.}
+\label{fig:epcNet}
+\end{figure}
+The EPC Network is an architectural framework for RFID applications based on 14 standards as show in \figRef{epcNetFw}. These standards are used by several actors at several steps of the product life-cycle as illustrated in \figRef{epcNet}. A comprehensive description of how these standards are put together to create a track and trace network is provided in~\cite{Floerkemeier2010} or~\cite{Traub2010}. Here, we focus on a short description of the most relevant standards in the context of this chapter.
+
+\subsection{Identifying EPC Numbers}
+The Tag Data Standard~\cite{TDS2010} defines what an EPC number is and how it is encoded on the tags themselves. An EPC is a world wide unique number. The TDS supports nine encoding schemes for EPC numbers and addresses compatibility issues between them. These encodings specify numbers of a size between 96 and 202 bits which means that they offer at least $2^{96}$ unique identifiers. As a consequence, rather than identifying a product class, like the common barcode standards (UPC and EAN-13) do, it can be used to identify the instance of a product. An EPC number basically encodes three types of information: the manufacturer, the product class and a serial number. As an example in the following tag (represented in its URI form):\\
+\RESTURL{urn:epc:id:gid:2808.64085.88828}\\
+\code{2808} is the manufacturer ID, \code{64085} represents the type of product and \code{88828} an instance of the product.
+
+EPC numbers can be potentially written onto any support. However, in the EPC Network, these number are commonly written on RFID tags, called EPC tags. The wireless communication used by these EPC tags is specified in the Tag Protocol standards. In particular the Class 1 Generation 2 UHF Air Interface Protocol Standard (also known as EPC Gen 2)~\cite{Traub2010} defines the current state of the art wireless protocol for tags to communicate over the 860 - 960 MHz frequency range. 
+
+\subsection{Standards for Capturing EPC Events}
+The LLRP (Low Level Reader Protocol) standard~\cite{LLRP2010} specifies how to communicate and configure standard RFID readers. Through the LLRP protocol clients can configure basic filtering and gather raw RFID data directly from the readers.
+
+On top of the LLRP protocol, the ALE (Application Level Events) standard~\cite{ALE2009} specifies an interface that can be used by applications to obtain processed EPC events. The ALE offers processing in terms of filtering and aggregation capabilities.
+
+On top of the ALE lies a custom components called Capturing Application~\cite{Traub2010}. Such an application has to be designed specifically for each deployment and basically maps the EPC events coming out of the ALE to events that are relevant in a business context, adding for instance the business steps or locations to events.
+
+\subsection{Sharing EPC Events}
+One of the primary goals of the EPC Network is to allow sharing observed EPC events. Thus, the network specifies a standardized server-side EPCIS~\cite{EPCIS-standard}, in charge of managing and offering access to traces of EPC events. Once added a business context by the Capturing Application, events are stored in an EPCIS together with contextual data. In particular, these data deliver information about:
+\begin{itemize}
+ \item The \important{what}: what tagged products (EPCs) were read.
+ \item The \important{when}: at what time the products were read.
+ \item The \important{where}: where the products were read, in terms of Business Location (e.g., \quote{Floor B}).
+ \item The \important{who}: what readers (Read Point) recorded this trace.
+ \item The \important{which}: what was the business context (Business Step) recording the trace (e.g., \quote{Shipping}).
+\end{itemize}
+
+The goal of the EPCIS is to store these data to allow creating a global network where participants can gain a shared view of these EPC traces. As such, the EPCIS deals with historical data, allowing, for example, participants in a supply chain to share the business data produced by their EPC-tagged objects.
+
+Technically speaking, a standard EPCIS is an application that offers three core features to client applications: 
+\begin{enumerate}
+\item First it offers a way to capture, i.e., persist, EPC events. 
+\item Then, it offers an interface to query for EPC events. 
+\item Finally, it allows to subscribe to queries so that client applications can be informed whenever the result of a query changes. 
+\end{enumerate}
+
+There exist several concrete implementations of EPCISs on the market. Most of them are delivered by big software vendors such as IBM or SAP. However, the Fosstrak~\cite{Floerkemeier2007,Floerkemeier2007a} project offers a comprehensive, Java-based, open-source implementation of the EPCIS standard.
+\begin{figure}
+\imgMedium{autoid/epc-net-stack}
+\caption{EPC Network Architectural framework composed of 14 standards (Source~\cite{Traub2010}).}
+\label{fig:epcNetFw}
+\end{figure}
+
+
+\section{A Cloud-Based Virtual Infrastructure for the EPC Network}\label{epcVirtualization}
+Bringing real-world data and \sts{} closer to the Web also facilitate the use of modern distributed architectures. In this section, we illustrate how virtualization and in particular cloud computing can grealty simplify the deployment and maintenance of standard-based RFID networks.
+
+\subsection{Pain-Point: Complex Backend Deployment and Maintenance}
+Real-world, industrial IoT systems often encompass several relatively complex standards and their respective implementation is often scattered amongst a number of different software components~\cite{Riedel2010,Bungo2011}. The EPC Network is no exception. Across all vendors of EPC Network stacks, the standards are implemented in several different software components often sold separately to form an \epcSoft{}. As an example the Fosstrak~\cite{Floerkemeier2007a} open-source project~\citeweb{fosstrak} is implementing most of the EPC standards and requires the installation of 9 different software components in order to be able to run a end-to-end use-case from RFID tags to an IT system. 
+
+Additionally, a full Fosstrak installation also requires a compatible Java SDK, Apache Maven, a full MySQL database and an Apache Tomcat server, summing up the number of required software components to 13. As a consequence, a full \epcSoft{} is rather complex to install and deploy and \important{often requires software experts}, which becomes problematic especially when considering businesses for which IT is not a core concern (e.g., actors of the supply chain) or smaller businesses. The complexity is further increased by the maintenance work required by a number of different components and their respective updates and patches cycles. Hence, deploying and \important{maintaining IoT systems is time consuming} and accounts for a greater part of the system's overall software costs similarly to other IT systems~\cite{Banker1993}.
+
+Furthermore, the software components often need to be deployed on application servers running on dedicated hardware. For the Fosstrak stack, a Java Application Server (or a least a servlet container such as Tomcat) is required and needs to be configured on a hardware server to handle the appropriate load and accesses. Similarly, the IoT embedded devices (e.g., RFID readers, sensor nodes, etc.) need to be deployed, maintained and configured. This induces \textit{significant hardware costs and the need for hardware experts}.
+
+\subsection{Virtualization Blueprint} 
+Reducing complex software installation is one value propositions~\cite{Kroeker2009} of virtualization platforms such as VMWare~\citeweb{vmware} or the open-source Virtual Box~\citeweb{virtualbox}. With these platforms, software stack can be installed once in a virtualized OS (operating system) called virtual machine or guest OS, and then shared to be deployed within minutes on any supported host machine running the virtualization platform. This significantly reduces the installation costs and required-skills.
+
+In the IoT space, this benefit has been identified and is increasingly used in platforms such as the Instant Contiki virtual machine~\citeweb{contiki} which offers a complete development environment for WSNs (Wireless Sensor and Actuator Networks) ready to use within minutes~\cite{Rodrigues2010}. However, the EPC Network still lacks such solutions. Hence, we virtualized an \epcSoft{}. The \epcDevVM{} combines a Linux Ubuntu Operating System, with an Eclipse IDE (Integrated Development Environment), a source repository (Maven), as well as an Apache Tomcat container in which we deployed and configured the 9 remaining software components of Fosstrak. This means that the virtual machine can be used both as a development environment or as as a test server instance of the \epcSoft{} if installed on an appropriate server machine. 
+
+This cuts down the installation time of a full EPC software stack from several hours or days to a few minutes. It further fosters quick evaluation of a complete \epcSoft{} which can be of great help when assessing different implementations, developing proof of concept prototypes or enhancements of the EPC software stack.
+
+\subsection{Cloud Computing: Utility Computing Blueprint} 
+While Virtualization significantly reduces the installation time, it does not solve the other issues of IoT deployments: software and hardware maintenance costs. However, recent developments in the Web 2.0 and especially the trend towards providing services on the Web rather than simply Web-pages, have materialized into a convergence of virtualization technologies and the distributed Web, leading to Cloud Computing.
+
+Cloud Computing can take several forms under the umbrella of two big groups. \newterm{Private Clouds} are basically virtualized environments running locally as described in the previous section. \newterm{Public Clouds} are, on the other hand, virtualized environments running on remote machines. A Public Cloud can take many forms~\cite{Zhang2010}, in its \newterm{Utility Computing} form it basically proposes to further push the notion of virtualization by making the hardware on which virtual machines run available as a virtual resource pool fully accessible, on-demand, on the Web. Amazon Web Services (AWS)~\citeweb{amazonws} pioneered the space of Utility Computing followed by many others such as IBM, Microsoft, Rackspace and VMWare. 
+
+Recently, Cloud Computing has been increasingly used in conjunction with WSNs~\cite{Bungo2011} as a way to reduce operative complexity. One of the important benefits of Cloud Computing is the fact that it allows businesses with limited resources (both financial and in terms of staff) to run an IT infrastructure corresponding to their needs and scale~\cite{Stanoevska-Slabeva2010}.
+
+We experimentally applied the Utility Computing blueprint to the \epcSoft{} using the AWS platform and in particular the EC2 service. Amazon EC2 allows the creation and management of virtual machines (Amazon Machine Images, or AMIs) that can then be deployed on demand onto a pool of machines hosted, managed and configured by Amazon. We created a server-side AMI called  \epcCloudAppli{}, based on Linux Ubuntu Public Cloud edition~\citeweb{cloudubuntu} and containing the 13 software components required by a full installation of Fosstrak as well as the three additional Web adapters we designed and will present in the following sections. A component view of the full appliance is shown in the upper-right part of \figRef{epcCloud}.
+
+This concretely means that any company or research institution willing to deploy an \epcSoft{} can simply log onto AWS, look for the \epcCloud{} AMI and select the type and number of remote servers it should be deployed on. Once the virtual servers are running (which typically takes less than 5 minutes), an RFID reader can be connected. If the reader does not offer a Web-management interface or a default configuration, the Fosstrak LLRP Commander and its Eclipse-based UI are available in the \epcDevVM{} and can be used for configuring it. Then, the readers are described by accessing the configuration offered in the Web UI of the \epcCloudAppli{}. Once this is done, the cloud instance will contact the reader and start recording the EPC events.
+
+A direct benefit of the approach is that the server-side hardware maintenance is delegated to the cloud provider which is often more cost-efficient for smaller businesses~\cite{Zhang2010}. Furthermore it also offers better scaling capabilities as the company using the \epcCloud{} AMI can deploy additional and more powerful instances within a few clicks from the Web front-end (or Web API) of AWS and will be charged only for the resources it actually uses.
+
+
+\section{\devLayer{}}\label{epcAccess}
+In this section we illustrate how the architecture and patterns proposed in the \devLayer{} can be applied to the EPC Network and explain how this approach helps reducing the complexity of developing applications on top of the EPC Network.
+
+\subsection{Pain-Point: Complicated Applications Developments}
+The idea behind most commercial IoT deployments is the integration of real-world data to business systems or end-consumer applications. This requires to interface existing or new applications with the IoT infrastructure. Thanks to the recent advent of smart phones, companies are also increasingly willing to create mobile applications using IoT deployments.
+
+In the case of the EPC network, the application integration point is the EPCIS standard. While the EPCIS provides a simple and lightweight HTTP interface for recording EPC events, its query interface is a standardized WS-* interface. In \sectRef{alternatives} we discussed and evaluated the importance of creating simples and easy to use APIs in order to foster public innovation. We concluded that WS-* applications have advantages such as sophisticated security features but are also complex systems with high entry barriers and require developer expertise in the domain which is often an issue when considering small to mid-size businesses~\cite{Schmitt2008}. Moreover, we showed that WS-* are often not well adapted to more light-weight and ad-hoc application scenarios such as mobile or Web applications.
+
+This currently limits the scope of applications that can be built using EPC data. Indeed, track and trace applications are also relevant beyond the desktop. As an example, providing an out-of-the-box mobile access to EPC events is beneficial for many users such as mobile workers. Similarly, providing direct access to RFID traces to sensor and actuator networks enables those to react to RFID events. Finally, allowing light-weight Web applications (e.g., HTML, JavaScript, PHP, etc.) to directly access these data would enable the vast community of Web developers to create innovative applications using RFID traces. 
+
+To enable this type of applications, we propose to transform the EPC Network into a RESTful architecture and further introduce the notion of real-time Web, as described in the \devLayer{} of the \WoTA{}. We first propose a RESTful architecture that offers a Web API complementing the standard WS-* interface of the EPCIS. Finally, we illustrate how the real-time Web can be used to push RFID events from RFID readers to the Web.
+
+
+\subsection{EPCIS Webadapter}\label{EPCISWebadapter}
+In this section we describe the core architecture supporting a large-scale Web-enabling of the EPCIS features taking a top-down approach~\cite{Guinard2010d}.
+
+\subsubsection{System Architecture}
+As mentioned before, in the EPCIS standard, most features are accessible through a WS-* interface. To specify the architecture of the \epcisWA{} we systematically took the WS-* features listed in the standard \cite{EPCIS-standard} and applied the properties of Resource Oriented Architectures as described in the \devLayer{}.
+
+\paragraph{Addressability and Connectedness} \label{epcis-addressability}
+We first \important{identify the resources} an EPCIS should be composed of, i.e., we identify the actors of the system which are worth being uniquely addressed and linked to. We then make them \important{addressable} and inter-link the resources. 
+
+Looking at the EPCIS standard, we can extract a dozen resources. We focus here on the four main types:
+\begin{enumerate}
+ \item Locations (called \newterm{Business locations} in the EPCIS standard): those are locations where events can occur, e.g.,:\quote{C Floor, Building B72}. 
+ \item Readers, called \newterm{ReadPoints} in the standard: which are RFID readers registered in the EPCIS. Just as Business Locations, readers are usually represented as URIs: e.g., \RESTURLInLine{urn:br:maxhavelaar:natal:shipyear:incoming} but can also be represented using free-form strings, e.g.,: \newterm{Reader Store Checkout}
+ \item Events: which are observations of RFID tags, at a Business Location by a specific reader at a particular time.
+ \item EPCs: which are Electronic Product Codes identifying products (e.g.,~\RESTURLInLine{urn:epc:id:sgtin:618018.820712.2001}), types of products (e.g.,~\RESTURLInLine{urn:epc:id:sgtin:618018.820712.*}) or companies (e.g.,~\RESTURLInLine{urn:epc:id:sgtin:618018.*}).
+\end{enumerate}
+
+We first define a hierarchical clustering of resources based on the following URI template:\\ \RESTURL{/location/{businessLocation}/reader/{readPoint}/time/{eventTime}/event}.\\
+More concretely, this means that the users begin by accessing the Location resources. Accessing the URI \RESTURLInLine{/location} with the \code{GET} method retrieves a list of all Locations currently registered in the EPCIS. From there, clients can navigate to a particular Location where they will find a list of all Readers at this place. From the Readers clients get access to Time resources which root is listing all the Times at which Events occurred. By selecting a Time the client finally accesses a list of Events.
+
+Each event contains information like its type, event time, Business Location, EPCs, etc. If a client is only interested about one specific field of an Event, he can get this information by adding the desired information name as sub-path of the Event URI. For example \RESTURLInLine{<EVENT-URI>/epcs} lists only all the EPCs that were part of that Event. The resulting tree structure is shown in Figure \ref{fig:tree}, and a sample Event in \figRef{eventqueryrepresentationhtml}.
+\begin{figure}
+\imgLine{autoid/epcis-resources}
+\caption{Hierarchical representation of the most important browsable EPCIS resources.}
+\label{fig:tree}
+\end{figure}
+
+Furthermore, to fulfill the connectedness constraint of REST architectures, all resources should be discoverable by browsing to facilitate the integration with the Web. Just as one can browse Web pages, one should be able to find RFID tagged objects and their traces by browsing. Each representation of resources should contain links to relevant resources such as parents, descendants or simply related resources.
+
+Hence, to ensure the connectedness of the \epcisWA{}, each resource in the tree links to the resources below or to related resources. The links allow users to browse completely through the \epcisWA{} where links act as the motor. Every available action is deduced by the set of links included. This way, people can directly explore the EPCIS from any Web browser, simply by clicking on hyperlinks and without requiring any prior knowledge of the EPCIS standard.
+
+To ensure that the browsable EPCIS interface does not become too complicated, we limit the number of available resources and parameters. For more complex queries we provide a second interface for which we map the EPCIS WS-* query interface to uniquely identifiable URIs. Each query parameter can be encoded and combined as a URI query parameter according to the following template \RESTURL{/eventquery/result?param1=value1&...&paramN=valueN}.
+Query parameters restrict the deduced result set of matching RFID events. The \epcisWA{} supports the building of such URIs with the help of an HTML form. If for example a product manager from Max Havelaar is interested in the events that were produced in Palmas, the following URI lists all events that occurred at this business location: \RESTURL{/eventquery/result?location=urn:br:maxhavelaar:palmas:productionsite}. 
+To further limit possibly very long search results, the query URI can be more specific. The manager might be interested only about what happened on that production site on December 18\textsuperscript{th} 2011, which corresponds to the following URI: \RESTURL{/eventquery/result?location=urn:br:maxhavelaar:palmas:productionsite&time=2009-11-04T00:00:00.000Z,2011-18-12T23:59:59.000Z} \figRef{eventqueryrepresentationhtml} illustrates the HTML representation of this resource.
+
+To keep the full connectedness of the \epcisWA{}, both the browsable and the query interface are inter-linked. For example, the EPC\\ \RESTURL{urn:epc:id:sgtin:0057000.123430.2025}\\
+included in the event of Figure~\ref{fig:eventqueryrepresentationhtml}, is also a link to the query which asks the EPCIS for all events that contain this EPC.
+
+By implementing the addressability property we allow greater interaction with EPCIS data on the Web. As an example, since queries are now encapsulated in URIs, we can simply bookmark them, exchange them in emails and consume them from JavaScript applications. Furthermore, by implementing the connectedness property we enable users to discover the EPCIS content in a simple but yet powerful manner. 
+
+\paragraph{Uniform Interface}
+Finally, in a ROA, the resources and their services should be accessible using a standard interface defining the mechanisms of interaction. We particularly focus on two aspects of the uniform interface here: the representation of resources, and the communication of errors. 
+
+\subparagraph{Multiple Representation Formats}
+\begin{figure}
+\imgLine{autoid/webadapter-html}
+\caption{HTML representation of an EPC event as rendered by a Web browser. Every entry is also a link to the sub-resources.}
+\label{fig:eventqueryrepresentationhtml}
+\end{figure}
+A resource is representation agnostic and hence should offer several representations. The \epcisWA{} supports multiple output formats to represent a resource. Each resource first offers an HTML representation as shown in \figRef{eventqueryrepresentationhtml} which is used by default for Web browser clients.
+
+In addition to the HTML representation, each resource has also an XML and a JSON representation, which all contain the same information. The XML representation complies with the EPCIS standard and is intended to be used mainly for business integration. The JSON representation can be directly translated to JavaScript objects and is thus intended for mashups, mobile applications or embedded computers.
+
+As introduced in the \devLayer{}, the choice of what representation to use is left to clients who can request it through the HTTP \newterm{content negotiation} mechanism. Since content negotiation is built into the uniform interface, clients and servers have agreed-upon ways to exchange information about available resource representations, and the negotiation allows clients and servers to choose the representation that is the best fit for a given scenario.
+
+A typical content-negotiation interaction with the \epcisWA{} looks as follows: the client begins with a \code{GET} request on \code{http://.../location}. It also sets the \code{Accept} header of the HTTP request to a weighted list of media types it can understand, for example to: \code{application/json}, \code{application/xml;q=0.5}. The \epcisWA{} then tries to serve the best possible format it knows about and describes it in the \code{Content-Type} of the HTTP response. In this case it will serve the results in the JSON format as the client prefers it over XML (q=0.5).
+
+Representations are also a very straightforward and powerful way of providing variations of formats that are adapted to the clients' platforms. As an example, \figRef{webadapter-iui} is the HTML Web page a mobile user of the \epcisWA{} is served. Although it has the look and feel of a native mobile application, it is actually a simple HTML Web page featuring special CSS style-sheets and JavaScript code (based on the iUI framework~\citeweb{iui}) that dynamically adapts the content to fit the form factor and interaction paradigms of a mobile phone.
+
+When a client negotiates an HTML representation, the \epcisWA{} also detects whether the client should be served an HTML representation adapted to a mobile screen or simply to a desktop screen. For this, it uses the \code{User-Agent} standard HTTP header which contains a string describing the browser (or any other client) that was used for the request. 
+\begin{figure}
+\imgSmall{autoid/webadapter-iui}
+\caption{Customized HTML representation of an EPC event as appearing in the mobile Web browser of an Android Mobile phone.}
+\label{fig:webadapter-iui}
+\end{figure}
+
+\subparagraph{Error Codes}
+The EPCIS standard~\cite{EPCIS-standard} defines a number of exceptions that can occur while interacting with an EPCIS. HTTP offers a standard and universal way of communicating errors to clients by means of \newterm{status codes}. Thus, to enable clients and especially applications to make use of the exceptions defined in the EPCIS specification, the \epcisWA{} maps the exceptions to HTTP status codes. As an example, the EPCIS exception: \code{SecurityException} is mapped to the HTTP status code: \code{401}, which semantics is \code{Unauthorized}, and returned to the client alongside with a message that describes what happened in a user-friendly textual way. \tableRef{epcis-error-mapping} provides an overview of the exceptions to status-codes mappings.
+
+\begin{center}
+    \begin{table}
+    \centering
+    \begin{tabular}{ | l | l | p{4.0cm} |}
+    \hline
+    \textbf{EPCIS Standard Exception} & \textbf{HTTP Status Code} & \textbf{HTTP Semantics} \\ \hline
+    \code{SecurityException} & 401 & Unauthorized\\ \hline
+    \code{QueryParameter} & 400 & Bad request\\ \hline
+    \code{QueryTooLarge} & 400 & Bad request\\ \hline
+    \code{QueryTooComplex} & 400 & Bad request\\ \hline
+    \code{InvalidURI} & 416 & Requested range not satisfiable\\ \hline
+    \code{SubscriptionControls} & 400 & Bad request\\ \hline
+    \code{NoSuchName} & 400 & Bad request \\ \hline
+    \code{NoSuchSubscription} & 400 & Bad request \\ \hline
+    \code{DuplicateSubscription} & 409 & Conflict \\ \hline
+    \code{SubscribeNotPermitted} & 401 & Unauthorized \\ \hline
+    \code{ImplementationException} & 501 & Not Implemented \\ \hline
+    \end{tabular}
+    \caption{Mapping EPCIS standard exceptions to standard HTTP status code. All other exceptions are mapped to \newterm{500: Internal Server Error}.}
+    \label{tab:epcis-error-mapping}
+    \end{table}
+\end{center}
+
+
+\subsubsection{Web-Enabling the Subscriptions}\label{rfidAtom}
+%\todo{1: add an example of Atom data, use screen shot and data in folder}
+As mentioned before, standard EPCISs also offers an interface to subscribe to RFID events. Through a WS-* operation, clients can send a query along with an endpoint (i.e., a URI) and subscribe for updates. Every time the result of the query changes, an XML packet containing the new results is sent to the endpoint. While this mechanism is practical, it requires for clients to run a server with a tailored Web applications that listens to the endpoint and thus cannot be used by all users or cannot be directly integrated to a Web browser. To improve this, the \epcisWA{} offers a RESTful subscription interface and a Web feed of the updates.
+
+For this, in the \devLayer{}, we suggested the use of the Atom Syndication Format. Hence, in the \epcisWA{}, we propose an alternative interface for subscribing to RFID events using Atom as shown in the leftmost side of \figRef{restfulepcisarchitecture}. This way, end-users can formulate queries by browsing the \epcisWA{} and get updates in the Atom format which most browsers can understand and directly subscribe to. As an example a product manager can create a feed in order to be automatically notified in his browser or any feed reader whenever one of his products is ready to be shipped from the warehouse. More concretely, this results in sending an HTTP \code{PUT} request to  \RESTURL{/eventquery/subscription?reader=urn:ch:migros:stgallen:warehouse:expedition&epc=urn:epc:id:sgtin:0057000.123430.*}, or, for a human client, clicking on the \important{subscribe} link present at the top of each HTML representation of query results. A product manager can then use the URI of the feed in order to send it to his most important customers for them to follow the goods progress as well. A simple but very useful interaction which would require a dedicated client to be developed and installed by each customer in the case of the WS-* based EPCIS.
+
+\subsubsection{From WS-* to REST: Integration Architecture}
+There are two ways of adding RESTful capabilities to a WS-* system. First, the RESTful architecture can be directly woven into the existing WS-* system. This may seems like a trivial solution at first, however the implementation of this solution is not entirely straightforward. While sharing a common goal, WS-* and REST are rooted on very different paradigms. Thus, cleanly weaving a REST architecture into the core of the WS-* system quite often requires the implementation of an alternate data model~\cite{Guinard2011a}. Having two data models for the same services ends up in architectures that are complex to maintain and evolve.
+
+\paragraph*{Smart Gateway}
+An alternative integration pattern is to implement the concept of Smart Gateways presented in the \devLayer{} of the \WoTA{}. In this case, a Smart Gateway is a software module that implements an external REST adapter making use of the WS-* interface. In this integration architecture, the Smart Gateway is used to translate RESTful requests into WS-* requests. 
+
+This allows for a cleaner, REST centric architecture and preserves the legacy WS-* system entirely intact. On the downside it hinders the performances of the RESTful Web API but the overhead can be minimized to a level acceptable for most applications as we will show in \sectRef{rfidEval}.
+
+\begin{figure}
+\imgLine{autoid/webadapter-archi}
+\caption{Architecture of the \epcisWA{} based on the Jersey RESTful framework and deployed on top of the Fosstrak EPCIS.}
+\label{fig:restfulepcisarchitecture}
+\end{figure}
+For the \epcisWA{}, we create an independent dedicated Smart Gateway, as it delivers a clear advantage in this case: it allows the \epcisWA{} to work on top of any standard EPCIS implementation.
+
+The resulting architecture is shown in \figRef{restfulepcisarchitecture}. The \epcisWA{} is a module which core is using the EPCIS WS-* standard interface. Just as a Smart Gateway, it translates the incoming RESTful request into WS-* requests and returns results complying with the constraints of RESTful architectures. As shown on the left of the picture, the typical clients of the \epcisWA{} are different from the business applications traditionally connected to the EPCIS. The browser is the most prevalent of these clients. It can either directly access the data by browsing URIs or indirectly using scripting languages in Web pages.
+
+\subsubsection{Software Implementation}
+As shown in \figRef{restfulepcisarchitecture}, the core of the \epcisWA{} is based on the Jersey~\citeweb{jersey} framework. Jersey is a software framework for building RESTful applications. It is especially interesting since it complies with the JAX-RS~\citeweb{jax-rs} (JSR 311) standard for building RESTful Web services.
+
+Jersey is responsible for managing the resources' representations and  dispatching HTTP requests to the right resource depending on the request URI. When correctly dispatched to the \epcisWA{} Core, every request on the querying or browsing interface is translated to a WS-* request on the EPCIS. This makes the \epcisWA{} entirely decoupled from any particular implementation of an EPCIS. However, for our tests we used the Fosstrak EPCIS.
+
+For the subscription interface we use Apache Abdera~\citeweb{abdera}, an open-source implementation of an Atom-Pub server. Thus, every time a client subscribes to a query, the \epcisWA{} checks whether this feed already exists by checking the query parameters, in any order. If it is not the case it creates a query on the WS-* EPCIS and specifies the address of the newly created feed. As a consequence every update of the query is directly \code{POST}ed to the feed resource which creates a new entry using Abdera and stores it in an embedded SQLite database.
+
+The \epcisWA{} core is packaged in a WAR (Web Application Archive) alongside with Jersey, Abdera and SQLite. As a consequence, like the Fosstrak EPCIS, it can be deployed to any Java compliant Web or Application Server. We tested it on both Glassfish~\citeweb{glassfish} and Apache Tomcat~\citeweb{tomcat}.
+
+\subsection{Pushing from Readers to Web Clients}
+The second RESTful API meets the need for mobile or Web clients to access the raw data directly pushed by RFID readers through the LLRP and ALE protocols. The challenge here is that Web was mainly designed as a client-pull architecture, where clients can explicitly request (pull) data and receive it as a response. This make the implementation of uses-cases where near real-time communication is required sub-optimal.  As an example, a typical use-case is to push events that are being recorded by an RFID reader directly to a mobile browser application for monitoring purposes (see \sectRef{tagpusher} for an implementation of this use-case).
+
+For the EPC Network, we created two components as shown in \figRef{epcCloud}. The \captureWA{} acts as a multiplexer. It is a modular Web application which gets events from the ALE and redirects them to a number of RESTful Services (e.g., to the \epcisWA{}) for further processing. The services the application sends the events to can be configured through a RESTful interface on the Web as well, which allows to flexibly decide where RFID events should be routed to. 
+
+The second component is based on \tpusher{} as presented in \sectRef{push}, which combines a RESTful API with a WebSocket and Comet server. Using a RESTful API, clients can subscribe to RFID event notifications for a particular reader by sending a \code{POST} request to a URI such as: \RESTURL{/t-pusher/reader/<READER-ID>}. This initiates a WebSocket connection with the server on which RFID events recorded by \code{READER-ID} will be pushed through the \captureWA{}.
+
+\subsection{Case-Study: EPC Find}\label{epcFind}
+To illustrate how implementing a \devLayer{} for the EPC Network unveils new applications we describe and implement a mobile infrastructure on top of the \epcisWA{} as presented in~\cite{Guinard2008}. The proposed infrastructure can be used to track and trace belongings.
+
+\subsubsection{Motivation}
+Losing something of great emotional or intrinsic (money or data!) value is often a shock. In this kind of situations we currently rely on lost property offices implemented and run by the travel business (airlines, train companies, coach services, etc.) or governmental organizations. In~\cite{Maeder2007} it was identified that more than 400'000 items were lost in Switzerland in 2006. Amongst these less than 40\% were recovered. 
+In an era of high mobility, the solutions we rely on suffer from a number of problems. On the one hand, they lack dynamic information and compatibilities amongst the systems; on the other hand, they involve many intermediates and have high costs and no revenues for the institutions running them.
+
+As for a number of systems, the existence of intermediates in the traditional approach decreases the efficiency and increases the costs. This fact was confirmed by interviews with experts at the
+Swiss National Railways (SBB), which run a large share of the Swiss lost property offices. Ideally, when Alice finds Bob's laptop, she should be able to report it directly to Bob. Of course this approach is not new and people have been enabling this direct link for years using address tags providing contact details. This idea is rather straightforward however, we identify three main problems:
+\begin{enumerate}
+ \item It reveals the owner's identity to everyone able to read the tag.
+ \item It requires manual updates: every time you change your address you need to change every name tag.
+ \item It denatures the object you tag by adding a relatively big label to it.
+ \item Besides his goodwill, there is no true incentive for the finder to return the found object.
+\end{enumerate}
+
+Hence, the traditional approach to retrieve lost items can be enhanced by reducing the intermediates making it a more community-oriented process where finders are directly linked to owners. This improves the chances of recovery, simplifies the system and lowers costs. Combined with the use of mobile phones, RFID tags and EPC events, this can improve the dynamic information available to the owner of a lost item. For example, a consultant can know whether he simply left his laptop at home or whether it is lost and the incident needs to be reported to his company. 
+
+In our lost and found system, called EPCFind, we propose the prototype of a network for personal objects, that builds upon the \epcisWA{}. 
+
+\subsubsection{Concept}
+With this prototype users interact using mobile devices to help them tracing and recovering users' belongings while on the run. In more concrete terms, with the \important{Distributed Tracing} approach, we can help an owner (Bob) getting dynamic information about where laptop might be located and in the \important{Community-Based Reporting} we help the finder (Alice) easily reporting the recovery of Bob's laptop while being on the move and without the need for intermediates.
+\begin{figure}
+\imgLine{autoid/epc-find-finder}
+\caption{Mobile user interface of the owner. The screens offer: a list of the owner's belongings, the traces of the objects in the forms of EPC events, location details of the EPC events.}
+\label{fig:epc-find-finder}
+\end{figure}
+
+\paragraph{Community-Based Reporting} We propose to support a community of mobile phone users, which are able to communicate directly with the owners whenever they find an object. For this purpose, we use the EPCFind mobile software and wireless technologies. When Alice finds Bob's laptop, she can easily and quickly report the recovery by scanning the tag on the object. In order to do so, she uses the Report application of EPCFind, which connects to a central server and finds out about the object's owner. If Alice accepts it, the mobile application creates a trace of the recovery and reports it to Bob. Note that the system does not have to reveal Bob's identity. Instead, Bob uses the application shown in \figRef{epc-find-finder} to directly contact Alice and arranges a way of sending the laptop back.
+
+\paragraph{Distributed Track and Trace}
+Community-based reporting fulfills the need for eliminating intermediates and eases the reporting process: Alice does not need to find the next lost property office and she can directly report the recovery to Bob using the EPCFind system. Yet, the system in this state does not resolve Bob's need for dynamic information: what if Bob's laptop was still at home? What if it got stolen and not simply lost? What if no one found it? To solve this issue, we extend our system with a distributed network of readers made available by the community. As proposed by Frank et al.~\cite{Frank2007,Frank2008}, we assume a network of readers formed by static (e.g. readers already in place in stores) and mobile devices (e.g. an RFID-enabled mobile phone). These distributed readers can silently (i.e., without explicit human interaction) register tagged objects in their vicinity. With EPCFind, Bob can use the application on his mobile phone to locate where his laptop was last \important{seen} by the distributed readers and make an appropriate decision based on this information (e.g., call the police, call his home, report the loss of his laptop to the company, etc.)
+
+Similarly, the silent reporting can be used in order for Bob to register the presence of its own objects next to his mobile phone on a regular basis (e.g., while the phone and the laptop are on his desk at home, etc.). This approach reduces the privacy concerns inherent to the Distributed Tracing approach while not filtering the most valuable information in our case: when was the object last seen next to Bob?
+
+\paragraph{Identifying Objects}
+Core to the system is the notion of \important{selecting or scanning} physical objects using a mobile phone. The subject has been explored by several researchers already~\cite{VonReischach2009,Rukzio2007}. As an example, Rukzio et al. identified touch using NFC tags as being a well-received interaction technique~\cite{Rukzio2007}. Hence, using NFC (Near Field Communication) seems quite natural for our application. However, because of its very limited range (i.e., touch), NFC needs a visible tag or zone of interaction. Beyond denaturing the object, it also concentrates the interaction metaphor on the tag rather than on the object.
+
+We change the interaction paradigm from identifying a tag representing the object, to identifying the object itself. This, we believe, can make the system rather easy and straightforward to use. Thus, we propose the use of EPC tags that can be read from a distance and without line of sight, thanks to the EPC Gen2 standard.
+
+\paragraph{Leveraging the EPC Network}
+\begin{figure}
+\imgLine{autoid/E61i}
+\caption{Prototype of a mobile phone extended with a UHF EPC Gen2 RFID reader. This device can read RFID tags from a distance of about 30-50cm.}
+\label{fig:epc-phone}
+\end{figure}
+The potential of the EPCFind system is relying on the size and contribution of the community. In more technical terms, a critical mass of mobile phones with RFID readers and tagged objects is required. Furthermore, the tagged objects need to disclose a number, which enables the unique identification of the object, unlike barcodes, which identify a type of product. Finally, as mentioned before, the reading range of the mobile readers needs to be greater than touch distance (ideally 20-30 cm).
+We propose using UHF tags, implementing the EPC Gen2 (Electronic Product Code tags, second generation) standard. These RF transponders fulfill both the need for a world-wide unique, instance-level ID and a greater read range. Furthermore, the planned deployment of the code on retail products would prevent from having to put tags on objects manually as they would already be tagged. It also permits to assign the ownership of an object at purchase time: freeing Bob from both having to tag his objects and registering them as his belongings. Indeed, by matching the EPC on the laptop with a unique number identifying Bob (e.g. his phone number, loyalty / credit card number, etc.), we can assign
+the ownership at the store, when Bob buys his laptop. The only drawback of this approach is the lack of UHF readers embedded in commercial mobile phones~\cite{Wiechert2007}. In order to overcome this problem for the implementation of EPCFind, we use three prototypes of Nokia E61i mobile phones as show in \figRef{epc-phone}. These phones are equipped with an UHF EPC RFID reader as a functional cover (i.e., the reader is integrated into the phone battery cover) potentially capable of reading up to 30-50 cm. From an human-computer-interaction viewpoint this is quite interesting improvement over NFC mobile phones, since it slightly changes the way objects are identified, allowing users to identify objects as a whole rather than having to touch NFC tags~\cite{VonReischach2009}.
+
+Besides leveraging the unique numbers on tags (EPC Tag Standard), and the standardized reading of UHF tags (Reader
+Standard), the core of the EPCFind system is based on the \epcisWA{} used to hold information and traces of the tagged objects. 
+
+\subsubsection{Implementation}
+The EPCFind software consists of two parts as shown in \figRef{epcfind-archi}: a mobile user interface and the backend built on top of the \epcisWA{}.
+
+\paragraph{Mobile Application}
+The mobile user interface is implemented using Java Mobile Edition~\citeweb{javamobile} and needs to be installed on the mobile device of every member of the community. It is composed of three distinct \code{MIDlet}s, each representing one part of the application. The \code{Report} \code{MIDlet} is used by Alice to report the recovery of Bob's laptop. It activates the UHF RFID reader on the mobile phone and asks Alice to approach the phone to the object in order to identify it. It then reports the recovery to the EPCFind backend using either a WiFi or a GPRS connection. The \code{AutoReport} \code{MIDlet} is a process, which can run in the background in order to implement the distributed tracing. It activates the reader and reports an RFID event to the \epcisWA{} each time a (new) tag is in the scope of the reader. The \code{Find} \code{MIDlet} is the counterpart of the \code{Report} and \code{AutoReport} \code{MIDlet}s. It enables Bob to retrieve information about his belongings as shown in \figRef{epc-find-finder}. Using a unified interface, it offers access to two types of information: traces and recoveries. Traces are the events generated silently by the \code{AutoReport} \code{MIDlet}. They provide information about where an object was last seen, and thus allow deducing where it might be located. Recoveries are generated whenever a member of the community uses the \code{Report} \code{MIDlet} to signal the recovery of an object to its owner.
+
+\paragraph{EPCFind Backend}
+\begin{figure}
+\imgLine{autoid/epc-find-archi}
+\caption{Architecture of the EPCFind prototype. Mobile phones in the environment communicate with the \epcisWA{} deployed on top of the Fosstrak EPCIS and record traces of tagged objects. Through the mobile EPCFind application communicating with the EPCFind backend and the \epcisWA{}, Bob can trace his lost laptop. It is eventually found by Alice who communicates it to the EPCFind backend and the \epcisWA{}.}
+\label{fig:epcfind-archi}
+\end{figure}
+Traces of objects reported by the mobile software (\code{Report} and \code{AutoReport} \code{MIDlet}s) are stored in the Fosstrak EPCIS through the \epcisWA{}. The mobile software (\code{Find} \code{MIDlet}) also uses the RESTful Web API of the \epcisWA{} for queries of objects' traces.
+  
+The EPCFind backend software is used to implement and manage ownership of objects, i.e., it needs to know what belongs to Bob and control the information Bob and Alice can access. 
+
+\subsubsection{Discussion on Privacy}
+As for a number of applications involving automated and pervasive tracking of objects or people, EPCFind raises some
+privacy issues. While, we do not pretend solving all of them with our current implementation let us briefly identify flaws and
+discuss solutions based on other works in the area.
+
+First of all, because of the distributed tracing, the \epcisWA{} and EPCFind backend contain location information about ones’ belongings. This could potentially enable Alice to track Bob by querying the system for the location of his laptop. We take a rather simple approach and prevent this from happening by selectively giving access to object traces as hinted in [3]: A user can only query the system for traces of items he owns. Note that this method is not fail-proof and restricts quite a lot the possible usage of the precious data EPCFind collects. Kriplean et al. extensively discuss the general issue of protecting Auto-ID information servers in [3]. The other privacy concern is driven by the fact that users carry tagged objects, which can be read in a silent manner and from a distance. This introduces two major problems: Firstly, the EPC mobile phones could be used to \important{x-ray} bags or suitcases and detect items one does not want to publicly show. Secondly, the tags one carries on a regular basis could be used to profile the user (e.g., by stores) and possibly identify him using inference techniques and information leaks. These two flaws are not inherent to the EPCFind system, but rather to wireless identification and communication systems (and beyond) and thus are explored extensively in literature. Partial solutions for RFID range from encrypting the tags to
+providing means for \important{killing} a tag, a solution supported by the EPC Gen2 tags~\cite{Juels2006}.
+
+\section{\shareLayer{}}\label{epcSharing}
+This section demonstrates how the \shareLayer{} of the \WoTA{} can be leveraged to implement a simple and secure sharing mechanism for EPC events. It builds on top of the \epcisWA{} and leverages its Web API.
+
+\subsection{Pain-Point: Lack of Access Control}
+Core to the vision of the EPC Network is the notion of companies sharing their EPC traces openly or at least with partners~\cite{Traub2010}. However, this requires a change of strategy for several actors of the supply chain since they currently use the information opacity as a means to negotiate better deals.
+
+For these important actors, a complete data openness is not really an option and was identified as one of the important barriers towards the adoption of the EPCIS as a data sharing standard~\cite{Schmitt2008,Guinard2011,Burbridge2009}. Thus, a realistic global deployment of the EPC Network requires a more comprehensive and flexible access control and sharing framework that allows a thinner-grained selection of the partners the data are shared with. This topic is being researched on actively~\cite{Kurschner2008,Burbridge2009,Worapot2010} and a standard at least partially addressing this issue is currently under development by EPC Global\footnote{As of June 23, 2011 according to the EPCglobal Web page~\citeweb{epcDiscovery}.}. Rather than purely focusing on access control, this new standard, currently called \important{Discovery Services} is also expected to solve another important problem to enable global sharing: the need for a discovery service that allows looking for product traces across several EPCIS instances.
+
+While it does not solve all the open issues (see \sectRef{epcDiscussion}), the \shareLayer{} of the \WoTA{} can easily be leveraged to provide a simple and secure mechanism for sharing data and managing access control on top of the \epcisWA{}.
+
+\subsection{System Architecture}
+\begin{figure}
+\imgLine{autoid/sac-epcis}
+\caption{The \sacLong{} is managing the access control to the EPC events. In this case access to all products from the manufacturer 181280 is granted to the data consumer, through his social network credentials.}
+\label{fig:sac-epcis}
+\end{figure}
+The key idea is to secure the resources of the \epcisWA{} using a standard HTTP authentication method (e.g., HTTP Basic Authentication with SSL/TLS or HTTP Digest Authentication). Then, the \sacLong{} is used as an authentication and authorization proxy for accessing EPC traces. An overview of the system architecture is shown in \figRef{sac-epcis}.
+
+\paragraph{Registering and Sharing EPC Events}
+The \epcisWA{} is registered with the \sacLong{} by the \important{Data Provider} at Company A. This is done either through the Friends and Things Web front-end or using the \sac{} API, by providing its root URI and access credentials (step 0 on \figRef{sac-epcis}). Thanks to the fact that the \epcisWA{} respects the REST constraints, it can be easily crawled by the \transService{} used by \sac{}. As a result, the resources offered by the \epcisWA{} (e.g., products, readers, locations, etc.) are identified and can be shared.
+
+The Data Provider then shares all (past and future) EPC events in which the manufacturer is 181280 which corresponds to the following URI: \RESTURL{<WEB-ADAPTER-URI>/rest/1/eventquery/result?epc=urn:epc:id:sgtin:181280.*}. He shares it with a particular \important{Data Consumer} at Company B. The Data Consumer is selected from a list of trusted connections amongst the social networks \sac{} has access to for the Data Provider. Once the resource is shared, \sac{} posts a message directly to the social network of the Data Consumer to inform him about the newly shared resource and its \sac-URI.
+
+\paragraph{Accessing Shared EPC Events}
+As shown in step 2 of \figRef{sac-epcis}, once the Data Consumer at Company B received notification of the shared EPC resource he can access it simply by using the provided \sac-URI: \RESTURL{<SAC-URI>/gateways/<WEB-ADAPTER-URI>/resources/rest/1/eventquery/result?epc=urn:epc:id:sgtin:181280.*}.
+
+In this URI, \sac{} considers the \epcisWA{} as a \code{gateway} which offers a number of \code{resources}. The URI is resolved by the corresponding \sac{} instance which checks whether the Data Consumer is allowed to access this EPC resource (or a resource located at an upper level in the hierarchy). If it is the case connects to the \epcisWA{} using HTTP Digest Authentication and redirects the results to the Data Consumer.
+
+\begin{figure}
+\imgLine{autoid/sac-fat-stats}
+\caption{Friends and Things user interface for monitoring the resources' usage. Usage statistics for several resources are available on this page. For instance, traces of all the products from manufacturer \code{0057000} can be accessed by user \newterm{Tset Webofthings}. The displayed graph shows that user \newterm{Vlad Trifa} accessed the resource \code{location} twice on May 6, 2011.}
+\label{fig:fat-monitor}
+\end{figure}
+Since \sac{} acts as a proxy, it can keep a trace of each requests from Data Consumers. This data is made available to the Data Provider through the \sac{} API or visually through the Friends and Things Web front-end. This can be used to monitor the consumption of shared data. As an example, \figRef{fat-monitor} shows that the resource \code{location} was used twice by Data Consumer Vlad Trifa on May 6, 2011. These logs can then be used to limit the number of accesses or to charge a fee for data access and facilitate the creation of an RFID data market place.
+
+\section{\compoLayer{}: Auto-ID Physical Mashups}\label{epcComposition}
+As mentioned before, bringing RFID data closer to the Web creates opportunities for new applications. In this section we describe how the \compoLayer{} of the \WoTA{} can be leveraged to build these applications. We illustrate how we can create physical mashups for RFID applications on top of the the \devLayer{} and the \shareLayer{}.
+
+\subsection{Pain-Point: Tedious Business Case Modeling and Cross Systems Integration}
+RFID use-cases generally do not involve RFID readers and tags only, they are most of the time combined with sensors and actuators. These combinations of RFID, sensors and actuators often occur at a low level, sometimes even at the wiring level. This mainly has two drawbacks. First it requires to combine the complicated and often not homogeneous low-level APIs of devices which requires expert knowledge. Then, once installed, these compositions of devices are static and cannot be flexibly reconfigured to integrate new sensors or actuators.
+
+In this section we illustrate how the architecture and approaches introduced in the \compoLayer{} can be leveraged to create physical mashups for RFID use-cases. We distinguish three levels of mashability as introduced in the \compoLayer{}: \important{\mashupLevelA{}}, \important{\mashupLevelB{}} and \important{\mashupLevelC{}}.
+
+We present three concrete prototypes illustrating these levels of mashability. The Mobile Tag Pusher prototype is an illustration of \mashupLevelA{}. The EPC Dashboard Mashup demonstrates how \mashupLevelB{} can be enabled. Finally, the RFID Physical Mashup Editor illustrates how \mashupLevelC{} can be used by end-users to create simple applications. 
+
+\subsection{Mobile Tag Pusher}\label{tagpusher}
+\begin{figure}
+\imgLine{autoid/mobile-tag-pusher-archi}
+\caption{The Mobile Tag Pusher is built as a mobile Web application using the WebSocket API of the \tpusher{} component. RFID events are routed by the \captureWA{} to the \tpusher{} application where they are sent to all subscribed mobile Web browsers.}
+\label{fig:tagPusherGlobal}
+\end{figure}
+When setting up RFID readers or maintaining existing deployments it is valuable to have a direct feedback of the tags observed by a particular reader in order to monitor the manufacturing process or to debug the readers. In the current implementations of the \epcSoft{} this would require to use and configure a monitoring tool such as the Fosstrak LLRP Commander on a desktop computer. Thanks to the \textit{RESTful interface} of the \captureWA{} as well as the Real-Time Web capability of \tpusher{}, the tags observed by any reader can now be directly pushed to any browser or HTTP library.
+
+Because these events are of interest in-situ, we developed a Mobile Web mashup that can display them in a user-friendly manner. The Mobile Tag Pusher is a Web application that uses the \tpusher{} service to subscribe to events coming from RFID readers, as shown in \figRef{tagPusherGlobal}. As a consequence, EPC events are pushed to the application after being filtered by the LLRP and routed by the \captureWA{} to the \tpusher{} WebSocket service.
+
+This enables users of the application to get near real-time feedback about the events an RFID reader is currently recording.
+
+\paragraph{Implementation}The Web application is a pure HTML5 and JavaScript Web application built using the Sencha Touch library~\citeweb{sencha}. Furthermore, it is based on an abstraction of push mechanisms using the Atmosphere JQuery Plugin described before. This basically means that it can be used, without installation, on most recent mobile browsers such as Safari (iOS) or Chrome (Android).
+
+All code required for the mobile application to subscribe to events pushed by readers through the \captureWA{} and display them fits within 5 lines of JavaScript as shown below:
+\begin{lstlisting}[breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{lightgray}, captionpos=b]
+//called whenever an event is pushed:
+function callback(response) {alert(response.responseBody + response.transport);}
+//subs. to the events of reader "exit1"
+$.atmosphere.subscribe(
+  "http://EPC_CLOUD_APPLIANCE/t-pusher/reader/exit1", 
+  callback, $.atmosphere.request = { transport: 'websocket' }
+);
+\end{lstlisting}
+
+As shown in \figRef{tagPusher}, we deployed this prototype in a lab environment. Each reader features a QR-Code containing its unique URI in the \epcCloud{}. When scanning this tag with a mobile phone it redirects the user to the HTML5 Web page shown in \figRef{tagPusherGlobal}. As tags are read by the readers, the Web page automatically receives and displays new events.
+\begin{figure}
+\imgHalf{autoid/tagPusher}
+\caption{The data read by the RFID LLRP Gate reader is sent via real-time Web (WebSockets) to a mobile phone application running in the mobile browser. The Web application is accessed simply by scanning a QR-code.}
+\label{fig:tagPusher}
+\end{figure}
+
+\subsection{The EPC Dashboard Mashup}\label{EPCDashboardMashup}
+\begin{figure}
+\imgMedium{autoid/inventory.png}
+\caption{The Stock History widget allows for looking at the flows of goods through the supply chain. Here the manager can see that all the available Lindt chocolate has been transfered to the shop, leaving an empty stock.}
+\label{fig:widgetinventory}
+\end{figure}
+The EPC Dashboard Mashup is a Widget Based Mashup that helps product, supply chain and store managers to have a live overview of their business at a glance. It can further help consumers to better understand where the goods are coming from and what other people think of them. The EPC Dashboard is based on the concept of widgets in which the event data are visualized in a relational, spacial or temporal manner. Widgets can be easily extended by developers using a simple framework.
+
+The EPC Dashboard consumes data from the \epcisWA{} optionally shared through the \shareLayer{}. Usually these data are hard to interpret and integrate. The dashboard makes it simple to browse and visualize the EPC data. Furthermore, it integrates the data with multiple sources on the Web such as Google Maps, Wikipedia, Twitter, etc. To better understand the use of such a tool, let us first introduce two use-cases before looking at the applications' architecture.
+
+\subsubsection{Use-Cases}
+Rachel, a customer, just bought Max Havelaar Bananas and Lindt Chocolate from a retail store \important{M} in Switzerland. She wants to know more about the Bananas. For that purpose, she opens the EPC Dashboard in her preferred browser. She activates the Product Description Widget and enters the EPC of the article. The EPC Dashboard now shows her a description of bananas and Max Havelaar extracted from Wikipedia. Likewise, the Product Video Widget provides her with video about planting of these bananas. She is further interested to know about where this particular banana has grown. Rachel activates the Map Widget and she can see on the map in \figRef{widgetmap} where her banana originates from. In addition she also sees the route that the banana has taken from its origin to the M retail shop. She finally prepares a Banana Split with the chocolate she just bought and shares the recipe on Twitter through the Product Buzz Widget.
+\begin{figure}
+\imgMedium{autoid/epcmashup-map}
+\caption{The Maps widget is following the route of the banana tagged with the EPC urn:epc:id:sgtin:0057000.123430.2025.}
+\label{fig:widgetmap}
+\end{figure}
+In the M store in Zurich, Andy, the product manager of chocolate products wants to check the recent inventory levels of the Lindt Chocolate. He also browses to the EPC Dashboard Mashup and opens the Stock History Widget with the corresponding inventory RFID reader. According to \figRef{widgetinventory}, he discovers that there had been an increase demand for Lindt Chocolate and that the chocolate has almost entirely been transfered from the stock to the shop. He directly orders larger shipping contingents. He also subscribes to the feed listing the arrival of Lindt products in the stock using the entry gate reader. This way, a feed reader on his mobile phone and in his favorite browser will inform him when the ordered products have arrived. He is further interested in knowing why the Lindt products are so popular recently. Andy activates the Product Buzz Widget and sees the current Twitter messages related to Lindt Chocolates as shown in \figRef{allwidgets}, including Rachel's recipe. He can use this information for marketing analysis.
+
+
+\subsubsection{Mashup Architecture}\label{mashupsarchitecture}
+The EPC Dashboard integrates several information sources. This information is encapsulated in small windows called widgets. The widgets combine services on the Web with traces coming from the \epcisWA{}. The EPC Dashboard Mashup currently offers 12 widgets using different APIs and services. As an example, the Map Widget is built using the Google Maps Web API (see \figRef{widgetmap}), the Product Buzz Widget uses the Twitter RESTful API (\figRef{allwidgets}) and the Stock History Widget uses the Google Visualization API (\figRef{widgetinventory}).
+
+All widgets are connected to each other which means that actions on a given one can propagate the selection to the other widgets and changes their view accordingly. As such, widgets listen to selections and can make selections. This interaction is implemented using the observer pattern~\cite{Gamma1995} where consumers (i.e., the widgets) register to asynchronous updates of the currently selected Locations, Readers, Time or EPCs. This architecture allows the creation and integration of other Web widgets with very little effort. The EPC Dashboard itself is a JavaScript application built using the Google Web Toolkit~\citeweb{gwt}, a framework to develop rich Web clients. This type of development is possible thanks to the RESTful Web Interface of the \epcisWA{}. 
+\begin{figure}
+\imgLine{autoid/screenshot-dashboard}
+\caption{Screenshot of the EPC Dashboard Mashup Web page. On the left the user can select the widgets he wants to activate. The widget in the middle is used to browse the EPCIS data. The first widget (upper-left) is the Product Buzz Widget which extracts live opinions and information about the product (here Lindt Chocolate) from Twitter. The Product description widget queries Wikipedia for information, the Calendar Widget provides an overview of the EPC events by date and finally, the Map Widget show the location of the product.}
+\label{fig:allwidgets}
+\end{figure}
+
+\subsection{RFID Physical Mashup Editor}\label{boxesAndPointers}
+Applications of RFID technologies are at strongly influenced by business processes within a company. Hence, it is relevant to give the power to create simple applications not only to developers but also to end-users, more aware of the process in their business.
+
+As introduced in the \compoLayer{}, end-user mashability is usually enabled through simple drag-and-drop visual tools called Mashup Editors. In the following sections, we describe a typical use-case of business process in the RFID domain and then present a mashup editor tailored to RFID use-cases.
+
+\subsubsection{Use-case: Electronic Article Surveillance with RFID}
+Here, we describe a common RFID application, RFID as an Electronic Article Surveillance (EAS) technology, and illustrate how the EPC Network framework can be used to realize this application. This example illustrates the challenges in RFID application development and deployments.
+
+In many clothing stores, RFID technology is set to replace existing Electronic Article Surveillance technology because of its many advantages. The two most important issues include knowledge about the product being stolen and the reduction in the number of false alarms. Today, retail stores have little information about which particular product is actually being stolen. As a result, the stores cannot replenish the shelves appropriately resulting in a possible lost sale to a consumer who is willing to pay for the item. There is also no way to prevent frequent false alarms where products with active EAS tags from another retailer trigger the alarm. 
+
+Using RFID technology as an EAS system relies on RFID tags on the individual clothing items as well as RFID readers at the back-room door to the store, where clothing enters the store, at the checkout and at the exit. When products are placed on the shop floor, the RFID tags are read as they pass the reader at the back-room store entry. The applications registers the tags and marks the IDs as 'on sale'. If a consumer decides to purchase an item, the RFID tag is read again at the checkout and flagged as 'sold'. If the user leaves the store with the product, the RFID readers at the exit report the RFID tag to the application, but no alarm is triggered because the product is marked as sold. If the consumer decides to leave the store without paying, the RFID tag is identified by the readers at the exit and an alarm is triggered because the product is still not paid for. 
+
+To realize the above example, the RFID readers need to be mounted in the store and connected to a local area (wireless) network. After discovery of the readers on the network, each RFID reader needs to be configured to read RFID tags and report RFID tag read reports via the binary EPCglobal LLRP reader protocol. To prevent RFID readers running continuously, the back-room reader is often triggered via a motion sensor. There is also an alarm connected to the network that can be triggered by the RFID readers at the exit. Following the configuration of the readers, an application server needs to be set up on a server in the clothing store that runs the RFID middleware. In the case of the EPC Network, such an application server would run an instance of an Application-Level-Events (ALE) compliant middleware that filters and aggregates the RFID data. Using the ALE WS-* API, the developer would need to group the RFID readers at the various locations (entry, exit, and checkout) and also define time filter and aggregators that eliminate redundant RFID reads. In a typical RFID deployment, the appearance of an RFID tag in the read range of an RFID reader can result in numerous tag reads of the same tag. To process the filtered and aggregated RFID data, custom business logic needs to be implemented. The business logic of the EAS application needs to deserialize the incoming ALE SOAP messages containing the tag reads, send off web service EPCIS (EPC Information Services) query interface to check the state of the particular tag (\quote{on sale}, \quote{sold}), and create a new EPCIS event that triggers a state change and possibly sound an alarm. To store and access these EPCIS events, the developer needs to set up a database on the application server and deploy an EPCIS repository that supports the EPCIS capture and query protocols. The developer might also decide to develop a custom applications that queries the EPCIS repositories across multiple stores to provide analytics capabilities. The retailer might for example want to identify the products most stolen and locations of stores with the most stores.
+
+A direct consequence of the complexity of installing and implementing the use-case we described here is that many smaller businesses decide to adopt very basic solutions where non-standard tags simply trigger an alarm every time they pass the gate. 
+
+\subsubsection{Use-Case Implementation}
+Thanks to the deployment of the \epcSoft{} in the cloud and the implementation of the \devLayer{} and \shareLayer{}, we can now implement physical mashup editors for enabling users to flexibly model variations of use-cases such as the EAS presented before. For this use-case, we design new building-blocks as shown in \tableRef{eas-building-blocks}.
+\begin{table}
+\begin{center}
+  \begin{tabular}{ | l | l | p{4.3cm} |}
+    \hline
+    \textbf{Building Block} & \textbf{Inputs} & \textbf{Outputs}\\
+    \code{RFIDReader} & URI, Reader ID (e.g., exit-reader) & EPCs\\
+    \code{EPCIS} & URI, EPC, Business step (e.g., checkout) & true/false (EPC seen at Business step)\\
+    \code{VideoCamera} & URI & URI of (stored) snapshot\\
+    \tpusher{} & URI, String to push, topic name & true/false (success/failure)\\
+    \hline
+  \end{tabular}
+  \caption{Additional building-blocks for implementing the EAS use-case.}
+  \label{tab:eas-building-blocks}
+\end{center}
+\end{table}
+
+These modules were implemented as building-blocks of our modified version of the Click-script (see \sectRef{clickscript}) mashup editor. Reducing interfaces of the EPC Network to Web interfaces enables each building block to be implemented with a small amount of JavaScript code. Note that using a comprehensive \findLayer{} for the EPC Network can enable the automatic generation of such building blocks as described in \chapterRef{findLayer}.
+
+Using these building-blocks and other basic blocks, we can implement the EAS use-case we introduced before. As shown in \figRef{easMashup}, the building-blocks of the RFID mashup editor communicate with several components of the \epcCloud{}. First, the \code{RFIDReader} block subscribes to the \tpusher{} service using a particular reader ID (e.g., \important{exit-gate}). As a consequence, it gets pushed (through LLRP, ALE and the \captureWA{}) all the EPC events for this reader. The \code{EPCIS} block is then used to check whether the pushed EPCs represent goods that were already sold. To check this, the block uses the \epcisWA{}.
+
+If it is the case, nothing happens. If it isn't the case (i.e., the goods were stolen), the \code{VideoCamera} block is triggered. This components represents a Web-enabled video camera that can be used to take snapshots through a RESTful API. The URI of the snapshot is then sent to all subscribers of a particular topic (i.e., URI) through \tpusher. As an example we developed a small mobile Web application, similar to the Mobile Tag Pusher application, which subscribes to the topic and loads the corresponding image alongside with the EPC number of the stolen good (see mobile phone in \figRef{easMashup}). Such an application can be used to push information about the theft to all staff members in a store. 
+\begin{figure}
+\imgLine{autoid/eas-mashup-archi}
+\caption{The RFID Mashup editor is used to model the EAS use-case. The created mashup can then be run from the \pMashupsFw{}. Thefts are reported to a mobile phone.}
+\label{fig:easMashup}
+\end{figure}                                                                                                                                                                  
+Once a mashup has been successfully created and tested locally using a mashup editor, it can be deployed to a mashup engine such as the \pMashupsFw{} (see \sectRef{mashupFw}) where is it going to be deployed remotely executed.
+
+The full use-case was tested in a lab deployment at MIT featuring a gate LLRP reader and an off-the-shelf Webcam as shown in \figRef{tagPusher}. The average observed RTT (from the reader, to the Amazon Cloud instance, through the mashup engine and finally to the mobile Web application) was around 1 second. However, it is worth noting that this RTT stronlgy depends on factors such as the available connection bandwidth, the type of instances used on Amazon EC2, the current load of the cloud appliance. Since these factors cannot all be controlled this is a real challenge for this type of applications that we further discuss in \sectRef{epcDiscussion}.
+
+\section{Evaluating the \epcisWA}\label{rfidEval}
+\begin{figure}
+\imgLine{autoid/webadapter-eval}
+\caption{Average RTT and processing time when using the WS-* interface and the REST interface for three types of requests each run 100 times. Standard deviations are as follow: 49, 77, 39, 11, 38, 12 ms.}
+\label{fig:results}
+\end{figure}
+As mentioned before, the \epcisWA{} is an add-on to the standard EPCIS where each REST request is eventually translated to a (local) WS-* request. This results in an overhead that we evaluate here.
+
+The experimental setup is composed of a Linux Ubuntu Intel dual-core PC 2.4 GHz with 2 GB of ram. We deploy Fosstrak and the \epcisWA{} on the same instance of Apache Tomcat with a heap-size of 512 MB. We evaluate three types of queries all returning the standard EPCIS XML representation.
+
+The first query (Q1, \important{Many Results} in \figRef{results}) is a small request returning a relatively large set of results of about 30 KB (22 events each composed of about 10 EPCs). In the second test (Q2, \important{Few Results}), is a query returning 2.2 KB of data with only two results. The last test (Q3, \important{Complex Query}) is a query containing a lot of parameters and returning 10 events. We test each of these queries asking for the standard XML representation. All queries are repeated in 10 runs of 100 requests from a client located on a machine one hop away from the server with a Gigabit Ethernet connectivity. The client application is programmed in Java and uses a reference JAX-WS client implementation for the WS-* calls and the standard Apache HTTP Client and DOM (Document Object Model) library for the REST calls.
+
+As shown in \figRef{results}, for Q1 the \epcisWA{} has an average overhead of 30 ms due to the computational power required to translate the requests from REST to WS-* and vice-versa. For Q2 and Q3 the REST requests are executed slightly faster (about 20 ms) than the WS-*. This is explained by three factors. First, since there are fewer results, the local WS-* request from the \epcisWA{} is executed faster. Then, REST packets are slightly smaller as there is no SOAP envelope~\cite{Yazar2009}. Finally, unmarshalling WS-* packets (using JAXB) on the client-side takes significantly longer than for REST packets with DOM. For Q3, similar results are observed. Overall, we can observe that the \epcisWA{} creates a limited overhead of about 10\% which is (over) compensated in most cases by the relatively longer processing times of WS-* replies. This becomes a particularly important point when considering devices with limited capabilities such as mobile phones or sensor nodes as well as for client-side (e.g., JavaScript) Web applications.
+
+It is worth mentioning that the WS-* protocol can be optimized in several ways to better perform, for example by compressing the SOAP packets and optimizing JAXB. However as the content of HTTP packets can also be compressed this is unlikely to drastically change the results. Furthermore, because they encapsulate requests with HTTP \code{POST}, WS-* services cannot be cached on the Web using standard mechanisms. For the \epcisWA{} however, all queries are formulated as HTTP \code{GET} requests and are fully contained in the request URI. This allows to directly leverage from standard Web caching mechanisms which would importantly reduce response time~\cite{Yazar2009}.
+
+
+\section{Related Work}
+Researchers in the fields of Ubiquitous and Pervasive Computing have long been using RFID as a means to enhance real-world objects in order for these to become \sts{}.  In the DataTiles~\cite{Rekimoto2001} project, Rekimoto et al. proposed a tangible user interface composed of acrylic tiles. These physical tiles represented virtual data and were identified thanks to an embedded RFID tag that was read by an array of reader. In the MouseField~\cite{Masui2004} project presented by Masui et al., a small RFID reader featuring motion sensors was used to identify RFID-tagged real-world objects such as compact discs. 
+
+These pioneer projects raised the awareness on the possibility to use RFID as an interface for interacting with virtual data. However, they did not yet propose a systematic solution to link them to an information network. In the Cooltown project~\cite{Kindberg2002} Kindberg et al. proposed to use the Internet and the Web as the information network of choice for \sts{}. Exploring this idea of merging RFID enhanced objects and the Web, Welbourne et al.~\cite{Welbourne2009} create an RFID-based microcosm for the Internet of Things deployed throughout the University of Washington. They further developed a suite of Web-based tools to help users manage their personal RFID data and triggers. R\"{o}mer et al. looked at extending every-day objects such as playing cards or tool-boxes~\cite{Romer2004} and proposed the use of WS-* services to facilitate the real-world integration. In~\cite{Fuhrer2006} we explored the use of pub/sub mechanisms to facilitate the integration of RFID-tagged objects with the backend systems of hospitals. Broll et al. looked at linking RFID tagged-objects to services on the Web. They proposed to use NFC tags on physical objects (e.g., posters) as a bootstrap for mobile interaction with WS-* services~\cite{Broll2007a}. To be able to technically achieve this, in~\cite{Broll2007b} the same authors proposed a system based on an Interaction Proxy that sits between the mobile phones and the WS-* services and renders adapted mobile content.
+Similarly, Vermeulen et al.~\cite{Vermeulen2007} looked at creating mashups based on RFID tagged objects. For instance, tagged pictures can be combined with a tagged physical map to create a Google Maps mashup where the pictures appear at the right position on the map. To achieve this they proposed a framework based on a Phidget RFID reader~\citeweb{phidget-rfid} communicating through a PC with WS-* services representing the virtual mashup building blocks.
+
+These projects emphasize the potential of enabling the connectivity (or identification) of real-world objects on the Web through RFID. Our approach here differs in the sense that rather than looking at a macro, prototypical level, we look at an existing global network of RFID-tagged objects and propose Web APIs and technologies so that this network can be leveraged to build large-scale Web and mobile applications consuming RFID data. The great potential of the EPC network~\cite{Sarma2001,Sarma2001a} for researchers in the ubiquitous computing field has led to a number of initiatives trying to make it more accessible and open for building prototypes and disruptive applications. Floerkemeier et al. initiated the Fosstrak project~\cite{Floerkemeier2007}, which is to date the most comprehensive open-source implementation of the EPC standards. The idea of the Fosstrak project was to be a reference implementation of the standards. Thus, it offers interfaces for applications as described in the standard, using WS-* interfaces. As an example, the Fosstrak EPCIS is an open-source implementation of a fully-featured standard EPCIS~\cite{Floerkemeier2007a} which features a WS-* interface as an application integration end-point. A direct consequence is that it prevents the Fosstrak EPCIS to be used in a straightforward manner from Web languages such as JavaScript. Furthermore, resource constrained devices have difficulties accessing this type of interfaces~\cite{Yazar2009} (see \sectRef{alternatives}). This make it difficult for sensor nodes, embedded computers or even current mobile phones to access EPC traces and data.
+
+To overcome these limitations, researchers started to create translation proxies between the EPCIS and their applications. In the \newterm{REST Binding} project~\citeweb{restbinding} a translation proxy is implemented. The proxy offers URIs for accessing the EPCIS data but these data are provided using the XML format specified in the standard. While this is an important improvement, the proposed protocol does not respect the REST constraints but implements what is sometimes referred to as a REST-RPC style~\cite{Richardson2007}. As the connectedness and uniform interface properties do not held, an EPCIS using this interface is not truly integrated to the Web~\cite{Pautasso2009,Richardson2007}. For instance, it does not offer alternative representations (e.g., JSON) and resources cannot be browsed for. 
+
+In~\cite{Guinard2008a} we presented an implementation of such a translation proxy. The \newterm{Mobile IoT Toolkit} offers a Java servlet based solution that allows to request some EPCIS data using URIs which are then translated by a proxy into WS-* calls. This solution is a step towards our goal as it enables resource-constrained clients such as mobile phones to access some data without the need for using WS-* libraries. Nevertheless, the proxy is directly built in the core of the Fosstrak EPCIS and thus does not offer a generic solution for all EPCIS compliant systems. Furthermore, the protocol used in this implementation as well as the data format is proprietary which requires developers to first learn it.
+
+The \epcisWA{} builds upon this research. It offers an EPCIS vendor-independent module that implements a comprehensive Resource Oriented Architecture for the EPCIS and hence offers a RESTful API. It is further complemented by the \tpusher{} service and the \captureWA{} module that offers additional interfacing points for creating applications with the EPCIS. Finally, we illustrate how the \shareLayer{} and the \compoLayer{} can be implemented to enable data sharing and physical mashups to leverage the potential of the EPC Network.
+
+\section{Discussion and Summary}\label{epcDiscussion}
+In this chapter, we apply the \WoTA{} to the EPC Network with the goal of simplifying application development on top of this network. While working on the proposed approach we identified a number of real-world challenges and discuss three of them here. 
+
+\paragraph{Dealing with Firewalls and NATs} First, while some standard LLRP readers offer a reader-initiated scheme, most operate on a server-initiated scheme. This means that the \epcCloud{} server has to contact the RFID readers in order to start the reading process. While this works fine in places where a direct access to the Internet and the Web is available, it is problematic in industrial environments where RFID readers sit behind firewalls or NATs (Network Address Translation) and do not feature public IP addresses. This issue is not inherent to RFID readers but is a general issue when deploying \WoT{} systems in the real-world and in particular in corporate environments. 
+
+A common practical solution to these problems is the use of the Reverse HTTP protocol~\cite{Lentczner2009} where a service on the Internet acts as a public proxy for devices behind firewalls and/or NATs on a private network~\cite{Gupta2011}. In essence, the device has to initiate the connection with a \code{POST} to an Reverse HTTP proxy which will initiate a protocol switch to PTTH (Reverse HTTP). The proxy will then assign a URI within its domain to the device and forward the incoming requests directly to the device through a (device-initiated) kept alive channel. As an example, the open-source Yaler~\citeweb{yaler} project is providing a service implementing the Reverse HTTP protocol. 
+
+More specifically, in the case of the EPC Network, an option in the LLRP protocol called \important{reader-initiated} connection solves the problem if the readers manufacturers are implementing it consequently. Indeed, in this model, like in the Reverse HTTP model, the reader initiates the connection with the server (e.g., the \epcCloud{}) upon startup and the connection is kept open until the reader shuts down again. 
+
+\paragraph{Leveraging the Cloud}
+Furthermore, to optimize data access, most cloud infrastructures offer highly optimized storage services that can be easily distributed and load balanced within the infrastructure. In the Java world, the implementations of these services is compliant with the Java Persistence API (JPA)~\citeweb{jpa} or more recently with the Java Data Object (JDO) API~\citeweb{jdo} which abstract from the actual storage service being used and also allows to easily switch the service. Unfortunately, the current Fosstrak EPCIS is not JDO or JPA compliant but uses JDBC and is rather tightly coupled with a MySQL database. Porting the EPCIS to JDO would allow to better leverage the scalability that cloud solutions and recent data stores (e.g., NoSQL databases) have to offer.
+
+Moreover, for real-world applications, network delays might be a serious issue as events and actions are sent and triggered in the cloud. While it is unlikely that an \epcCloud{} solution will support sub-second use-cases in the very near future, our average measurements have shown typical delays of about a second on average for the described EAS Mashup, from the reader, to the cloud and then to the mobile phone. While this is acceptable for most envisioned applications it strongly depends on the network configurations and infrastructure of real-world deployments. Hence, exhaustive evaluations of cloud solutions and their variations as well as models ensuring Quality of Service (QoS) requirements in \sts-to-cloud applications is an important part of the furture work. 
+
+\paragraph{Sharing RFID Data} As illustrated in this chapter, the \shareLayer{} of the \WoTA{} can be used to share EPC resources and feeds of events in a simple manner, based on social graphs instead of traditional access control lists which are hard to create, maintain and manage. However, the presented approach implies that companies use social networks for maintaining business to business relationships with other companies. It further implies that companies trust the social networks. While this is unlikely to happen with social networks like Facebook or Twitter, specialized networks such as LinkedIn will certainly play an important role as future platforms for Business to Business communication~\cite{Skeels2009}. Hence, using the \sac{} architecture to manage access to EPC events through networks such as LinkedIn might be a viable future solution. It would, however, require for these networks to not only allow individuals to be connected together but also companies, a model that some social networks are moving forward to adopt~\citeweb{weebiz}.
+
+\paragraph{Summary} In this chapter we have shown how the \WoTA{} can be beneficial to the EPC Network and explained how virtualization, cloud computing, REST and the real-time Web, Social Networks as well as the concept of \pMashups{} can contribute to a wider adoption of the EPC Network standards and tools. Virtualization allows to package all the development tools into a single virtual machine that can be run virtually anywhere. Cloud computing simplifies deployment and maintenance of the \epcSoft{}. Thus, it pushes the standardized EPC Network closer to small and mid-size businesses that could benefit from it. By implementing the \devLayer{}, we can offer more lightweight interfaces and allow innovative mobile, Web and WSN applications to directly use the EPC Network. We illustrated this with several mobile and Web prototypes. Furthermore, on top of this, the \shareLayer{} can be used to share data amongst business partners. Finally, with the \compoLayer{} we offer a mashup editor and engine that allows more flexible real-world use-cases, where existing sensors and actuators can be directly integrated with RFID hardware from the Web and by end-users.
+
+In order for the community to benefit from the novel applications this architecture enables, the \epcisWA{} was added early 2011 as a module of the Fosstrak open-source project~\citeweb{webadapter}. It already used in several projects, for instance to enable Android mobile phones to access EPCIS data.
+

@@ -1,0 +1,39 @@
+\chapter{Removed sections}
+
+\section{Removed from Chapter WoT}
+\subsection{Understanding the Tools Galaxy in Java}
+%DG: talk about JAX-RS, RESTlet and the app-server plugins, which one to choose? Talk about Atom frameworks
+% IDE tools? Atom?
+\index{Toolkit}Creating clients for RESTful Web Services is a rather straightforward task as it only requires for the used language to support HTTP, which most modern programming and scripting languages do. The implementation of a RESTful Web Services, on the other hand, is a task that should not be underestimated. Indeed, even if the set of REST constraints is seemingly small their implementation requires a careful software design.
+
+Most modern Web languages such as Ruby (especially in its Ruby on Rails form) or Python offer out-of-the-box support for RESTful Web Services. Similarly, the recent growing interest for lightweight service architectures based on REST has given birth to a number of frameworks that simplify the development of RESTful applications for enterprise-scale languages such as C\# or Java.
+
+\subsubsection{JAX-RS: A Standard Java API for RESTful Web Services}
+\index{JAX-RS}The Java community is particularly interesting one since it is known as one of the community with most WS-* tools and frameworks but also as one of the most eager to develop tools around REST (perhaps due to some frustrations with the WS-* type of services...).
+
+In particular, the Java galaxy has its own higher-level industrial standard for building RESTful Web Services: the JAX-RS API\footurl{jcp.org/en/jsr/detail?id=311} (also known as JSR 311). JAX-RS is especially interesting since it was developed by a consortium of people who are both Web-specialists and service developers. The result is a very lean API (well described in~\cite{burke_restful_2009}) that requires a good understanding of REST but offers straightforward solutions to implement in an elegant and efficient way most of the REST constraints.
+
+In short, JAX-RS is based on three main pillars. It first uses annotations of Java classes to turn them into resources (e.g., \code{@Path(``/location'')}, ensuring the \emph{Resource Identification} constraint. Annotations further help to define the resources' \emph{Uniform Interface} as it lets the developer specify allowed verbs (\code{@GET, @POST}) and served representations (e.g., \code{@Produces(MediaType.APPLICATION\\\_JSON)}).
+Beyond annotations, several framework classes make the developer life easier. \emph{Connectedness} is boosted by providing contextual \code{URI Builders}, letting the developer easily link resources together across representation. Finally, the use of the JAXB framework allows for Java Objects to be automatically serialized to an (extensible) number of representations such as XML, HTML, JSON and Atom thus making it easier to fulfill the constraint for \emph{Self-Describing Messages}.
+
+\index{Jersey}\index{Restlet}Besides Jersey\footurl{https://jersey.dev.java.net}, the reference implementation of JAX-RS, several frameworks such as RESTeasy, Apache Wink, Apache CFX and RESTlet are JAX-RS compliant which makes it rather easy to move code from one framework to the other.
+
+\subsection{Case-study: Using JAX-RS, Jersey and Abdera}
+%DG: show how we used Jersey
+As shown in Figure~\ref{fig:restfulepcisarchitecture}, the core of the RESTful EPCIS is based on the JAX-RS compliant, Jersey\footnote{https://jersey.dev.java.net} framework. Thus, it uses JAX-RS annotations and framework classes. The example below serves the representation of a \code{location} resource.
+\begin{lstlisting}[caption=, label=lst:infrawot:mflisting, breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+    @Path(\location\{businessLocationID})
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML, MediaType.TEXT_HTML})
+    public Resource getSelectedBusinessLocation(@Context UriInfo context, @PathParam("businessLocationID") String businessLocation) {
+        QueryBusinessLogic logic = new QueryBusinessLogic();
+        return logic.getSelectedBusinessLocation(context, businessLocation);
+    }
+\end{lstlisting}
+Line 1 of this listing sets the URI of the resource, where \code{businessLocationID} is the \code{location} identifier which will be dynamically passed to the method \code{getSelectedBusinessLocation} at runtime. \code{@GET} specifies the method allowed on this resource, \code{@Produces} contains the representations that clients will be able to obtain through content negotiation. Note that these contents will be automatically generated at runtime from the \code{Resource} Java Object by the JAXB framework.
+
+As we can see, the RESTful EPCIS uses Jersey for managing the resources' representations and dispatching HTTP requests to the right resource depending on the request URL. When correctly dispatched to the RESTful EPCIS Core, every request on the querying or browsing interface is then translated to a WS-* request on the EPCIS. This makes the RESTful EPCIS entirely decoupled from any particular implementation of an EPCIS.
+
+\index{Abdera}While JAX-RS offers serving Atom representation of resources on-the-fly, implementations of JAX-RS do not have to offer a fully-featured Atom-Pub server with persistence. Thus, for the subscription interface we used Apache Abdera, which is an open-source implementation of an Atom-Pub server integrating well with most JAX-RS frameworks. Every time a client subscribes to a query, the RESTful EPCIS checks whether this feed already exists by checking the query parameters, in any order. If it is not the case it creates a query on the WS-* EPCIS and specifies the address of the newly created feed. As a consequence every update of the query is directly \code{POST}ed to the feed resource which creates a new entry using Abdera and stores it in an embedded SQLite\footurl{www.sqlite.org} database.
+
+Jersey, Abdera and SQLite are packaged with the RESTful EPCIS core in a WAR (Web Application Archive) that can be deployed in any Java compliant Web or Application Server. We tested it successfully on Glassfish\footurl{glassfish.org} and Apache Tomcat\footurl{tomcat.apache.org} and on the Grizzly embedded Web Server\footurl{grizzly.dev.java.net}.

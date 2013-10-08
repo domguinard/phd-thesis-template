@@ -1,0 +1,356 @@
+\section{\devLayer{}}\label{deviceLayer}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{figures/wot/devLayer}
+\end{center}
+In the first layer of our \WoTA{} (see \figRef{wotArchi}), we address the access to \sts{}: \important{How can we, from an application point of view, enable a consistent access to all kinds of connected objects?}
+
+Our proposal is to integrate things to the core of the Web, making them first-class citizens just as Web pages are. For this, we use the REST architectural style and its Web implementation. In the first part of this section, we illustrate how we can model the functionality and services of \sts{} using the RESTful principles. Then, we discuss the integration of devices that are not capable of connecting to the Internet. Finally, we propose a way for \sts{} to push data to clients rather than having them constantly polling data. Parts of this section have been published in~\cite{Guinard2011b,Guinard2010-WoT,Guinard2009-INSS,Guinard2009}.
+
+\subsection{A Web API for \stsBig{}}\label{APIforSmartThings}
+We begin by briefly summarizing the principles of RESTful architectures. We then focus on how a systematic application of the RESTful principles to \sts{} leads to an API that can be consumed and understood by a broad number of clients.
+  
+\subsubsection{REST in a Nutshell}\label{rest}
+Initially proposed by Roy Fielding in his Ph.D. dissertation~\cite{Fielding2000}, REST is an architectural style that was used as a set of guidelines to implement the second wave of Web standards and in particular HTTP 1.1 and URIs (Uniform Resource Identifiers). The goal of this second wave of standards was to move from a Web serving documents as of HTTP 0.9 to a Web as a true application layer wit HTTP 1.1. The REST guidelines where created to make sure that the new architecture would support \quote{scalability of component interactions, generality of interfaces, the independent deployment of components as well as intermediary components to reduce interaction latency, enforce security, and encapsulate legacy systems}~\cite{Fielding2000}.
+
+As such, REST is independent from the Web and can be implemented in other systems. However, in the remainder of this thesis we focus on the Web implementation of REST.
+
+The central idea of REST revolves around the notion of resource as \important{any component of an application that needs to be used or addressed}. Resources can include physical objects (e.g., a temperature sensors) abstract concepts such as collections of objects, but also dynamic and transient concepts such as server-side state or transactions. 
+
+A system can be basically considered as RESTful if it respects the five following constraints~\cite{Fielding2000}:
+
+\begin{itemize}
+\item[C1] \emph{Resource Identification:} the Web relies on \emph{Uniform Resource Identifiers (URI)} to identify resources, thus links to resources (C4) can be established using a well-known identification scheme.
+
+\item[C2] \emph{Uniform Interface:} Resources should be available through a uniform interface with well-defined interaction semantics, as is \emph{Hypertext Transfer Protocol (HTTP)}. HTTP has a very small set of methods with different semantics (\emph{safe}, \emph{idempotent}, and others), which allows interactions to be effectively optimized. It also allows for a clean decoupling of the interface (RESTful interface) and the actual service implementation. Unlike in WS-*, where methods (also known as service operations) take arbitrary names and semantics, in HTTP, the uniform interface has 5 main methods:
+\begin{enumerate}
+\item \code{GET} is used to retrieve the representation of a resource.
+\item \code{PUT} is used to update the state of an existing resource or to create a resource by providing its identifier.
+\item \code{DELETE} is used to remove a resource.
+\item \code{POST} creates a new resource.
+\end{enumerate}
+
+While these verbs definitely cover very well CRUD (Create Read Update Delete) types of applications, they are also supposed to explicit every action a client can execute on a resource, whatever the type of application is.
+
+\item[C3] \emph{Self-Describing Messages:} Agreed-upon resource representation formats make it much easier for a decentralized system of clients and servers to interact without the need for individual negotiations. On the Web, media type support in HTTP and the \emph{Hypertext Markup Language (HTML)} allow peers to cooperate without individual agreements. For machine-oriented services, media types such as the \emph{Extensible Markup Language (XML)} and \emph{JavaScript Object Notation (JSON)} have gained widespread support across services and client platforms. JSON is a lightweight alternative to XML that is widely used in Web 2.0 applications and directly parsable to JavaScript objects.
+
+\item[C4] \emph{Hypermedia Driving Application State (Connectedness):} Clients of RESTful services are supposed to follow links they find in resources to interact with services. This allows clients to \quote{explore} a service without the need for dedicated discovery formats, and it allows clients to use standardized identifiers (C1) and a well-defined media type discovery process (C3) for their exploration of services. This constraint must be backed by resource representations (C3) having well-defined ways in which they expose links that can be followed.
+
+\item[C5] \emph{Stateless Interactions:} This requires requests from clients to be self-contained, in the sense that all information to serve the request must be part of the request. HTTP implements this constraint because it has no concept beyond the request/response interaction pattern; there is no concept of HTTP sessions or transactions. It is important to point out that there might very well be state involved in an interaction, either in the form of state information embedded in the request (HTTP cookies), or in the form of server-side state that is linked from within the request content (C3). Even though these two patterns introduce state into the service, the interaction itself is completely self-contained (does not depend on the context for interpretation) and thus is stateless.
+
+\end{itemize}
+
+Tying together C2 and C3, HTTP also supports \newterm{content negotiation}, allowing both clients and servers to communicate about the requested and provided representations for any given resource. Since content negotiation is built into the uniform interface, clients and servers have agreed-upon ways in which they can exchange information about available resource representations, and the negotiation allows clients and servers to choose the representation that is the best fit for a given scenario.
+
+The seminal work on REST~\cite{Fielding2000} on which these guidelines are based, presents REST as a meta-architecture~\cite{Richardson2007}. This offers the advantage of being able to use the thesis as a set of tools for judging how RESTful systems are but it lacks practical guidelines on how to actually implement a RESTful system on the Web. In~\cite{Richardson2007}, Leonard Richardson and Sam Ruby propose the concept of ROA or Resource Oriented Architectures, which is a Web architecture that can be used to create loosely-coupled services on the Web.
+
+The design goals of ROAs and their advantages for a decentralized and large-scale service architectures align well the field of pervasive computing: millions to billions of available resources and loosely coupled clients, with potentially millions of concurrent interactions with one service provider. Based on these observations, we argue that RESTful architectures are the most effective solution for the Web of Things, as they scale better and are more robust than RPC-based architectures such as WS-* Web services.
+
+In the next sections we illustrate how the 5 constraints of REST as well as the concept of Resource Oriented Architectures can be applied an adapted to fit the requirements of a global and distributed ecosystem of smart things offering a comprehensive and interoperable service layer.
+
+\subsubsection{RESTful Things: A Resource Oriented Architecture for Things}\label{ROA-for-things}
+\begin{figure}
+\imgHalf{wot/sensor-abstract}
+\caption{An generic sensor node, offering a number of sensors and actuators.}
+\label{fig:abstractSensor}
+\end{figure}
+The \WoT{} can be realized by applying principles of Web architecture, so that real-world objects and embedded devices can blend seamlessly into the Web. Instead of using the Web as a transport infrastructure we aim at making devices an integral part of the Web and its infrastructure and tools by using HTTP as an application layer protocol. In this section, we describe the use of REST as a universal interaction architecture, so that interactions with smart things can be built around universally supported methods. We describe the process of Web-enabling smart things into four main steps:
+\begin{enumerate}
+ \item Resource Design: identify the functionality or services of a \st{}, organize the hierarchy of these services and link them together, fulfilling constraints C1 and C4.
+ \item Representation Design: decide which representations will be served for each service, fulfilling constraint C3.
+ \item Interface Design: decide on the actions allowed for each service, fulfilling constraint C2 and C5.
+ \item Implementation Strategy: choose a strategy to integrate the \sts{} to the Internet and the Web, either directly or through a \sg{}.
+\end{enumerate}
+
+In the following, we provide a set of guidelines to Web-enable smart things based on these four main steps. As case study, we describe how it can be used to bring wireless sensor nodes to the World Wide Web. The abstract sensor node we use as an illustration is shown in \figRef{abstractSensor}.
+
+
+\subsubsection{Resource Design: Modeling Functionality as Linked Resources}
+As mentioned before, the central idea of REST revolves around the notion of resources. In our context, a resource is any component of an application that is worth being uniquely identified and linked to. On the Web, the identification of resources relies on Uniform Resource Identifiers (URIs), and representations retrieved through resource interactions contain links to other resources, so that applications can follow links through an interconnected web of resources. Clients of RESTful services are supposed to follow these links, just like one browses Web pages, in order to find resources to interact with. This allows clients to \important{explore} a service simply by browsing it, and in many cases, services will use a variety of link types to establish different relationships between resources.
+
+\paragraph{Resource Identification}In the Web of Things we have several levels of resources. While some of them represent physical objects, others are virtual only. Resources on the Web are often organized in a hierarchy, the hierarchical way of organizing and linking resources is also very relevant in the physical world and can be used as a basis to identify the resources of a smart thing.
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{figures/wot/sensor-hierarchy}
+\caption{An example of resource hierarchy deduced from the abstract sensor. This hierarchy forms a tree where each resource has $0..n$ child resources.}
+\label{fig:sensorHierarchy}
+\end{figure}
+As an example, from the abstract sensor node in \figRef{abstractSensor} we can extract resources as shown in \figRef{sensorHierarchy}. From this hierarchy we understand that each node has sensors (light, temperature, etc.), actuators (speakers, LEDs, etc.). Each of these components is modeled as a resource and assigned a URI which is deduced from the name of the current resource and its predecessors in the hierarchy. For instance, the light sensor gets the URI:
+\RESTURL{/generic-nodes/1/sensors/light}.
+
+In an HTTP context, these identifiers or URIs are also known as URLs. However, since the term URL has been officially deprecated we use URI in the remainder of this thesis. Nevertheless, the widespread use of the term URL lead to a contemporary definition in which \quote{a URL is a type of URI that identifies a resource via a representation of its primary access mechanism (e.g., its network location), rather than by some other attributes it may have}~\citeweb{uris}. On the Web a URL is a URI beginning with the \code{http:} scheme and resolvable through the HTTP protocol.
+
+We can form the absolute URI (or URL) of a smart thing's resource by adding a protocol scheme and root domain to the identifier. An important and powerful consequence of this is the addressability and portability of resource identifiers: They become unique (Internet or Intranet-wide, depending on the domain-name or assigned IP address) and can be resolved by any HTTP library or tool (e.g., a browser), bookmarked, exchanged in emails, instant messaging tools, encoded in QR-codes (Quick Response), etc.
+
+For instance, typing a URI such as:\\
+\RESTURL{http://<DOMAIN>:<PORT>/generic-nodes/1/sensors/light}\\ 
+in a browser requests a representation of the resource light of the resource sensors of generic-node number 1.
+
+Since there are no rules on the semantics of resources' identifiers, we cannot deduce a strict rule for naming physical resources. However, we suggest naming them according to two simple guidelines:
+\begin{enumerate}
+ \item Use descriptive names: as the resource names appear in the URIs using names with some semantic value can be of great help to developers and users.
+ \item Use the plural form for aggregate resources: for instance if a smart thing has several sensors, then there should be a parent resource called \RESTURLInLine{sensors} from which every sensor is accessible with hyperlinks. 
+\end{enumerate}
+
+\paragraph{Linking}A resource should also provides links back to its parent and forward to its children as well as to any related resource. As an example, the resource \RESTURL{generic-nodes/1/sensors/}
+provides a list of links to all the sensors offered by generic-node 1. This interlinking of resources that is established through both, resource links and hierarchical URI, is not strictly necessary, but well-designed URIs make it easier for developers and users to \quote{understand} resource relationship and even allow non-link based ad-hoc interactions, such as hacking a URI by removing some structure and still expecting for it to work somehow. In some browsers this URI hacking is even part of the UI, where a \quote{go up} function in the browser simply removes anything behind the last slash character in the current URI and expects that the Web site will serve a useful representation at that guessed URI.
+
+Links are very important in Resource Oriented Architectures since they help clients to \important{discover} related resources. Using these links the client can discover other related services, either by browsing in the case of a human client or by crawling in the case of a machine. Thus, links in resource oriented architectures fulfill the constraint (C4) and enable the dynamic discovery of resources.
+
+However, as we will see below, resources are not bound to a particular format but can be served using several formats. When a client requests an HTML representation then representing links is very straightforward as HTML has a standard mechanism for specifying links. With other formats such as JSON, however, there is no single standard format for providing links.
+
+One could argue that the client can always fall back to an HTML representation when it is interested in related resources. However, this is inefficient in terms of HTTP calls required for a request which is especially relevant in resource-constrained environments such as the Web of Things. A good practice is thus to embed links consistently across all provided representations. One shortcoming of this approach is that the lack of standard link representation in formats such as JSON leads to a tighter coupling between the client and provided services.
+
+
+\subsubsection{Representation Design: Formatting the Resources}
+\begin{figure}
+\imgHalf{wot/spot-html-rep}
+\caption{HTML representation (as rendered by a Web browser) of the temperature resource of a sensor node containing links to parent and related resources.}
+\label{fig:genericNodeHTML}
+\end{figure}
+Resources are abstract entities and are not bound to any particular representation. Thus, several formats can be used to represent a service of a \st{}. However, agreed-upon resource representation formats make it much easier for a decentralized system of clients and servers to interact without the need for individual negotiations. 
+
+On the Web, media type support in HTTP and the Hypertext Markup Language (HTML) allow peers to cooperate without individual agreements. It further allows clients to navigate amongst the resources using hyperlinks. For machine-to-machine communication, other media types, such as XML and JSON have gained widespread support across services and client platforms.
+
+
+In the case of smart things, we suggest support for at least an HTML representation to ensure browsability by humans. Note that since HTML is a rather verbose format, it might not be directly served by the things themselves, but by intermediate reverse proxies, called \sgs{} and described in \sectRef{gateways}. 
+
+For machine-to-machine communications, we suggest using JSON. Since JSON is a more lightweight format compared to XML, both is terms of message size and parsing time~\cite{Xu2009}, it is better adapted to devices with limited capabilities such as \sts{}. Furthermore, it can directly be parsed to JavaScript objects. This makes it an ideal candidate for integration into Web Mashups and thus for creating physical mashups (see \sectRef{physicalMashups}).
+
+In the example of our generic-sensor, each resource provides both, an HTML and a JSON representation. As an example, \lstRef{JSONRepresentation} shows the JSON representation of the temperature resource and \figRef{genericNodeHTML} shows the same resource represented as an HTML page with links to parents, subresources, and related resources.
+
+
+\begin{lstlisting}[caption=JSON representation of the temperature resource of a generic node, label=lst:JSONRepresentation, breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+{"resource":
+  {"methods":["GET"],
+  "name":"Temperature",
+  "links":["/feed", "/rules"],
+  "content":
+  [{"description":"Current Temperature",
+  "name":"Current Ambient Temperature",
+  "value":"24.0",
+  "unit": "celsius"}]}
+}
+\end{lstlisting}
+
+\subsubsection{Interface Design: Servicing Through a Uniform Interface}\label{interfaceDesign}
+In REST, interacting with resources and retrieving their representations all happens through a uniform interface which specifies a service contract between the clients and servers. The uniform interface is based on the identification of resources, and in case of the Web, this interface is defined by the HTTP protocol. We focus on three particular parts of this interface that can be used to model a smart thing's API: operations, content-negotiation, and status codes.
+
+\paragraph{Operations on Resources}
+As mentioned before, HTTP provides five main methods to interact with resources, often also referred to as \newterm{verbs}. Constraining operations to these methods is one of the keys to enable loose-coupling of services, as clients only need to support mechanisms to handle these methods~\cite{Pautasso2009}.
+
+In the Web of Things, these operations map rather naturally, since smart things usually offer quite simple and atomic services. As an example:
+\begin{itemize}
+ \item \code{GET} can be used to retrieve the current consumption of a smart meter.
+ \item \code{PUT} can be used to turn an LED on or off.
+ \item \code{POST} can be used to create a new feed used to trace the location of an RFID tagged object.
+ \item \code{DELETE} can for example be used to delete a threshold on a sensor or to shutdown a device.
+\end{itemize}
+
+More concretely, as an example, a \code{GET} on
+\RESTURL{/generic-nodes/1/sensors/temperature}
+returns the temperature observed by node 1, i.e., it retrieves the current representation of the temperature resource. A \code{PUT} on
+\RESTURL{/generic-nodes/1/actuators/leds/1}
+with the updated JSON representation \{''status'':''on''\} (which was first retrieved with a \code{GET} on \code{/leds/1}) switches on the first LED of the node, i.e., it updates the state of the LED resource. A \code{POST} on
+\RESTURL{/generic-nodes/1/temperature/rules} 
+with a JSON representation of the rule as \{``threshold``:35\} encapsulated in the HTTP body, creates a rule that will notify the caller whenever the temperature is higher than 35 degrees, i.e., it creates a new rule resource without explicitly providing an identifier. Finally, a \code{DELETE} on
+\RESTURL{/generic-nodes/1} is used to shutdown the node, or a \code{DELETE} on 
+\RESTURL{/generic-nodes/1/sensors/temperature/rules/1} is used to remove rule number 1.
+
+Additionally, another less-known verb is specified in HTTP and implemented by most Web servers: \code{OPTIONS} can be used to retrieve the operations that are allowed on a resource as well as metadata about invocations on this resource. In a programmable Web of Things, this feature is very useful, since it allows applications to find out at runtime what operations are allowed for any URI. As an example, an \code{OPTIONS} request on \RESTURL{/generic-nodes/1/sensors/humidity/rules}
+returns \code{GET}, \code{POST}, \code{OPTIONS} as shown in the full HTTP response in \lstRef{HTTPOptions}.
+
+\begin{lstlisting}[caption=HTTP response of an \code{OPTIONS} request on a resource. It informs the client about the operations (\code{GET} and \code{POST}) available for the resource., label=lst:HTTPOptions, breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+HTTP/1.1 200 The request has succeeded
+Content-Length: 0
+Allow: GET, POST, OPTIONS
+Date: Tue, 19 Apr 2011 12:17:42 GMT
+Accept-Ranges: bytes
+Server: Noelios-Restlet-Engine/1.1.7
+Connection: close
+\end{lstlisting}
+
+\paragraph{Content Negotiation}
+Since resources are representation agnostic there is a need for clients and servers to be able to negotiate the right format for the right purpose. As a consequence, HTTP specifies a mechanism for clients and servers to communicate about the requested and provided representations for any given resource; this mechanism is called content negotiation. Since content negotiation is built into the uniform interface of HTTP, clients and servers have agreed-upon ways in which they can exchange information about requested and available resource representations, and
+the negotiation allows clients and servers to choose the best representation for a given scenario.
+For the abstract-node, a content negotiation message exchange looks as follows. The client begins with a \code{GET} request on
+\RESTURL{/generic-nodes/1/temperature/rules}.
+It also sets the \code{Accept} header of the HTTP request to a weighted list of media types it understands, for example to: \quote{\code{application/json;q=1, application/xml;q=0.5}}. The server then tries to serve the best possible format it knows about and specifies
+it in the \code{Content-Type} of the HTTP response. In our case, the generic-node cannot offer XML and would thus return a JSON representation and set the HTTP header to \code{Content-Type: application/json}.
+
+While this is the standard way of negotiating a representation in HTTP, it has two drawbacks when implemented. First, it is unfortunately not implemented evenly by all the Web servers. More importantly, it encapsulates the required format in the HTTP packet directly and does not expose it to the users.  Since the required format is a key parameter, we suggest supporting content negotiation directly in the URI as well in order to make it more natural for everyday users as well as directly testable and bookmarkable. 
+
+Thus, requests such as \RESTURL{/generic-nodes/1/sensors/temperature.json} should be supported as well and should return the temperature resource in the JSON format as shown in \lstRef{JSONRepresentation}. In case the smart thing does not accept this format it should return the closest possible format (e.g., XML in this case). Furthermore, it should set the appropriate response header: \code{Content-Type: application/json} just as with standard content negotiation. 
+
+\paragraph{Status Codes}
+HTTP also offers a way of expressing errors and exceptions. Indeed, the status of an HTTP response is represented by standardized status codes sent back as part of the header in the HTTP response message. There exist several dozens of codes which each have well-known meanings for HTTP clients, these codes and their meanings are listed in the specification of HTTP 1.1~\cite{HTTP1999}. Furthermore, in~\cite{Richardson2007} these codes are analyzed and explained in the context of ROAs with valuable examples.
+
+In the Web of Things, these codes a very valuable since they provide a lightweight but yet powerful way of notifying abnormal and successful request execution. 
+
+As an example, a \code{POST} request on \RESTURL{/generic-nodes/1/sensors/humidity} returns a \code{405} status code. The client understands the status code as the notification that \quote{the method specified in the request is not allowed for the resource identified by the request URI}.
+
+A concrete example of mapping domain-specific exceptions to Status Codes is provided in ~\chapterRef{EPCISWebadapter} where RFID exceptions are mapped to HTTP status codes.
+
+\subsection{Implementation Strategy: Connecting Things to the Internet}\label{gateways}
+\begin{figure}
+\imgLine{wot/smart-gateway-new}
+\caption{Web and Internet integration with \sgs{} (left), direct integration (right). The \sgs{} are small software application servers containing: Device Drivers to understand the low-level \sts{}, core services to create Web-APIs, pluggable services to offer additional functionality and a Web server.}
+\label{fig:smartGateways}
+\end{figure}
+For a device to be part of the Web of Things, there are two basic requirements:
+\begin{enumerate}
+ \item Implementation of the TCP/IP protocols ideally over a IEEE 802 (Ethernet) or IEEE 802.11 (WiFi) network.
+ \item Implementation of a Web server supporting the HTTP 1.1 protocol.
+\end{enumerate}
+While an increasing number of embedded devices are supporting these two requirements natively, not all of them do, mainly because their computational, memory and communication bandwidth are too limited. Hence, in this section we propose two alternatives to integrate smart things to the Internet and the Web.
+
+\subsubsection{Native Internet and Web support}
+Research has shown that TCP/IP stacks can be implemented to meet the constraints of embedded devices. In~\cite{Dunkels2003} Dunkels implemented a full TCP/IP stack for 8 bits embedded devices with a footprint in the order of 10 kilobytes. More recent developments worked on adapting the IPv6 protocol to meet the energy constraints of these devices and proposed the 6LoWPAN~\cite{Hui2008} architecture. Similarly, an increasing number of sensor nodes and embedded devices are equipped with native low-power WiFi support (over IEEE 802.11) modules and embedded HTTP servers. This makes them seamlessly integrated to the Internet. 
+
+Previous work has also shown that embedding Web servers on resource and energy constrained devices is feasible~\cite{Duquennoy2009,Lin2004,Guinard2009-INSS}. Hence, it is a reasonable assumption that smart things will increasingly understand and implement the TCP/IP and HTTP 1.1 protocols. As an example, the off-the-shelve FlyPort shown in \figRef{flyport} is an embedded device from the Openpicus open-source project~\citeweb{flyport}. It features a low-power WiFi module with full TCP/IP support and a Web server implementing HTTP 1.1. Similarly, the RN-131 nodes from Roving Networks~\citeweb{roving} have TCP/IP over IEEE 802.11 connectivity.
+\begin{figure}
+\imgMedium{wot/flyport}
+\caption{The Flyport embedded device offers a low-power WiFi module, full TCP/IP support and a native Web server supporting HTTP 1.1. (Reproduced with the kind authorization of OpenPicus, \url{www.openpicus.com})}
+\label{fig:flyport}
+\end{figure}
+With world-wide consortia of industrial key-players appearing such as the IPSO Alliance~\citeweb{ipso}, it is very likely that most of the future devices will have all the required elements with no need to translate HTTP requests from Web clients into the appropriate protocol for the different devices, as shown in the right part of \figRef{smartGateways}.
+
+For these types of smart things to be truly part of the Web, their functionality should be available through a RESTful interface, i.e., they should implement the \devLayer{} of the presented \WoTA{}.
+
+\subsubsection{Reverse Proxies: \sgs{}}\label{smartGateways}
+However, not all things can fulfill the requirements for TCP/IP and HTTP support. Indeed, for a number of \sts{}, these protocols are too demanding in terms of computation, memory, required bandwidth or battery life. As an example, it will probably take years until RFID tags will be powerful enough to implement these protocols and even then, it is unlikely for tags to communicate directly over IEEE 802.11. Similarly, for some sensor networks, ultra-optimized communication is a requirement and in these terms, dedicated low-power protocols such as Zigbee (over IEEE 802.15.4) or Bluetooth (over IEEE 802.15.1) or Ultra-Wideband
+(UWB, over IEEE 802.15.3)~\cite{Lee2007} with dedicated transport protocols are a better choice, even if native TCP/IP is increasingly being supported on some of these platforms, e.g., for IEEE 802.11 through 6LoWPAN~\cite{Hui2008}.
+
+Hence, when native TCP/IP and HTTP support is not possible or not desirable, we suggest that Web integration takes place using a software bridge. On the Web, similar bridges are called \newterm{reverse-proxies}. A reverse proxy takes requests from the Internet and forwards them to servers in an internal network. Reverse proxies have various interesting features, first they basically hide the internal network to the clients on the Internet. As a consequence, they can operate on the requests before they actually reach the services and are used for caching and load-balancing in several service oriented architectures.
+
+For the Web of Things, we suggest taking a similar approach and propose the concept of \newterm{\sgs{}}~\cite{Trifa2009,Guinard2009,Guinard2010-WoT,Guinard2010-Search} to capture the fact that it is an application level component that does more than only data forwarding. A \st{} basically hides the (proprietary) low-level protocols that smart things natively use and make them available on the Internet through TCP/IP support and on the Web through a Web server. From the Web clients' perspective, the actual Web-enabling process is fully transparent, as interactions are based on HTTP in both cases.
+
+
+\paragraph{System Architecture}
+As shown in the left-most part of \figRef{smartGateways}, a \sg{} is a software component composed of three basic layers. First, core to the concept of \sgs{} are \newterm{Device Drivers}. Indeed, a \st{} can support several types of devices through a driver architecture as shown in \figRef{smartGateways} where the gateway supports three types of devices and their corresponding communication protocols. To maximize re-usability, a Device Driver should be composed of two different software components: a \newterm{Transport Driver} and an \newterm{Application Driver}. The Transport Drivers are responsible for providing an API to communicate through a particular protocol such as IEEE 802.15.4 or Bluetooth. On top of these, the Application Drivers are responsible for the sometimes proprietary service protocols of devices. As an example, a Device Driver for an energy metering sensor node, would be composed of a Bluetooth Transport Driver (that can be reused for other devices) and an Application Driver that understands the proprietary service or application protocol of the node.
+
+Application drivers are in charge of mapping the functionality of a device to a RESTful API. For this, they use a \newterm{REST Application Framework} which provides methods for binding URIs to functionalities of the proxied smart things and formatting the responses using Web representations such as JSON or HTML.  
+
+Closely bound with the REST Application Framework, the \newterm{Embedded Web Server} serves the service requests through the HTTP protocol. Ideally, it should also feature an Atom-server (or at least Atom representations) and be a non-blocking Web server with support for HTML5 WebSockets (see \sectRef{push}).
+
+Through these components, clients can use HTTP for requesting services on non-IP and non-Web devices. As an example, consider a request to an energy sensor node coming from the Web through the RESTful API to:
+\RESTURL{/energy-nodes/living-room/consumption.json}.
+The request is captured by the Embedded Web Server of the \sg{} unmarshalled into an object and further sent to the method previously bound to \RESTURLInLine{/living-room/consumption}. This method is located in the Device Driver representing this particular energy sensor node. The Device Driver then translates the request in the appropriate format (e.g., a Bluetooth service call) to the Transport driver. The response is then transmitted back to the Device Driver which uses the REST Application Framework to marshal it into a Web format and further transmit it back to the embedded Web server. This process is summarized in \figRef{gateway-seq}.
+\begin{figure}
+\imgLine{wot/smartgateway-seq}
+\caption{Simplified sequence diagram of the interaction between a client and a \st{} through a \sg{}. The \sg{} framework delegates the invocation to the corresponding Device Driver and takes care of converting the results into the appropriate format (e.g., JSON) and wrapping them into an HTTP packet returned to the client.}
+\label{fig:gateway-seq}
+\end{figure}
+
+
+\paragraph{Software Implementation}
+We implemented several \sgs{}. Our first implementation was based on a small foot-print C++ software that was used to Web-enabled sensor nodes capable of measuring electricity consumption~\cite{Guinard2009} (see also \sectRef{smartMetering}). Based on these implementations we realized that a lot of the written code could be re-used to Web-enable other \sts{}. We discuss two important points to foster the rapid integration of new devices and functionality to the \sgs{}: 
+
+\subparagraph{Modular Device/Application Drivers}
+First, modular Device and Application Drivers prevents \sts{} integration from becoming too complex and fosters re-using standard features (e.g., Bluetooth communication or binding a URI to a method). To ensure a high degree of modularity of these drivers, we implemented them using Java and in particular the OSGi framework~\citeweb{osgi}. OSGi is a modularization system built on top of Java that fosters re-usability through \newterm{bundles}~\cite{Hall2011}. Particularly interesting, is the concept of \newterm{Declarative Services} which facilitate the integration of different bundles. One of the big advantages of these service declarations is the ability to load a new (unknown) Bundle at run-time and having other components directly using it.
+
+As a consequence, Device Drivers can be injected in a running \sg{}. This enables for instance the dynamic and remote injection of drivers to support new types of devices in an ad-hoc manner. Alternatively, the concept of Java Enterprise Application Servers~\cite{Goncalves2010}, such as for example the Glassfish Application Server~\citeweb{glassfish} can be used to create component-based \sgs{}. Indeed, the latest generations of these applications servers has become more lightweight and components can be injected in a managed run-time environment that features a Web server.
+
+\subparagraph{Automatic Generation of Web Boilerplate Code} Furthermore, we realized that a lot of the code necessary to generate these Drivers (and OSGi) bundles and the mappings from Web resources to methods in Java code could be automated. Hence, in the \newterm{AutoWoT} project~\cite{Mayer2011} we propose a toolkit that enables developers to easily create new Device Drivers compatible with our \sg{} architecture. The toolkit was open-sourced and is available online~\citeweb{autowot}.
+
+An editor let's developers specify the resources of a \st{} in a visual manner. The editor then generates an XML description of the resource tree that is used to generate the interfaces and OSGi-specific code to create a driver. Then, all the developer has to do is to fill the callback methods triggered whenever a Web resource is invoked, with the \sts{} specific code, e.g., implementing the \code{doGetTemperature()} method called when a client invokes a \code{GET} request on \RESTURLInLine{/temperature} in order for it to get the temperature data from the sensor node.
+
+\subparagraph{Deployment}
+Ideally \sgs{} should have a small memory footprint to be integrated into embedded computers already present in the infrastructure. For instance, when used to provide access to \sts{} in a home or office environment, the \sgs{} can be deployed on devices such as Wireless routers or Network Attached Storage (NAS). Our implementation of the \sg{} OSGi software was tested successfully on MicroClients SR from Norhtec~\citeweb{norhtec} featuring 500Mhz CPUs and 512 Mo of RAM each as well as an Asus WL-500gP Wireless router running the OpenWRT embedded Linux distribution~\citeweb{openwrt}.
+
+\subsection{Pushing Data from \stsBig{} and \sgs{}}\label{push}
+\begin{figure}
+\imgLine{/wot/client-pull-sensor-push}
+\caption{Sequence diagram of the communication between a client and a \st{}. On the left a traditional HTTP client-pull communication is started. The client has to constantly pull the \sts{} for updates. On the right a real-time Web approach is taken where the client is informed about the changes by the \sts{}.}
+\label{fig:clientServer}
+\end{figure}
+HTTP was designed as a client-server architecture, where clients can explicitly request (pull) data and receive it as a response. This makes REST and HTTP \important{well suited for controlling} \sts{}, but this client-initiated interaction models seems unsuited for event-based systems, where data must be sent asynchronously to the clients as soon as it is produced.
+
+This type of interaction is not really natural for some \sts{} applications and especially for \important{monitoring} applications~\cite{Duquennoy2009a,Trifa2010}. Consider for instance a sensor node used to detect a fire condition. As shown in \figRef{clientServer}, in the protocol proposed by HTTP 1.1, the client constantly has to request updates (a.k.a. \newterm{polling}). With this protocol, in the best case most requests end up with empty responses (\code{304 Not Modified}) as the temperature did not change. In the worst case, the server (i.e., \st{}) transmits the same data after each request. This is sub-optimal for two reasons: First, it generates a great number of HTTP calls and a great part of these calls are void. Since reducing the number of HTTP calls to the minimum is key in scaling Web sites~\cite{Souders2007}, this model raises scalability issues when considering monitoring applications in which several clients are connecting to a \st{}. Beyond scalability, numerous HTTP calls have more important consequences in the case of \sts{} such as their relatively high energy consumption which is important in the case of embedded devices running on batteries~\cite{Yazar2009}. 
+
+Furthermore, although near real-time can be simulated by polling the \sts{} very regularly, a protocol in which the \sts{} could push asynchronously to the client as soon as a condition is met enables providing real-time information in the \WoT{}. In this section we discuss three architectural enhancements that contribute to solving these issues, while making sure that the proposed mechanisms can be integrated with the Web.
+
+\subsubsection{Feeds of \sts{}}
+\begin{lstlisting}[caption=Example of usage of the Atom format for providing historical information about a \st{}., label=lst:feedSmartThing, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title type="text">[Title of Aggregation]</title>
+    <author><name>[Name of the SmartGateway]</name></author>
+    <link href="[Parent]" rel="related" type="[Type of representation]"/>
+    <link href="[Child1]" rel="related" type="[Type of representation]"/>
+    <link href="[Child2]" rel="related" type="[Type of representation]"/>
+    <id>[uuid]</id>
+    <entry>
+      <title>[Content Description]</title>
+      <id>[Unique ID for this event]</id>
+      <author><name>[ID of the Smart Thing]</name></author>
+      <uri>[Root URI of the Smart Thing]</uri>
+      <published>[Date and time of event]</published>
+      <content type="[text|html|xml|...]"</content>
+    </entry>
+    <entry>
+      [...]		
+    </entry>
+</feed>
+\end{lstlisting}
+
+With Atom\footurl{tools.ietf.org/html/rfc4287}, the Web has a standardized and RESTful model for interacting with collections, and the \newterm{Atom Publishing Protocol (AtomPub)} extends Atom's read-only interactions with methods for write access to collections. Because Atom is RESTful, interactions with Atom feeds can be based on simple \code{GET} operations which can then be cached.
+While initially created to aggregate content on the Web, feeds have two interesting features for the \WoT{}: First, they allow to create aggregates of \sts{} monitoring information. As an example a feed could be created to aggregate all information about energy sensors in a particular location (e.g., a building). Then feeds contain historical information and can thus be used to get not only the latest value of a sensor but rather its values over a period of time. Event more advanced scenarios can be based on feeds supporting query features, but this is an active area of research and there are not yet any standards~\cite{Wilde2009}. 
+
+Using feeds to contain data provided by \sts{} is rather straightforward as shown in \lstRef{feedSmartThing} and thus feeds can be supported (through content-negotiation) as a representation for any resource or aggregate of resources of \sts{}.
+
+More importantly, in the case of the \WoT{}, feeds can also be used to decouple clients from the actual resources. Indeed, the task of creating feeds can be delegated to completely external AtomPub compliant servers. As an example, it can be outsourced to the \sgs{} we introduced before.
+
+However, using Atom feeds as a representation format does not provide a solution to the fact that Web clients have to poll the data. Instead of polling it directly from the sensors, they now have to poll Atom servers. It is worth noting, that new mechanisms such as Pubsubhubbub (PuSH)~\citeweb{pubsubhubbub} propose protocols to push feed updates back to the clients. However, these protocols requires additional infrastructure nodes (called hubs) and additional libraries on the client-side.
+
+
+
+\subsubsection{HTTP Callbacks (Web Hooks)}
+
+The most straightforward way to allow pushing to clients on the Web is to transform them into servers. This technique is often referred to as \newterm{Web Hooks} or \newterm{HTTP Callback} and is a very simple mechanism that can be used to have \sts{} pushing information to Web clients.
+
+First, the client has to \newterm{subscribe} to a resource, for instance the energy consumption resource of a smart meter, it does so by \code{POST}ing a message to the \RESTURLInLine{/subscribe} resource of the smart meter, alongside with a callback URI and usually a threshold (e.g., $> 50$ Watts). As a result, the \sts{} will \code{POST} data to the Web client whenever the threshold is met.
+
+However, a very important issue with such a mechanism is that it places a rather hard constraint since every client also has to become an HTTP server. This constraint prevents clients such as Web browsers to interact with HTTP Callbacks directly unless some additional libraries or plugins are used. Furthermore, when clients are behind (corporate) firewalls traffic coming from the \sts{} through callbacks will very often be blocked.
+
+
+\subsubsection{WebSockets for the Real-time \WoT{}}\label{real-time-and-tpusher}
+As a consequence of this constraint, several techniques appeared in order for servers to push data back to clients without having clients explicitly requesting it. Since browsers were not designed with server-sent events in mind, Web application developers have tried to work around several specification loopholes often referred to a \newterm{Comet} techniques~\citeweb{comet}. Comet is an umbrella term for most work-around, two of which are used quite often in practice: \newterm{Long Polling} and \newterm{Streaming}.
+
+In the first technique, \newterm{Long Polling}, the client issues a request that will end only when the server is ready to send some data. Directly after the response the client will re-issue a request and so forth. In the second technique, \newterm{Streaming}, the client issues a request and the server never signals the end of this request, instead it keeps sending data over the TCP connection. In the absence of events, some servers will regularly send dummy data to prevent the connection from being closed.
+ 
+While these work-around are used in practice they have two drawbacks: First, they generate unnecessary traffic~\cite{Lubbers2010}. More importantly, they are extremely resource demanding for the vast majority of Web servers. Indeed, most currently deployed Web servers allocate one thread or process for each connected client. Unlike in traditional HTTP requests, Comet requests do not end and thus quickly overload the memory of servers. To prevent this, a new generation of Web servers sometimes called non-blocking servers feature routines that let them suspend connections and manage several of them in a single thread. Researchers have been implementing such a server for wireless sensor nodes that can manage up to 256 Comet connections~\cite{Duquennoy2009a}.
+
+More recently, WebSockets (part of the HTML5 drafts~\citeweb{websockets}) were proposed. WebSockets propose duplex communication with a single TCP/IP connection directly accessible from any compliant browser through a simple JavaScript API. The increasing support for HTML5 in Web and Mobile Web browsers and makes it a very good candidate for pushing data in the \WoT{}. Furthermore since WebSockets basically consist of an initial handshake followed by basic message framing, layered over TCP, they can be implemented in a straightforward manner on all platforms supporting TCP/IP, not only browsers.
+
+\paragraph{\tpusher{}}
+We propose to add support for WebSockets to the \WoTA{} in order to offer a Web real-time eventing mechanism to communicate with \sts{}. Rather than implementing the protocol directly on \sts{} we propose adding it as a component of our \sg{} architecture as shown in \figRef{smartGateways}. We call this new component \tpusher{} (things pusher) as introduced in~\cite{Guinard2011}.
+
+
+
+\subparagraph{System Architecture}
+\begin{figure}
+\imgLine{wot/websockets-gw-smartthing}
+\caption{Sequence diagram of the real-time communication between Web clients and \sts{} through \sgs{} and the \tpusher{} component. \tpusher{} is deployed on a \sg{} where it is used to serve content from \sts{} through a WebSocket interface.}
+\label{fig:tpusherAndSgs}
+\end{figure}
+ \tpusher{}'s integration and usage is summarized by the sequence diagram \figRef{tpusherAndSgs}. The sequence of events to enable a real-time communication between Web clients and \sts{} is as follow:
+\begin{description}
+ \item[\sg{} Subscription to the \stsBig{}] First, the \sg{} needs to establish a communication with the \sts{}. This is done through an HTTP Callback (Web Hook) subscription. Alternatively, for \sts{} not supporting TCP/IP and HTTP communication, this can be done through the synchronization-based driver approach that we will present in \sectRef{sync-based} where the \sg{} polls the \sts{} regularly using its Device Driver. From this point on, the \sg{} will regularly get data either by getting it pushed by the device or by pulling it.
+
+ \item[Client Upgrade to WebSockets] The Web client then issues a \code{POST} request on the \sg{} (e.g., on \RESTURLInLine{/topic/temperature}) and asks for a protocol \code{Upgrade} to WebSockets, note that the protocol \code{Upgrade} is a standard HTTP mechanism. The \code{Upgrade} is accepted and WebSocket messages can be sent back and forth between the \sg{} and the Web Client.
+
+ \item[WebSocket Push] From this point on, the \sg{} relays (through the \tpusher{} module) the data to the Web client over the same TCP/IP socket that is being kept open.
+ \end{description}
+
+The WebSocket specification also offers a JavaScript API that allows creating clients directly in browsers. The simplicity of this API (that should be supported by most browsers when HTML5 is finalized) is the power of WebSockets. Indeed, a shown in \lstRef{jsWebSockets} within 6 lines of simple JavaScript code, Web applications can open a WebSocket connection and thus, in our case, have a standard Web real-time communication with \sts{}.
+
+\lstinputlisting[caption=WebSockets JavaScript Client API. These lines of code are enough for a Web page to subscribe to a WebSocket and react on all possible incoming events., label=lst:jsWebSockets, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]{code/ws-api.js}
+
+\subparagraph{Software Implementation}
+Our implementation is based on Atmosphere~\citeweb{atmosphere}, a Java abstraction framework for enabling push support on most Java Web servers. One of the advantages of this approach is to be able to deploy \tpusher{} on recent Web Servers such as Grizzly~\citeweb{grizzly}, which are highly optimized to push events on the Web because of their usage of non-blocking threads for each new client. In order to support browsers or other clients that do not support HTML5 WebSockets yet, we use a client-side abstraction JavaScript library called Atmosphere JQuery Plugin which falls back to a Comet type of connection in case WebSockets are not supported by the client.
+
+\subsection{Summary and Applications}
+In this section we discussed the integration of \sts{} to the Internet and the Web. First, we applied the RESTful principles in a systematic manner. These guideline are then applied to Web-enable several \sts{}. In particular in \sectRef{spots} where they are applied to Wireless sensor nodes, or in \sectRef{EPCISWebadapter} where we apply them to RFID systems.
+
+Then, we discussed the concept of \sgs{} to bring non TCP/IP and HTTP objects to the Web. The generic architecture of the \sg{} we described is used as a basis for the WSN Web-enabling described in \sectRef{sync-based} as well as a guideline to implement a \sg{} for smart meters described in \sectRef{SmartGateway4SmartMeter}.
+
+Finally, we discussed several ways of adding support for \sts{} to push events to Web clients and proposed the \tpusher{} service as an extension of \sgs{}. The \tpusher{} service is evaluated in \sectRef{tagpusher} where is it used to push data from RFID readers to mobile phones.

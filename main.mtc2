@@ -1,0 +1,152 @@
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 9}{section*.10}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 9}{section*.11}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 9}{section*.12}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 9}{section*.13}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 9}{section*.15}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.1}Device Accessibility Layer{}}{\reset@font\mtcSfont 11}{section.2.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 11}{section*.16}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.1.1}A Web API for Smart Things{}}{\reset@font\mtcSSfont 12}{subsection.2.1.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 12}{section*.17}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode REST in a Nutshell}{\reset@font\mtcSSSfont 12}{section*.18}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode RESTful Things: A Resource Oriented Architecture for Things}{\reset@font\mtcSSSfont 14}{section*.19}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Resource Design: Modeling Functionality as Linked Resources}{\reset@font\mtcSSSfont 15}{section*.20}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Resource Identification}{\reset@font\mtcPfont 15}{section*.21}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Linking}{\reset@font\mtcPfont 16}{section*.22}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Representation Design: Formatting the Resources}{\reset@font\mtcSSSfont 17}{section*.23}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Interface Design: Servicing Through a Uniform Interface}{\reset@font\mtcSSSfont 18}{section*.24}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Operations on Resources}{\reset@font\mtcPfont 18}{section*.25}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Content Negotiation}{\reset@font\mtcPfont 19}{section*.26}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Status Codes}{\reset@font\mtcPfont 20}{section*.27}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.1.2}Implementation Strategy: Connecting Things to the Internet}{\reset@font\mtcSSfont 20}{subsection.2.1.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 20}{figure.2.5}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Native Internet and Web support}{\reset@font\mtcSSSfont 20}{section*.29}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Reverse Proxies: Smart Gateways{}}{\reset@font\mtcSSSfont 21}{section*.30}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode System Architecture}{\reset@font\mtcPfont 22}{section*.31}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Software Implementation}{\reset@font\mtcPfont 23}{section*.32}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Modular Device/Application Drivers}{\reset@font\mtcSPfont 23}{section*.33}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Automatic Generation of Web Boilerplate Code}{\reset@font\mtcSPfont 23}{section*.34}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Deployment}{\reset@font\mtcSPfont 24}{section*.35}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.1.3}Pushing Data from Smart Things{} and Smart Gateways{}}{\reset@font\mtcSSfont 24}{subsection.2.1.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 24}{figure.2.8}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Feeds of smart things{}}{\reset@font\mtcSSSfont 25}{section*.37}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode HTTP Callbacks (Web Hooks)}{\reset@font\mtcSSSfont 26}{section*.38}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode WebSockets for the Real-time WoT{}}{\reset@font\mtcSSSfont 26}{section*.39}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode tPusher{}}{\reset@font\mtcPfont 27}{section*.40}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode System Architecture}{\reset@font\mtcSPfont 27}{figure.2.9}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Software Implementation}{\reset@font\mtcSPfont 28}{section*.42}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.1.4}Summary and Applications}{\reset@font\mtcSSfont 29}{subsection.2.1.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 29}{section*.43}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.2}Findability Layer{}}{\reset@font\mtcSfont 29}{section.2.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 29}{section*.44}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.2.1}Search Engines and the Internet of Things}{\reset@font\mtcSSfont 30}{subsection.2.2.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 30}{section*.45}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode A Smart Things Description Model and Microformats for the WoT}{\reset@font\mtcSSSfont 30}{section*.46}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Product Description}{\reset@font\mtcPfont 32}{section*.47}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Location}{\reset@font\mtcPfont 34}{section*.48}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Quality of Service}{\reset@font\mtcPfont 35}{section*.49}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Service Description: Discovery by Crawling}{\reset@font\mtcPfont 36}{section*.50}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Understanding the Benefits of Microformats}{\reset@font\mtcPfont 38}{section*.51}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Towards an STM Translation Service{}}{\reset@font\mtcPfont 38}{section*.52}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.2.2}A Web-Oriented Discovery and Lookup Infrastructure}{\reset@font\mtcSSfont 39}{subsection.2.2.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 39}{section*.53}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Distributed Infrastructure}{\reset@font\mtcSSSfont 40}{section*.54}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Discovery Services}{\reset@font\mtcSSSfont 41}{section*.55}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Lookup Services}{\reset@font\mtcSSSfont 42}{section*.56}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Types of Parameters}{\reset@font\mtcPfont 42}{section*.57}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Types of Queries}{\reset@font\mtcPfont 43}{section*.58}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Query Augmentation Service}{\reset@font\mtcPfont 44}{section*.59}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Software Architecture}{\reset@font\mtcSPfont 44}{section*.60}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Context Extractor}{\reset@font\mtcSPfont 45}{section*.61}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Context of Smart Things{}}{\reset@font\mtcSPfont 46}{section*.62}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Ranking Service Lookup Results}{\reset@font\mtcSPfont 46}{section*.63}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Lookup Process Summary}{\reset@font\mtcSSSfont 47}{section*.64}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Software Implementation}{\reset@font\mtcSSSfont 48}{section*.65}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.2.3}Evaluation}{\reset@font\mtcSSfont 48}{subsection.2.2.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 48}{section*.66}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Evaluation of the Lookup Service}{\reset@font\mtcPfont 48}{figure.2.17}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Evaluation of Types Query and Candidate Search}{\reset@font\mtcPfont 49}{figure.2.19}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.2.4}Summary and Applications}{\reset@font\mtcSSfont 50}{subsection.2.2.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 50}{section*.69}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.3}Sharing Layer{}}{\reset@font\mtcSfont 52}{section.2.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 52}{section*.70}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.1}Requirements for a WoT{} Sharing Platform}{\reset@font\mtcSSfont 52}{subsection.2.3.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 52}{section*.71}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.2}Social Access Control: An Architecture for the Social Web of Things}{\reset@font\mtcSSfont 53}{subsection.2.3.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 53}{figure.2.20}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.3}Retrieving the Owners' Social Graphs}{\reset@font\mtcSSfont 55}{subsection.2.3.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 55}{section*.73}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Leveraging Web Authorization Protocols: OAuth}{\reset@font\mtcSSSfont 55}{section*.74}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Ensuring Statelessness}{\reset@font\mtcPfont 56}{section*.75}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Leveraging Social Network APIs}{\reset@font\mtcSSSfont 56}{section*.76}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode OpenSocial}{\reset@font\mtcPfont 56}{section*.77}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.4}Registering and Sharing Smart Things{} and Smart Gateways{}}{\reset@font\mtcSSfont 57}{subsection.2.3.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 57}{section*.78}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.5}Accessing Shared Smart Things{}}{\reset@font\mtcSSfont 59}{subsection.2.3.5}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 59}{figure.2.23}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Leveraging Delegated Authentication}{\reset@font\mtcPfont 60}{section*.80}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.6}Physical Feeds Aggregation}{\reset@font\mtcSSfont 60}{subsection.2.3.6}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 60}{section*.81}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.7}Software Architecture}{\reset@font\mtcSSfont 61}{subsection.2.3.7}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 61}{figure.2.24}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Data Model}{\reset@font\mtcPfont 61}{section*.83}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Business Logic}{\reset@font\mtcPfont 62}{section*.84}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode RESTful API}{\reset@font\mtcPfont 63}{figure.2.27}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.8}Friends and Things: A Social WoT Web Application}{\reset@font\mtcSSfont 64}{subsection.2.3.8}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 64}{section*.86}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.3.9}Summary and Applications}{\reset@font\mtcSSfont 64}{subsection.2.3.9}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 64}{section*.87}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.4}Composition Layer{}}{\reset@font\mtcSfont 66}{section.2.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 66}{section*.88}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.1}Physical Mashups in the Web of Things}{\reset@font\mtcSSfont 66}{subsection.2.4.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 66}{section*.89}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Web 2.0 Mashups}{\reset@font\mtcSSSfont 66}{section*.90}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Physical Mashups{}}{\reset@font\mtcSSSfont 67}{section*.91}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.2}From Web 2.0 Mashups Editors to Physical Mashup Editors}{\reset@font\mtcSSfont 68}{subsection.2.4.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 68}{section*.92}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.3}Adapting a Web 2.0 Mashup Editor to the Web of Things}{\reset@font\mtcSSfont 68}{subsection.2.4.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 68}{figure.2.30}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.4}Requirements for Physical Mashup Editors}{\reset@font\mtcSSfont 71}{subsection.2.4.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 71}{section*.94}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.5}A Platform for Physical Mashups Editors}{\reset@font\mtcSSfont 72}{subsection.2.4.5}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 72}{figure.2.32}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.6}System Architecture}{\reset@font\mtcSSfont 72}{subsection.2.4.6}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 72}{section*.96}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Discovery Component}{\reset@font\mtcSSSfont 72}{section*.97}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Workflow Engine}{\reset@font\mtcSSSfont 73}{section*.98}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode A Domain Specific Language for Workflows}{\reset@font\mtcPfont 73}{section*.99}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Physical Mashups{} Building-Blocks Library}{\reset@font\mtcSSSfont 74}{section*.100}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Source Blocks}{\reset@font\mtcPfont 74}{section*.101}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Processing Blocks}{\reset@font\mtcPfont 75}{section*.102}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Target Blocks}{\reset@font\mtcPfont 76}{section*.103}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Repositories}{\reset@font\mtcSSSfont 76}{section*.104}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode RESTful API}{\reset@font\mtcSSSfont 77}{section*.105}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.4.7}Discussion and Summary}{\reset@font\mtcSSfont 77}{subsection.2.4.7}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 77}{section*.106}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.5}Developers Perspectives on the WS-* Alternative Architecture}{\reset@font\mtcSfont 78}{section.2.5}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 78}{section*.107}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.5.1}Methodology}{\reset@font\mtcSSfont 79}{subsection.2.5.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 79}{figure.2.35}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.5.2}Results}{\reset@font\mtcSSfont 80}{subsection.2.5.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 80}{section*.109}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Perceived Differences}{\reset@font\mtcSSSfont 80}{section*.110}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Learning Curve}{\reset@font\mtcSSSfont 81}{section*.111}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Suitability for Use-Cases}{\reset@font\mtcSSSfont 82}{section*.112}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode General Use-Cases}{\reset@font\mtcPfont 82}{section*.113}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode For smart things{}}{\reset@font\mtcPfont 83}{section*.114}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Smart Home Applications}{\reset@font\mtcSPfont 84}{section*.115}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode For Mobile Phones}{\reset@font\mtcSPfont 84}{section*.116}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode For Business Applications}{\reset@font\mtcPfont 84}{section*.117}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.6}Discussion and Summary}{\reset@font\mtcSfont 85}{section.2.6}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 85}{section*.118}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.7}Related Work}{\reset@font\mtcSfont 86}{section.2.7}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 86}{section*.119}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.7.1}Device Accessibility Layer{}}{\reset@font\mtcSSfont 86}{subsection.2.7.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 86}{section*.120}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.7.2}Findability Layer{}}{\reset@font\mtcSSfont 88}{subsection.2.7.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 88}{section*.121}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.7.3}Sharing Layer{}}{\reset@font\mtcSSfont 91}{subsection.2.7.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 91}{section*.122}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {2.7.4}Composition Layer{}}{\reset@font\mtcSSfont 92}{subsection.2.7.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 92}{section*.123}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {2.8}Summary}{\reset@font\mtcSfont 93}{section.2.8}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 93}{section*.124}}

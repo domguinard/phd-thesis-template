@@ -1,0 +1,108 @@
+%%%%%%%%%%%%%%%%%%%%%
+%  Dom Guinard 12/12/2010
+%%%%%%%%%%%%%%%%%%%%%
+
+% ***** Macros *****
+
+  \newcommand{\footurl}[1]{\footnote{\textcolor{black}{See \nolinkurl{http://#1}}}}
+  \newcommand{\notes}[1]{[NOTE: \textit{#1}]}
+  \newcommand{\code}[1]{\texttt{#1}}
+  \newcommand{\RESTURL}[1]{\textcolor{black}{\texttt{\nolinkurl{#1}}}}
+  \newcommand{\RESTURLInLine}[1]{\textcolor{black}{\texttt{\nolinkurl{#1}}}}
+  \newcommand{\RESTURLNewLine}[1]{\\ {\texttt{\nolinkurl{#1}}} \\}
+  \newcommand{\todo}[1]{\textbf{\textcolor{red}{TODO:#1}}}
+  \newcommand{\addevenblankpageifneeded}{\cleardoublepage}
+  \newcommand{\newterm}[1]{\textit{#1}}
+  \newcommand{\important}[1]{\textit{#1}}
+  \renewcommand{\quote}[1]{``#1''}
+  \newcommand{\participantSaid}[1]{``\textit{#1}''}
+  \newcommand{\figRef}[1] {Figure \ref{fig:#1}}
+  \newcommand{\lstRef}[1] {Listing \ref{lst:#1}}
+  \newcommand{\sectRef}[1] {Section \ref{#1}}
+  \newcommand{\chapterRef}[1] {Chapter \ref{#1}}
+  \newcommand{\tableRef}[1] {Table \ref{tab:#1}}
+
+
+% *** External macros (to be removed) ***
+% A Web of Things Driver Component
+\newcommand{\wotdriver}[1]{\textcolor{black}{Web of Things Driver#1}}
+\newcommand{\wotdriversynone}[1]{\textcolor{black}{driver#1}}
+
+% A Web of Things Hub Component
+\newcommand{\wothub}[1]{\textcolor{black}{Smart Hub#1}}
+\newcommand{\wothubsynone}[1]{\textcolor{black}{hub#1}}
+\newcommand{\wothubsyntwo}[1]{\textcolor{black}{gateway#1}}
+
+% Titles for the InfraWOT Modules
+\newcommand{\infrawotmoduletitleone}{Technical Details}
+\newcommand{\infrawotmoduletitletwo}{Implementation}
+\newcommand{\infrawotmoduletitlethree}{Evaluation}
+\newcommand{\infrawotmoduletitlefour}{Summary}
+
+
+% ***** Constants *****
+
+  \newcommand{\WoT}{WoT}
+  \newcommand{\WoTLong}{Web of Things}
+  \newcommand{\sg}{Smart Gateway}
+  \newcommand{\sgs}{Smart Gateways}
+  \newcommand{\sts}{smart things}
+  \newcommand{\st}{smart thing}
+  \newcommand{\stsBeg}{Smart things}
+  \newcommand{\stsBig}{Smart Things}
+  \newcommand{\stsf}{objets intelligents}
+  \newcommand{\ws}{\texttt{WS-*}}
+  \newcommand{\rest}{REST}
+  \newcommand{\mget}{\texttt{GET}}
+  \newcommand{\mpost}{\texttt{POST}}
+  \newcommand{\mput}{\texttt{PUT}}
+  \newcommand{\mdelete}{\texttt{DELETE}}
+
+  \newcommand{\WoTA}{Web of Things Architecture}
+  \newcommand{\pMashups}{Physical Mashups}
+  \newcommand{\pMashup}{Physical Mashup}
+  \newcommand{\pMashupsFw}{Physical Mashups Framework}
+  \newcommand{\sacLong}{Social Access Controller}
+  \newcommand{\sac}{SAC}
+  \newcommand{\transService}{STM Translation Service}
+  \newcommand{\stm}{STM}
+
+  \newcommand{\mashupLevelA}{Manual Mashup Development}
+  \newcommand{\mashupLevelB}{Widget Based Mashup Development}
+  \newcommand{\mashupLevelC}{End-User Development with Mashup Editors}
+
+
+  \newcommand{\devLayer}{Device Accessibility Layer}
+  \newcommand{\findLayer}{Findability Layer}
+  \newcommand{\shareLayer}{Sharing Layer}
+  \newcommand{\compoLayer}{Composition Layer}
+
+  %------------- WSN
+ \newcommand{\sunspot}{Sun SPOT}
+ \newcommand{\sunspots}{Sun SPOTs}
+ \newcommand{\energyMashup}{Energy Mashup Editor}
+
+
+  %------------ Auto-ID
+  \newcommand{\epcSoft}{EPC software stack}
+  \newcommand{\epcDevVM}{EPC Dev Virtual machine}
+  \newcommand{\epcCloudAppli}{EPC Cloud Appliance}
+  \newcommand{\epcisWA}{EPCIS Webadapter}
+  \newcommand{\captureWA}{Capture App Webadapter}
+  \newcommand{\epcCloud}{EPC Cloud}
+  \newcommand{\tpusher}{tPusher}
+% ***************************
+
+%-------------- Figures
+\newcommand{\imgHalf}[1]{\centering \includegraphics[width=0.5\linewidth]{figures/#1}}
+\newcommand{\imgMedium}[1]{\centering \includegraphics[width=0.7\linewidth]{figures/#1}}
+\newcommand{\imgSmall}[1]{\centering \includegraphics[width=0.3\linewidth]{figures/#1}}
+\newcommand{\imgLine}[1]{\centering \includegraphics[width=\linewidth]{figures/#1}}
+\newcommand{\imgScale}[1]{\centering \includegraphics[scale=1]{figures/#1}}
+\newcommand{\imgLandscape}[1]{\centering \includegraphics[scale=0.4,angle=90]{figures/#1}}
+ 
+%------------- Colors
+\definecolor{gray}{gray}{0.9} 
+
+%------------- Hyphenation
+\hyphenation{me-ta-phor me-ta-phors Ve-ro-nique HT-ML HT-TP mash-ups mash-up vir-tu-a-li-za-tion infor-ma-tique}

@@ -1,0 +1,22 @@
+<div class="hReview">
+	<span><span class="rating">4</span> out of 5 stars</span>
+  <h4 class="summary">Good all purpose sensor node</h4>
+  <span class="reviewer vcard">Added by owner: <span class="fn">Dominique Guinard</span></span>
+  <div class="description item">I use this generic sensor node for monitoring the temperature inside my house. It is quite reliable but I turn it off on weekends.
+   </div>
+</div>
+
+<div class="hReview">
+	<span>
+		<a href="http://www.webofthings.com/tags/serviceHealth" rel="tag">Service Health:
+	    <span class="value">70</span>/
+	    <span class="best">100</span>
+    </a>
+    </span>
+    <h4 class="summary">Service health is good</h4>
+    <span class="reviewer vcard">Added by manufacturer: 
+	    <span class="fn">Generic Electronics Company</span>
+    </span>
+    <div class="description item">The service health of this node is good, this means that most requests will succeed within less than 1 second.
+    </div>
+</div>

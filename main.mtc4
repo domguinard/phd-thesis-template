@@ -1,0 +1,77 @@
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.1}The EPC Network in a Nutshell}{\reset@font\mtcSfont 131}{section.4.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 131}{figure.4.2}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.1.1}Identifying EPC Numbers}{\reset@font\mtcSSfont 131}{subsection.4.1.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 131}{section*.170}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.1.2}Standards for Capturing EPC Events}{\reset@font\mtcSSfont 132}{subsection.4.1.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 132}{section*.171}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.1.3}Sharing EPC Events}{\reset@font\mtcSSfont 132}{subsection.4.1.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 132}{section*.172}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.2}A Cloud-Based Virtual Infrastructure for the EPC Network}{\reset@font\mtcSfont 133}{section.4.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 133}{section*.173}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.1}Pain-Point: Complex Backend Deployment and Maintenance}{\reset@font\mtcSSfont 133}{subsection.4.2.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 133}{section*.174}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.2}Virtualization Blueprint}{\reset@font\mtcSSfont 134}{subsection.4.2.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 134}{section*.175}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.2.3}Cloud Computing: Utility Computing Blueprint}{\reset@font\mtcSSfont 135}{subsection.4.2.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 135}{section*.176}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.3}Device Accessibility Layer{}}{\reset@font\mtcSfont 136}{section.4.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 136}{section*.177}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.1}Pain-Point: Complicated Applications Developments}{\reset@font\mtcSSfont 136}{subsection.4.3.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 136}{section*.178}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.2}EPCIS Webadapter}{\reset@font\mtcSSfont 137}{subsection.4.3.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 137}{section*.179}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode System Architecture}{\reset@font\mtcSSSfont 137}{section*.180}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Addressability and Connectedness}{\reset@font\mtcPfont 137}{section*.181}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Uniform Interface}{\reset@font\mtcPfont 139}{section*.182}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Multiple Representation Formats}{\reset@font\mtcSPfont 139}{figure.4.5}}
+{\reset@font\mtcSPfont\mtc@string\contentsline{subparagraph}{\noexpand \leavevmode Error Codes}{\reset@font\mtcSPfont 140}{section*.184}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Web-Enabling the Subscriptions}{\reset@font\mtcSSSfont 140}{section*.185}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode From WS-* to REST: Integration Architecture}{\reset@font\mtcSSSfont 141}{section*.186}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Software Implementation}{\reset@font\mtcSSSfont 142}{section*.188}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.3}Pushing from Readers to Web Clients}{\reset@font\mtcSSfont 142}{subsection.4.3.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 142}{section*.189}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.3.4}Case-Study: EPC Find}{\reset@font\mtcSSfont 143}{subsection.4.3.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 143}{section*.190}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Motivation}{\reset@font\mtcSSSfont 143}{section*.191}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Concept}{\reset@font\mtcSSSfont 144}{section*.192}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Community-Based Reporting}{\reset@font\mtcPfont 144}{section*.193}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Distributed Track and Trace}{\reset@font\mtcPfont 145}{section*.194}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Identifying Objects}{\reset@font\mtcPfont 145}{section*.195}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Leveraging the EPC Network}{\reset@font\mtcPfont 145}{figure.4.9}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Implementation}{\reset@font\mtcSSSfont 146}{section*.197}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Mobile Application}{\reset@font\mtcPfont 146}{section*.198}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode EPCFind Backend}{\reset@font\mtcPfont 147}{figure.4.10}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Discussion on Privacy}{\reset@font\mtcSSSfont 147}{section*.200}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.4}Sharing Layer{}}{\reset@font\mtcSfont 147}{section.4.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 148}{section*.201}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.1}Pain-Point: Lack of Access Control}{\reset@font\mtcSSfont 148}{subsection.4.4.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 148}{section*.202}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.4.2}System Architecture}{\reset@font\mtcSSfont 148}{subsection.4.4.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 148}{figure.4.11}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Registering and Sharing EPC Events}{\reset@font\mtcPfont 148}{section*.204}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Accessing Shared EPC Events}{\reset@font\mtcPfont 149}{section*.205}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.5}Composition Layer{}: Auto-ID Physical Mashups}{\reset@font\mtcSfont 149}{section.4.5}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 149}{section*.206}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.5.1}Pain-Point: Tedious Business Case Modeling and Cross Systems Integration}{\reset@font\mtcSSfont 150}{subsection.4.5.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 150}{section*.207}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.5.2}Mobile Tag Pusher}{\reset@font\mtcSSfont 150}{subsection.4.5.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 150}{figure.4.13}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Implementation}{\reset@font\mtcPfont 151}{section*.209}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.5.3}The EPC Dashboard Mashup}{\reset@font\mtcSSfont 151}{subsection.4.5.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 151}{figure.4.15}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Use-Cases}{\reset@font\mtcSSSfont 153}{section*.211}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Mashup Architecture}{\reset@font\mtcSSSfont 153}{section*.212}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {4.5.4}RFID Physical Mashup Editor}{\reset@font\mtcSSfont 154}{subsection.4.5.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 154}{section*.213}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Use-case: Electronic Article Surveillance with RFID}{\reset@font\mtcSSSfont 154}{section*.214}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Use-Case Implementation}{\reset@font\mtcSSSfont 156}{section*.215}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.6}Evaluating the EPCIS Webadapter}{\reset@font\mtcSfont 157}{section.4.6}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 157}{figure.4.19}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.7}Related Work}{\reset@font\mtcSfont 158}{section.4.7}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 158}{section*.217}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {4.8}Discussion and Summary}{\reset@font\mtcSfont 160}{section.4.8}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 160}{section*.218}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Dealing with Firewalls and NATs}{\reset@font\mtcPfont 160}{section*.219}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Leveraging the Cloud}{\reset@font\mtcPfont 160}{section*.220}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Sharing RFID Data}{\reset@font\mtcPfont 161}{section*.221}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Summary}{\reset@font\mtcPfont 161}{section*.222}}

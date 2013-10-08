@@ -1,0 +1,93 @@
+\documentclass[a4paper,12pt,twoside]{thesisharaldvladdom}
+\usepackage{verbatim}
+\usepackage[all]{xy}
+\usepackage{listings}
+\usepackage{appendix}
+\usepackage{subfigure}
+\usepackage{multibib}
+\usepackage{setspace} 
+\usepackage{parskip} 
+\usepackage[ngerman,english]{babel}
+\usepackage[usenames,dvipsnames]{color}
+
+\definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+
+%TODO on template:
+% - Add index
+% - Clean preamble.tex, change template
+% 
+
+% ***** Customize the template in there: *****
+\include{preamble}
+
+% ***** And the Macros in there: *****
+\include{macros}
+	 
+% The web resources are references in a bibliography apart.
+\newcites{web}{Referenced Web Ressources}
+  
+\begin{document}
+% \iffinal
+
+% ***** Title Page *****
+\input{title-page}
+\addevenblankpageifneeded
+
+% ***** TOC and list of Figures *****
+\setlength{\oddsidemargin}{3cm}
+\setlength{\evensidemargin}{2cm}
+
+\pagenumbering{roman}
+
+% ***** Abstract *****
+\input{abstract}
+\input{abstract-german}
+\input{abstract-french}
+\input{acknownledgements}
+
+\clearpage
+\noindent
+\begin{minipage}{\textwidth}
+
+
+\end{minipage}
+
+
+
+% ***** TOC and list of Figures, list of tables *****
+\dominitoc
+\tableofcontents\addevenblankpageifneeded
+% \listoffigures\addevenblankpageifneeded
+% \listoftables\addevenblankpageifneeded
+% \fi  % End of the header
+
+% ***** Start of thesis *****
+\pagenumbering{arabic}
+\pagestyle{fancy}
+
+% ***** Chapters *****
+\input{chapters/introduction}
+\input{chapters/webofthings}
+\input{chapters/wsn}
+\input{chapters/autoid}
+\input{chapters/conclusion}
+
+%\addevenblankpageifneeded
+
+% ***** Appendices *****
+%\appendix
+% ***** Bibliographies *****
+\addcontentsline{toc}{chapter}{Bibliography}
+
+%\nocite{*} % All items in the bib file will appear so
+\bibliographystyle{plain}
+\bibliography{/home/misterdom/Documents/Mendeley/Bibs/Dissertation}
+\bibliographystyleweb{plain}
+\bibliographyweb{webbib}
+
+% ***** CV *****
+\setstretch{1.0}
+\input{cv}
+
+
+\end{document}

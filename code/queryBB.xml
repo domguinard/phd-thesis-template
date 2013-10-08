@@ -1,0 +1,9 @@
+<process-definition name="getLastLocation">
+ <sequence>
+  <participant ref="json_query" name="LastLocation"
+   user_collection="locationsFromMobile"
+   user="rachel" source="notification"
+   first="1" sort="notification.time desc"/>
+ </sequence>
+...
+</process-definition>

@@ -1,0 +1,59 @@
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.1}WoT{} General Purpose Sensing Platform}{\reset@font\mtcSfont 96}{section.3.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 96}{section*.125}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.1.1}Device Accessibility Layer{} with End-to-End HTTP}{\reset@font\mtcSSfont 97}{subsection.3.1.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 97}{section*.126}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Embedded Software Stack}{\reset@font\mtcSSSfont 97}{section*.127}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode HTTP Callbacks (Web Hooks)}{\reset@font\mtcPfont 98}{section*.128}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Protocol Translation Component}{\reset@font\mtcPfont 98}{figure.3.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Management User Interface}{\reset@font\mtcPfont 99}{section*.130}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Device Accessibility Layer{} with Smart Gateway{}}{\reset@font\mtcSSSfont 99}{section*.131}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode System Overview}{\reset@font\mtcPfont 100}{figure.3.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Software Architecture}{\reset@font\mtcPfont 100}{section*.133}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Quantitative Evaluation}{\reset@font\mtcSSSfont 101}{section*.134}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode End-to-End HTTP vs Sync-based Smart Gateway{}}{\reset@font\mtcPfont 101}{section*.135}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Evaluating Concurrency}{\reset@font\mtcPfont 102}{section*.136}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.1.2}Findability Layer{}}{\reset@font\mtcSSfont 103}{subsection.3.1.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 103}{section*.137}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Microformats}{\reset@font\mtcSSSfont 103}{section*.138}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Integration with InfraWoT}{\reset@font\mtcSSSfont 104}{section*.139}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Rendering Mobile UIs for the Spots}{\reset@font\mtcSSSfont 104}{section*.140}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.2}WoT{} Smart Metering}{\reset@font\mtcSfont 105}{section.3.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 105}{figure.3.13}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.2.1}Implementing the Device Accessibility Layer{}}{\reset@font\mtcSSfont 106}{subsection.3.2.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 106}{figure.3.14}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Energy Sensor Nodes}{\reset@font\mtcSSSfont 106}{section*.143}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode A Smart Gateway{} for Smart Meters}{\reset@font\mtcSSSfont 107}{section*.144}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode System Architecture}{\reset@font\mtcPfont 107}{figure.3.15}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode RESTful Web API}{\reset@font\mtcPfont 108}{figure.3.16}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Implementation}{\reset@font\mtcPfont 108}{section*.147}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.2.2}Applications}{\reset@font\mtcSSfont 108}{subsection.3.2.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 108}{section*.148}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Web User Interface}{\reset@font\mtcSSSfont 110}{section*.149}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.2.3}Qualitative Evaluation}{\reset@font\mtcSSfont 111}{subsection.3.2.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 111}{section*.150}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Pilot Deployment at Cudrefin02}{\reset@font\mtcPfont 111}{section*.151}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode User Formative Feedback}{\reset@font\mtcSSSfont 112}{section*.152}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode The Developer Perspective}{\reset@font\mtcSSSfont 113}{section*.153}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.3}Sharing Layer{}}{\reset@font\mtcSfont 114}{section.3.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 114}{section*.154}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.3.1}Quantitative Evaluation}{\reset@font\mtcSSfont 117}{subsection.3.3.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 117}{section*.155}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.4}Composition Layer{}: Cross-Device Physical Mashups{}}{\reset@font\mtcSfont 119}{section.3.4}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 119}{section*.156}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.4.1}The Ambient Meter}{\reset@font\mtcSSfont 119}{subsection.3.4.1}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 119}{section*.157}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.4.2}With Clickscript}{\reset@font\mtcSSfont 120}{subsection.3.4.2}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 120}{section*.158}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {3.4.3}Energy-Aware Mobile Mashup Editor}{\reset@font\mtcSSfont 121}{subsection.3.4.3}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 122}{section*.159}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Functional Overview}{\reset@font\mtcSSSfont 122}{section*.160}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Things: Discovery and Registration}{\reset@font\mtcPfont 122}{section*.161}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Wizards: Creating Mashups}{\reset@font\mtcPfont 123}{figure.3.24}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode Use-Cases}{\reset@font\mtcSSSfont 124}{section*.163}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Methodology}{\reset@font\mtcPfont 124}{section*.164}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Tasks}{\reset@font\mtcPfont 125}{section*.165}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode Formative Users Feedback}{\reset@font\mtcPfont 126}{section*.166}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.5}Related Work}{\reset@font\mtcSfont 126}{section.3.5}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 126}{section*.167}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {3.6}Discussion and Summary}{\reset@font\mtcSfont 128}{section.3.6}}
+{\reset@font\mtcPfont\mtc@string\contentsline{paragraph}{\noexpand \leavevmode }{\reset@font\mtcPfont 128}{section*.168}}

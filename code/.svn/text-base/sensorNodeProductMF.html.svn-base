@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <span class="hproduct">
+            <span class="fn">Generic Sensor Node</span>
+                <span class="identifier">,
+                    <span class="type">epc</span> unique identifier
+                    <span class="value">urn:epc:id:gid:2808.64085.88828</span>
+                </span>
+                <span class="category"><a href="http://www.webofthings.com/tags/wsn" rel="tag">Wireless Sensor Nodes</a></span>
+                <span class="brand">Generic Electronics Company</span>
+                <span class="description">This is a Web-enabled sensor node that can
+                    help you monitor your energy consumption</span>
+                <img alt="photo of the generic sensor node"
+                     src="http://www.webofthings.com/wp-content/themes/paperpunch/images/logo.png" class="photo"/>
+                <a href="http://www.webofthings.com/?s=wsn" class="URL">More information about this device.</a>
+                <span class="price">20$</span>
+            </span>
+    </body>
+</html>
+

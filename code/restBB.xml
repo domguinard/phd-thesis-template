@@ -1,0 +1,5 @@
+<process-definition name='x' revision='y'>
+ <sequence>
+  <participant ref='RestBuildingBlock'  name='temperature' method='get' site='http://DOMAIN' path='/generic-nodes/1/sensors/temperature.json' args='{}' />
+ </sequence>
+</process-definition>

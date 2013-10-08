@@ -1,0 +1,6 @@
+GET /gateways/vswot.inf.ethz.ch:8081/resources/sunspots/Spot1/sensors/light HTTP/1.1
+Host: vswot.inf.ethz.ch:8091
+[...]
+Keep-Alive: 115
+Cookie: FacebookConnect.sessionKey=2.AQA7DlNqyVIhqZWE.3600.1311098400.0-1417076934; 
+FacebookConnect.userId=1417076934; FacebookConnect.loggedIn=1

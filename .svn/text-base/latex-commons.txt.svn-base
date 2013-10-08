@@ -1,0 +1,10 @@
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{figures/wot/pmashupFw}
+\caption{Most important components of the \pMashupsFw{}.}
+\label{fig:mashupFworkCompo}
+\end{figure}
+
+
+\lstinputlisting[caption=Generic Javascript code required to integrate a new smart thing to the Clickscript mashup editor as a Clickscript building block, label=lst:csBuildingBlock, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]{code/clickScriptBuildingBlock.js}
+

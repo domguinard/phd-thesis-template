@@ -1,0 +1,582 @@
+\chapter{Bringing Wireless Sensor and Actuator Networks to the Web}\label{wsn}
+\minitoc
+
+In the last decade, a tremendous progress in the field of embedded systems has given birth to a myriad of tiny computers, to which all kinds of environmental sensors (e.g., temperature, humidity, vibration, radioactivity, electricity, etc.) can be attached. By interconnecting these devices using low-power wireless communication, a whole new world of possible applications is unveiled. Networks of physically distributed computers, usually called Wireless Sensor Networks (WSN), are valuable tools for monitoring or \newterm{sensing} the physical world~\cite{Akyildiz2002}. Unfortunately, due to the lack of standards most projects in this field are based on different software and hardware platforms~\cite{Riedel2010} and a common application layer is still lacking~\cite{Akyildiz2002}. Within such an heterogeneous ecosystem of devices, application development still requires skills and time~\cite{Mottola2011}. Moreover, for each new deployment a large amount of work must be devoted to re-implement basic functions and application-specific user interfaces, which is a waste of resources that could be used by developers to focus on the application logic. Ideally, developers should be able to quickly build applications on top of WSNs. 
+
+Several researchers are actively working towards this goal. The advent of IP technologies for WSNs~\cite{Dunkels2003,Hui2008} combined with the creation of global consortia such as the IPSO are showing a trend towards using the Internet and its TCP/IP (v4 and/or v6) protocols as the transport protocol of choice for WSNs.
+
+On top of the Internet layer, we join other researchers~\cite{Duquennoy2009a,Yazar2009,Dawson2010,Drytkiewicz2004-pREST,Luckenbach2005} and propose the use of Web protocols and RESTful architectures as the application layer of WSNs~\cite{Guinard2009-INSS}. In this chapter we systematically apply the \WoTA{} to two sensing platforms: a general purpose sensing platform and an energy sensing platform. Our aim is to illustrate how adopting a Web approach can enable access to a set of tools that allow creating applications on top of WSNs by recombining ready-made building-blocks, just like with LEGO bricks. 
+
+This chapter is structured as follows. We begin by describing our experiments with Web-enabling the \sunspot{} platform. Similarly, we then describe how we Web-enabled an off-the-shelf energy monitoring platform~\cite{Guinard2009a,Guinard2009,Weiss2010}. We describe an open-source \sg{} designed to accommodate most smart meters nodes. We further propose applications on top of this platforms and discuss a pilot deployment.
+
+Finally, we demonstrate how, thanks to the other layers, the \compoLayer{} of the \WoTA{} can be leveraged to easily enable the creation of applications on top of WSNs.
+
+\section{\WoT{} General Purpose Sensing Platform}\label{spots}
+The \sunspot{} platform~\citeweb{sunspot} is particularly suited for the rapid prototyping of WSN applications because it features a full Java Mobile Edition stack. The version of the \sunspot{} we used for the presented implementation and evaluation has the following main hardware characteristics\footnote{It is worth noting that this is a rather powerful WSN platform when compared to traditional 8 bits platforms. However, it depicts the current trend towards more powerful low-power sensor nodes such as the RN-131 from Roving Networks~\citeweb{roving} or the open-source Fly-Port from Openpicus~\citeweb{flyport}.} :
+\begin{itemize}
+ \item ARM920T 32 bits CPU with 180 MHz
+ \item 512 kB of RAM
+ \item 4 MB of flash storage
+ \item an IEEE 802.15.4 radio communication module
+ \item a mini USB connector
+\end{itemize}
+The \sunspot{} kits feature a \newterm{base-station} node which is a USB module that has IEEE 802.15.4 transport capabilities and can be attached to a computer that will act as a proxy for incoming, non-IEEE 802.15.4 communication.
+
+In this section we describe our two implementations of the \devLayer{} for this platform, once using \sgs{}~\cite{Mayer2010} and once with end-to-end HTTP connectivity~\cite{Guinard2009-INSS,Pham2008} and compare both approaches in an evaluation~\cite{Guinard2010-WoT}. We further illustrate how implementing the \findLayer{} for the \sunspots{} allows for searching for them and can be leveraged to create dynamic user interfaces~\cite{Hong2010} and to allow dynamic WSN integration into mashup tools~\cite{Aguilar2010}. 
+
+\subsection{\devLayer{} with End-to-End HTTP}
+In order to empirically test the potential advantages of the Web and HTTP principles, we implemented a RESTful architecture on the \sunspot{} Java sensor nodes. The architecture is composed of two components: an embedded software stack directly deployed on the sensor nodes that implements the HTTP protocol and a transport Protocol Translation component used to forward the incoming HTTP request to the right node over the IEEE 802.15.4 transport protocol supported by the \sunspots.
+
+\subsubsection{Embedded Software Stack}
+\begin{figure}
+\imgHalf{wsn/spot-embedded-archi}
+\caption{Embedded software stack directly deployed on the \sunspots{} in order for them to natively understand the HTTP protocol. Incoming requests go through the Stream Connection Manager via the Protocol Translation component and are then sent to the Request Dispatcher. This component reads the URI and redirects the request to implementation of the corresponding resource. The resource calls the native API and sends the returned data to the JSON Formatter. The data is converted to JSON and sent back to clients.}
+\label{fig:spotEmbeddedSoft}
+\end{figure}
+Integration at a lower-level is also facilitated by using RESTful interactions with devices~\cite{Schor2009,Guinard2009-INSS}. Based upon this, we implemented an embedded HTTP server\footnote{Based on the NanoHTTPD project: \url{http://elonen.iki.fi/code/nanohttpd}.} directly on the \sunspot{} nodes as shown in \figRef{spotEmbeddedSoft}. The embedded Web server natively supports the four main operations of the HTTP protocol: \code{GET}, \code{POST}, \code{PUT}, \code{DELETE}. The HTTP server is deployed on each sensor node, making it an independent and autonomous device. Each \sunspot{} offers a number of sensors (light, temperature, acceleration, etc.), a number of actuators (digital outputs, leds, etc.) and a number of internal components (radio, battery). These, including the \sunspots{} themselves, are the \important{resources} of our RESTful architecture. Resources are organized in a tree hierarchy and each of them implements or inherits the four verbs.
+
+Requests for services (i.e., verbs on resources) are formulated using a standard URI. For instance, typing a URI such as \RESTURL{/spot1/sensors/temperature} in a browser requests the resource \code{temperature} of the resource \code{sensor} of \code{spot1} with the verb \code{GET}. The request is routed by the \code{RequestDispatcher} to the correct resource as shown in \figRef{spotEmbeddedSoft} on which it invokes the \code{doGet()} operation. The resource then reads the current temperature using the native \sunspot{} API and sends it to the \code{Formatter}. While this component can support various formats, we decided to use JSON since it is more adapted (than XML for instance) to devices with limited capabilities both because the amount of data transfered is reduced and the parsers require less resources~\cite{Xu2009}. The JSON data resulting from the call for temperature is shown in \figRef{explorer}. This data is finally wrapped into an HTTP packet and sent further to the protocol translation component. Alternatively the results can be distributed asynchronously to a URI (Web-hooks) when the values overcome a certain threshold configurable through the RESTful API as well.
+
+\paragraph{HTTP Callbacks (Web Hooks)}
+As mentioned in \chapterRef{wot}, for monitoring applications the polling model is sub-optimal. Thus, the nodes can be controlled (e.g., turning LEDs on, enabling the digital outputs, etc.) using synchronous HTTP calls (client pull) as explained before, but can also be monitored by subscribing to notification over an HTTP Callback. For example, a subscription to a feed is done by creating a new rule on a sensor resource and \code{POST}ing a threshold (e.g., $> 100$) to
+\RESTURL{/spot1/sensors/light/rules} together with an HTTP callback.
+
+In response, every time the threshold is reached, the node \code{POST}s a JSON message to the callback URI. Alternatively, the same mechanism can be used to publish data as an Atom feed to an external AtomPub server. This allows for thousands of clients to monitor a single sensor by outsourcing the data delivery to an intermediate, more powerful server.
+
+\paragraph{Protocol Translation Component}
+\begin{figure}
+\imgLine{wsn/sunspot-translation-comm}
+\caption{Sequence diagram of a protocol translation for the \sunspots{}. The incoming HTTP over TCP/IP request is routed to the correct node as an HTTP request over the \sunspot{} GCF radiostream protocol (using IEEE 802.15.4).}
+\label{fig:spotProtoTrans}
+\end{figure}
+Since the \sunspots{} do not natively support WiFi or Ethernet communication, a translation component that forwards requests from traditional Web requests over TCP/IP to the correct \sunspot{} over the IEEE 802.15.4 stream connection protocol is needed.
+
+As shown in \figRef{spotProtoTrans}, when receiving an HTTP request from the Internet/Intranet, the translation component reads the request URI and maps it to one of the registered nodes. In case the node is busy, it also serves as a buffer by queuing requests and resubmitting them later.
+
+To allow flexible mashups, we wanted the nodes to be mobile, traveling from base-station to base-station, which requires a dynamic discovery process to find new nodes and register their basic information (the MAC address, a short description, their URI). This process is carried out by a \code{DiscoveryComponent}, which broadcasts invitation messages on a regular basis on a dedicated port. On their side, the nodes listen to this port and can decide to subscribe to the broadcasting gateway. Then, the \code{ProtocolTranslationComponent} registers the node's address and is ready to redirect them to the newly registered node. 
+
+\paragraph{Management User Interface}
+The \sunspot{} embedded HTTP server we created only offers JSON representations of the resources. While the served JSON messages provide links to related resources and thus holds the connectedness constraint of RESTful architectures, JSON messages are not the best way for human clients to discover the resources. In the \devLayer{} of the \WoTA{} we suggested systematically providing HTML representations of resources to allow user-friendly browsability. 
+
+Hence, the \code{ResourceExplorer} component offers to users (e.g., mashup builders) a Web user interface to browse the available services as shown in \figRef{explorer}. Just as they would navigate on Web sites, they can explore the device hierarchy and test services by clicking on the link structure reflecting the hierarchy of the physical world (e.g., a temperature sensor is the \newterm{child} of a sensor node). The explorer dynamically adapts its content to the available devices and is implemented as an AJAX (HTML and JavaScript) application designed to minimizes the connections to the nodes while looking for a service.
+\begin{figure}
+\imgMedium{wsn/sunspot-manager}
+\caption{Using the AJAX \code{ResourceExplorer}, users can explore directly the resources provided by the device. This example shows how users can get the current temperature resource values and the formalism of the JSON response.}
+\label{fig:explorer}
+\end{figure}
+
+
+\subsubsection{\devLayer{} with \sg{}}\label{sync-based}
+In order to be able to asses the differences between end-to-end HTTP communication and communication managed by a \sg{}, we implemented a \sunspot{} \code{DeviceDriver}. There are basically two differences between the \sunspot{} \code{DeviceDriver} and the end-to-end HTTP stack proposed before.
+
+First, rather than using HTTP end-to-end, the \code{DeviceDriver} uses the \sunspot{} native communication API (over an IEEE 802.15.4 physical link) and acts an application layer gateway. From a Web client point of view there is no real difference since requests are still formulated with HTTP. Indeed, the \code{DeviceDriver} takes care of the unmarshalling and marshalling of requests from one application protocol (HTTP) to the other (JSON over IEEE 802.15.4 using the native \sunspot{} Java communication API).
+
+Secondly, rather than relaying every incoming request to the \sunspots{}, the \code{DeviceDriver} is based on a caching architecture explained below.
+
+\paragraph{System Overview}
+\begin{figure}
+\imgLine{wsn/spot-api}
+\caption{Resources of the \sunspot{} RESTful API as offered by the \code{DeviceDriver} through the \sg{}.}
+\label{fig:spotAPI}
+\end{figure}
+The \sunspot{} \code{DeviceDriver} is a software component that can be deployed in the \sg{} framework described in \sectRef{smartGateways}. To offer a RESTful Web API for the \sunspots{} functionality, the \code{DeviceDriver} uses a Web server component provided by the \sg{} framework. The resources of the API are shown in \figRef{spotAPI}.
+
+The \code{DeviceDriver} takes care of the operations related to the \sunspot{} specific communication protocol and API. It further manages the synchronization of the \sunspot{} resources' representations.
+Indeed, the \sg{} has a local copy of the devices' resources and minimizes the actual communication between devices and the Web by locally caching the status of devices. The details of the caching and request process are shown in \figRef{sunspotSyncSeq}. First, a synchronization thread is started by the \code{DeviceDriver}. After an initial synchronization request, this thread will issue a new request after each reply. A direct consequence of this architecture is that, unlike in the case of the HTTP end-to-end architecture, clients communicate with a \code{DeviceDriver} (through the \sg{} Web server) and not with the \sunspot{} itself.
+
+This has the advantage of fully decoupling the \sunspots{} from the outside world. Indeed, the device only needs to send an update packet to the \sg{} with a frequency short enough to ensure the validity of data. These data are then made available by the \sg{} to clients either as HTML or JSON representations. Moreover, the \sg{} also offers an Atom representation of the data that can be used to fetch historic data or aggregates of several \sts{} into a single feed.
+
+On the other hand, unlike the end-to-end HTTP architecture which has the advantage of always returning the most recent sensor readings, the staleness of the retrieved data in the case of the synchronization-scheme will depend on the frequency of updates that can be retrieved from the \sunspot{}.
+
+\begin{figure}
+\imgLine{wsn/sunspot-gw-comm}
+\caption{Sequence diagram of a request for the temperature of \sunspot{} 1 when using the \sg{} synchronization-based architecture. The \sg{} serves data to the clients that was cached by the \code{DeviceDriver} during the last synchronization round.}
+\label{fig:sunspotSyncSeq}
+\end{figure}
+
+\paragraph{Software Architecture}
+The \sunspot{} \code{DeviceDriver} is implemented as an OSGi bundle~\cite{Mayer2010} which allows to dynamically load it in the \sg{} framework presented in the \devLayer{}. Here, we provide a summary of the most important classes of the bundle in order to better understand the design of a typical \WoTLong{} \code{DeviceDriver}. The relationships between these classes is show in \figRef{sunspotSync}.
+
+\begin{description}
+ \item[SpotManager] This class manages the discovered sensor nodes. It launches a thread that will discover the nodes and assign them to communication ports. It further manages the life-cycle of these nodes makes sure that \sunspots{} to which contact hasn't been successfully established during the last few synchronization rounds get removed.
+
+ \item[SpotRepresentation] An instance of this class represent the current state of a \sunspot{}, including the state of all its sensors and actuators. It is provisionned and refreshed after each synchronization round through the \code{SpotManager} class.
+
+ \item[SpotCommunicationBackend] This class is the proxy between the \sunspots{} and the \code{DeviceDriver}. It listens to incoming communication and informs the \code{SpotManager} about newly discovered nodes. Furthermore, an \RESTURL{SpotSynchronizerThread} instance is started for each new node and manages the initial handshake between the device and the \code{DeviceDriver}.
+
+ \item[SpotSynchronizerThread] This is the core of the \code{DeviceDriver}. Each instance of this thread is in charge of synchronizing a \sunspot{} data on a regular basis, and provisionning the corresponding \code{SpotRepresentation}.
+\end{description}
+\begin{figure}
+\imgLine{wsn/spot-sync-class}
+\caption{Simplified class diagram of the \sunspot{} \code{DeviceDriver} architecture. The \code{SpotManager} is the link between the discovery of new \sunspots{} (handled by the \code{SpotCommunicationBackend}) and the \code{SpotRepresentation} regularly synchronized by the \code{SpotSynchronizerThread}}.
+\label{fig:sunspotSync}
+\end{figure}
+
+\subsubsection{Quantitative Evaluation}
+In \sectRef{alternatives} we evaluated in qualitative terms what the experience of developing applications on top of the RESTful Web-enabled \sunspots{} was like for developers. We compared this experience with developing on top of WS-* enabled \sunspots{} and came to the conclusion that REST was easier to use. Here, we would like to assess the technical feasibility of the approach, evaluating if the RESTful Web-enabled \sunspots{} perform well enough to implement concrete use-cases. Furthermore, we compare the end-to-end HTTP with the \sg{} mediated approach to better quantify the differences and measure the benefits of adding a \sg{} to the architecture.
+\begin{figure}
+\imgLine{wsn/rtt-gateway-embedded}
+\caption{Round-trip time for 500 consecutive \code{GET} requests on a \sunspot{} node when using the end-to-end HTTP implementation and the sync-based \sg{} implementation (detailled in \figRef{rtt-gateway}).}
+\label{fig:rtt-embedded}
+\end{figure}
+
+\paragraph{End-to-End HTTP vs Sync-based \sg{}}
+We implemented a simple scenario where a user issues a \code{GET} request to read the current light sensor value of a \sunspot{} located one radio hop away from a \sg{}. We compare the two different architectures described before and show the round-trip time (RTT) for each request in \figRef{rtt-embedded} and \figRef{rtt-gateway}.
+
+First, each request is routed through the Protocol Translation component to the embedded HTTP server running on the remote \sunspot{} and executed there. For this case, the average round-trip time for 7'000 consecutive requests is 205 milliseconds ($SD=127.8 ms, min=96 ms, max=8500 ms$). The upper graph in \figRef{rtt-embedded} shows the results for request 2000 to request 2500.
+
+In the second case, we use the \code{DeviceDriver} on a \sg{} and the synchronization-based architecture. The \sg{} software is running on a Linux Ubuntu Intel dual-core PC 2.4 GHz with 2 GB of RAM. In this case the average round-trip time was 4.2 ms ($SD=3.7 ms, min=2ms, max=111ms$). The results for 500 consecutive requests are shown in \figRef{rtt-gateway}.
+
+The results for both approaches are summarized in \figRef{rtt-embedded}. The fact that these results are far better than the evaluation of the HTTP end-to-end architecture is not surprising. Indeed, in this case each request is served from the cache on the \sg{} without direct communication between the client and the \sunspot{}. 
+\begin{figure}
+\imgLine{wsn/rtt-gateway}
+\caption{Details of the Round-trip time for 500 consecutive \code{GET} requests on a \sunspot{} node when using the sync-based \sg{} implementation.}
+\label{fig:rtt-gateway}
+\end{figure}
+
+However, the trade-off of the sync-based approach is the staleness of the retrieved data which will depend on the frequency of updates sent by the \sunspot{}. \figRef{age-spot} shows the data age for requests 2000 to 2500. In the case of the HTTP end-to-end architecture this corresponds to the processing and propagation time. In the case of the sync-based \sg{} the age will grow until a successful synchronization.
+
+\begin{figure}
+\imgLine{wsn/cache-age}
+\caption{Age of the data for each request. In the HTTP end-to-end architecture the data age equals the message processing and propagation time. In the sync-based \sg{} the data age grows until a synchronization successfully happened.}
+\label{fig:age-spot}
+\end{figure}
+
+\paragraph{Evaluating Concurrency}
+One of the most prevalent advantages of taking the sync-based \sg{} approach is to decouple the clients and the actual sensors which greatly improves the scalability of the architecture in terms of concurrency. This is an important point since in the \WoTLong{} vision, \sts{} are openly accessible on the Web and thus accessed by multiple clients building all kinds of applications.
+
+In this last quantitative evaluation, we want to asses the difference between both approaches in terms of concurrent requests. Similarly to the case exposed before, the \sg{} software is running on a Linux Ubuntu Intel dual-core PC 2.4 GHz with 2 GB of RAM. The Web server used for this implementation is based on the Noelios Restlet Engine of Restlet 1.1.7~\citeweb{restlet}.
+
+\figRef{concurrency-spot} shows the results when having up to 100 concurrent clients running 100 requests. Not surprisingly, the sync-based \sg{} approach scales much better as the success rate of the end-to-end HTTP version drops as soon as the number of concurrent clients is reaching 30.
+
+\begin{figure}
+\imgLine{wsn/concurrency}
+\caption{Comparing the scalability in terms of concurrent requests for the end-to-end HTTP and the syn-based \sg{} version. Each client runs a 100 requests and the clients are concurrently started. The \sg{} version scales much better.}
+\label{fig:concurrency-spot}
+\end{figure}
+While the success rate of the sync-based \sg{} also drops to 50\% as soon as we are reaching 40 concurrent clients, it remains stable and requests are still being served. Furthermore, this strongly depends on the Web server that is being used and high-performance caches that can easily scale with a really important number of concurrent HTTP requests are common nowadays. This means that using a synchronization-based mechanism, thousands of HTTP clients can retrieve simultaneously sensor data from a single device with low response times, while still preserving the freshness of the data collected under a reasonable bound for many applications. This will not hold true for non-cacheable (write) requests that must be sent to devices (e.g., turn on LEDs, change application state). As many distributed monitoring applications are usually read-only during their operation (sensors collect data, but users cannot change their status), our architecture exhibits a good scalability level. This enables new types of applications where physical sensors can be shared with thousands of users with little impact on the latency and data staleness.
+
+\subsection{\findLayer{}}\label{findLayerSpots}
+To demonstrate the suitability of the \findLayer{} presented in \sectRef{findLayer}, we apply the \stm{} Model to describe the metadata of the \sunspots{} using microformats. Then, we illustrate the benefits of the approach with two use-cases of the metadata.
+
+\subsubsection{Microformats}
+First, the HTML representation of the \sunspots{} is modified to embed metadata using the compound of microformats described in \sectRef{std}.
+
+In particular, the \code{hProduct} microformat is used to describe the static product properties of the \stm{} model as shown in \lstRef{hproductSpot}. The \code{hCard} microformat is used to describe the manufacturer and owner of the object. The static services properties are described using the \code{hRESTs} microformat.  
+
+For the dynamic properties, these are described with \code{hCard} which covers the relative location properties. We add the optional \code{geo} microformat to \code{hCard} in order to support the absolute location properties (i.e., latitude and longitude). Finally, the QoS dynamic properties are expressed using the \code{hReview} microformat. As mentionned before, since these properties are not provided by the \sunspot{} itself they are inherited from the LLDU to which the device is bound. This also allows for dynamic updates of the properties.
+
+\begin{lstlisting}[caption=Snippet of the \code{hProduct} microformat used to describe the product metadata of the \sunspots{}., label=lst:hproductSpot, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+<span class="hproduct">
+  <span class="fn">Sun SPOT Embedded Development Platform</span>
+  <span class="identifier">,
+    <span class="type">epc</span> assigned EPC number:
+    <span class="value">urn:epc:id:gid:2808.64085.88828</span>
+  </span>
+  <span class="category"><a href="http://www.webofthings.com/tags/wsn" rel="tag">
+  Wireless Sensor Nodes</a></span>
+  <span class="brand">Oracle Corp.</span>
+  <span class="description">
+  This is a Sun SPOT Embedded Development sensor node, offering a RESTful Web API through the Web of Things Smart Gateways.
+  </span>
+  <img alt="photo of the Sun SPOT"
+  src="http://www.sunspotworld.com/images/spot-reflect.png" class="photo"/>
+  <a href="http://www.sunspotworld.com/" class="URL">
+  More information about this device.</a>
+  <span class="price">400$</span>
+</span> 
+\end{lstlisting}
+
+
+\subsubsection{Integration with InfraWoT}
+\begin{figure}
+\imgMedium{wsn/discovered-spot}
+\caption{Result of discovering a metadata annotated \sunspot{} as seen in the LLDU Query Web User Interface. The \sunspot{} description page is rendered with a map and detailled information about the device and its status.}
+\label{fig:discovered-spot}
+\end{figure}
+The first benefit of the metadata is the fact that search engines such as Google understand them and thus will render adapted results when searching for a \st{}.
+
+Moreover, upon the discovery of a \sunspot{} by a LLDU, the metadata can also be used for indexing purposes and richer keywords are extracted to serve future queries. The data can also be used to render more adapted pages when browsing \sunspot{} on the LLDU. \figRef{discovered-spot} shows the results of discovering a \sunspot{} when using the LLDU Query Web User Interface. The metadata is used to render detailled lists of offered resources and services, a map of where the \sts{} are located and QoS information about the services.
+
+\subsubsection{Rendering Mobile UIs for the Spots}
+\begin{figure}
+\imgMedium{wsn/mobile-client-4-spot}
+\caption{Result of discovering a metadata annotated \sunspot{} using the Android \WoT{} Browser. The view on the left gives access to all the resources. As an example, the view on the right can be used to turn the \sunspot{} LED2 on or off.}
+\label{fig:spot-mobile-client}
+\end{figure}
+Finally, we created the \newterm{Android \WoT{} Browser}~\cite{Hong2010}, an mobile application that scans QR codes containing the root URI of a \st{} from which it fetches the metadata and can dynamically create UIs for operating the \st{}. As an example, \figRef{spot-mobile-client} is the UI generated for the \sunspot{}. It offers a native application from which the main functionality of the \sunspot{} can be called and used. It is worth noting however, that the UIs that can be generated are limited to simple interactions with resources as they rely on the metadata available in the microformats which are not covering fully automated machine to machine interactions for more complex services.
+
+
+\section{\WoT{} Smart Metering}\label{smartMetering}
+\begin{figure}
+\imgMedium{wsn/electricity-cons}
+\caption{This graph depicts the cumulated electricity consumption in the European Union, split by sectors. The proportion of energy consumed by households has been constantly increasing since 1990. (Original source: \url{www.eea.europa.eu/data-and-maps})}
+\label{fig:electricity-cons}
+\end{figure}
+A major burden for people, who want to save energy at home, is for them to identify how much energy is consumed by different appliances. How much does a computer consume in operation / when it is powered off? Is the consumption of an energy-saving lamp significantly lower in the long run than a standard lightbulb? Such questions are key to understand where energy can be saved by individuals. Studies have shown that the lack of feedback about their consumption is a major barrier for individuals to save energy~\cite{Chetty2008}. This is especially important since residential and commercial buildings are major consumers of energetic resources. In the European union, the residential sector accounts for 29\% of the overall electricity consumption, a number that has been constantly increasing since 1990 as shown in \figRef{electricity-cons}~\citeweb{eea}. A similar pattern can be observed in the consumption of households in the U.S.~\citeweb{eia}. Hence, to help users identify how their electricity usage relates to difference devices or action, there is a need for systems that give them instantaneous feedback about their consumption~\cite{Fischer2008-Energy,Abrahamse2005}. Studies have empirically shown~\cite{Parker2010} that introducing instantaneous consumption feedback in households helps them to reduce their consumption by 5\% to 10\%. 
+
+Currently available off-the-shelf products that depict the energy consumption in near real time are helpful, but do not fully meet the user needs as they have a high usage barrier and often require complex installations~\cite{Froehlich2009a}. Furthermore, they are not able to offer the most promising feedback since they lack the ability to provide an appliance-specific break down of the energy consumption and are not able to compare the consumption of individual devices in an appealing manner on a central screen~\cite{Fischer2008-Energy}. More importantly in the context of this thesis, \important{they do not offer open APIs, which makes developing applications on top of them highly complex} and does not foster public innovation~\cite{Weiss2009}.
+
+In this section, we present and discuss a system for increasing energy awareness in domestic and office environments built using commercially available smart power outlets named Plogg~\citeweb{plogg}. We illustrate how adopting the approaches presented in the \WoTA{} can help to overcome the above-described limitations. Compared to other solutions, the resulting system is simple to install and does not require any modifications of the wiring, which in many houses in Europe is difficult to access. By providing a \sg{} taking care of the network communication and configuration we simplify the deployments such systems in real-world environments. Furthermore, RESTful Web API enables easy interoperability with other applications that can be built on top of the system. Moreover, we present a Web user interface that allow for users to monitor, compare, and control the electricity consumption of devices at home.
+
+This section is organized as follow: First, we briefly describe the sensor nodes that we used for our implementation. Then, we describe the way these nodes were made part of the Web taking the \sg{} approach described in the \devLayer{}. Finally, in the evaluation section we present a pilot deployment of the system and discuss the results. Parts of this section are joint work with Markus Weiss published in~\cite{Guinard2009a,Guinard2009,Weiss2009a,Weiss2010}.
+
+\subsection{Implementing the \devLayer{}}
+\begin{figure}
+\imgHalf{wsn/energie-visible-archi}
+\caption{Appliances connected to Ploggs communicate with a \sg{} offering the Ploggs' functionality as a RESTful Web API. Physical Mashups are then built on top of the API.}
+\label{fig:EnergieVisibleArchi}
+\end{figure}
+The overall architecture of the system is shown in \figRef{EnergieVisibleArchi} and is composed of 5 main levels. First, at the device level are the appliances we want to monitor and control through the system (e.g., a fridge, a TV). At the second level each of these appliances is then plugged into a sensor node. Then, a \sg{} discovers the sensor nodes and makes them available on the Web through a RESTful API. At the mashup level the sensor nodes' services are composed together to create an energy monitoring and control application, using Web scripting languages or composition tools. Finally, this application is made available through a Web User Interface in a Web browser (e.g., on a mobile phone, a desktop computer, a tablet PC, etc.)
+
+\subsubsection{Energy Sensor Nodes}
+Our system is based on the off-the-shelf commercial Plogg sensor nodes. The Ploggs are a combination of an electricity meter plug and a data logger. Furthermore, they offer a Bluetooth and Zigbee interface to retrieve the current or logged consumption. These factors make them especially suited for appliance level monitoring. Unfortunately, the provided software is limited and does not offer active monitoring. For developing applications on top of the Ploggs a Windows DLL can be purchased. As a consequence, the platforms that can communicate with the Ploggs are limited to the Microsoft Windows platforms and integrating them in other environments (e.g., with mobile phones) requires a lot of expertise.
+ 
+To overcome these limitations, we apply the architecture described in the \devLayer{}. Since the Ploggs do not have TCP/IP communication capabilities, we built a \sg{} for the Ploggs as shown in \figRef{EnergieVisibleArchi}.
+
+\subsubsection{A \sg{} for Smart Meters}\label{SmartGateway4SmartMeter}
+As described in the \devLayer{}, a \sg{} is a component that abstracts \sts{} specific protocols and makes the functionality of the \sts{} available through a Web RESTful API.
+
+Our first experience designing a \sg{} for the Plogg is based on the Windows DLL for Bluetooth Ploggs~\cite{Guinard2009}. This C++ gateway first discovers the Ploggs by scanning the environment for Bluetooth devices. The next step is to make their functionality available as RESTful resources. A small footprint Web server (Mongoose~\citeweb{mongoose}) is used to enable access to the Ploggs' functionalities over the Web. This is done by mapping URIs to native requests of the Plogg Bluetooth API through the DLL.
+
+While it worked as expected, we identified a number of shortcomings of this approach: First, by using the Windows DLL we require the \sg{} to run in a Microsoft Windows environment. This is a rather important issue. Indeed, in order to simplify its deployment, we envision the \sg{} software to be deployed on existing infrastructure nodes such as Wireless routers or Network Attached Storage devices and the vast majority of these devices does not run a Windows operating system but rather variations of Linux/Unix.
+
+Furthermore, building the \sg{} on top of a vendor-specific DLL prevents the framework from being used for other types of smart meters. As a consequence, we designed and implemented a second \sg{} framework for smart meters that does not require a specific OS and that can be easily extended to support other types of smart meters. 
+
+This \sg{} framework dedicated to smart meters has been open-sourced as the \newterm{Webnergy} project and, to date, is used in a dozen of external research projects~\citeweb{webnergy}.
+
+\paragraph{System Architecture}
+\begin{figure}
+\imgLine{wsn/webnergy-class}
+\caption{Simplified class diagram of the Webnergy framework. Concrete smart meters (e.g., Ploggs) have to extend the \code{SmartMeterManager} class. The Web representation of the smart meter data is taken care of by the \code{SmartMeterResource}.}
+\label{fig:WebnergyArchi}
+\end{figure}
+The Webnergy framework is a software that acts as a reverse proxy between Web clients and smart meters. A simplified view of framework's architecture is shown in \figRef{WebnergyArchi}. It is mainly composed of the following classes:
+\begin{description}
+ \item[\code{SmartMeterManager}] This class abstracts the functionality of most smart meters, it has to be extended to meet the constraints of each particular smart meter platform. We implemented a version of the \code{SmartMeterManager} for the Ploggs. Note that this class represents a group of smart meters rather than a single node. For instance the \code{PloggManager} manages all the Ploggs sensor nodes that are within reach.
+ \item[\code{SmartMeter}] This represents a single instance of a sensor node of a particular smart meter platform.
+ \item[\code{ConsumptionData}] This is an abstraction of the data a smart meter can return. It is the data clients will retrieve through the Web API.
+ \item[\code{SmartMeterSyncThread}] As for the \sunspots{}, the Webnergy framework is based on a synchronization strategy. The framework uses the \code{SmartMeterSyncThread} to synchronize each sensor node of each smart meter platform on a regular basis. As a consequence, the data being served to the clients through the Web API is cached data. The synchronization time depends on the smart meter platform and can be set in the framework.
+ \item[\code{SmartMeterResource}] This class is in charge of managing the Web API of the supported smart meter platforms. It binds URIs to the resources of the \code{SmartMeter}s and \code{SmartMeter} \code{Manager}s and is in charge of translating the \code{ConsumptionData} into the correct representation format.
+ \end{description}
+
+\paragraph{RESTful Web API}
+\begin{figure}
+\imgSmall{wsn/webnergy-api}
+\caption{RESTful Web API of the Webnergy framework. The functionality of these resources is listed in \tableRef{webnergy-resources}.}
+\label{fig:WebnergyAPI}
+\end{figure}
+The API of the Webnergy framework is relatively simple as shown in \figRef{WebnergyAPI}. It is worth noting that all \code{SmartMeter}s platforms are represented in the same way. All resources can be represented in three formats: JSON, XML and HTML.
+
+The description of the functionality the resources encapsulate is shown in \tableRef{webnergy-resources}. Note that the smart meters identifiers are unique identifiers generated by the framework based on the hardware address of a particular meter node (e.g., Bluetooth or Zigbee ID).
+\begin{center}
+    \begin{table}
+    \centering
+    \begin{tabular}{ | l | l | p{5cm} |}
+    \hline
+    \textbf{URI} & \textbf{HTTP Method} & \textbf{Description} \\ \hline
+    /webnergy & GET & Index page \\ \hline
+    /smartmeters & GET & Lists all the available smartmeters with IDs and names \\ \hline
+    /smartmeters/* & GET & Shows the consumptions of all smart meters \\ \hline
+    /smartmeters/{smartmeter-id}& GET & Lists the consumption data for a particular meter node\\ \hline
+    /smartmeters/{smartmeter-id}/name& GET & Gets the human-readable name of a meter node \\ \hline
+    /smartmeters/{smartmeter-id}/name& PUT & Sets the human-readable name of a meter node \\ \hline
+    /smartmeters/{smartmeter-id}/status & GET & Displays the current status of the meter node and thus of the attached device (on/off) \\ \hline
+    /smartmeters/{smartmeter-id}/status & PUT on/off & Switches device on or off \\ \hline
+    \end{tabular}
+    \caption{Resources of the Webnergy RESTful Web API.}
+    \label{tab:webnergy-resources}
+    \end{table}
+\end{center}
+\paragraph{Implementation}
+To facilitate its portability, the Webnergy framework was implemented as a Java application. As direct consequence is that it can be easily bundled as an OSGi component in order to be integrated to the \sg{} architecture we described in \sectRef{gateways}. When added to the \sg{} architecture, it serves as a \code{DeviceDriver} framework for the integration of smart meters.
+
+\begin{figure}
+\centering
+\imgLine{wsn/energie-visible-gwt-ui.png}
+\caption{The monitoring and control Web user interface for the Ploggs shows the consumption of each connected appliance. The switch icons can be used to power on / off the devices. It is implemented as a simple JavaScript + HTML page calling the Ploggs' RESTful Web API.}
+\label{fig:EnergieVisibleUI}
+\end{figure}
+
+\subsection{Applications}\label{evisibleUserInterface}
+Thanks to the RESTful API offered for the Ploggs through the Webnergy \sg{}, creating a compelling user interface (UI) becomes quite easy: all the interface needs to support is an HTTP client library. Since there is ubiquitous support for HTTP across all programming and scripting languages, this allows developers to choose literally any language to build applications on top of the smart metering infrastructure. Thanks also to the abstraction of devices behind \sgs{}, there is no need for the chosen language to support Bluetooth, Zigbee or the protocol a particular smart meter uses. 
+
+We illustrate this with a JavaScript Web UI that allows users to monitor and control the consumption of the attached devices from a standard web browser.
+
+\subsubsection{Web User Interface}
+The Web UI was designed to be attractive, easily-accessible, and to display real-time data rather than snapshots. It is a dynamic Web site which was easily built on top of the RESTful API offered by the \sg{}. The implementation was made in JavaScript using the Google Web Toolkit (GWT)~\citeweb{gwt}. To get the consumption data, the UI simply calls the gateway URL every few seconds and feeds the JSON Ploggs' results to interactive JavaScript graph widgets. 
+As shown in \figRef{EnergieVisibleUI}, the resulting interface offers six real-time and interactive visualization widgets. It is dynamically created depending on the number and names of the discovered Ploggs. The four graphs on the right side provide detailed information about the current consumption of all the appliances in the vicinity of the gateway. The two remaining graphs show the total consumption (kWh) and respectively a comparison (on the same scale) of all the running appliances. A switch icon next to the graphs enables users to switch on and power off the devices via their Plogg directly from the Web. Finally, the lower part of the UI provides guidance that shows users effective measures to decrease their energy consumption. 
+
+It is worth noting that creating such an interface by directly connecting to the Ploggs would not have been feasible. Indeed, widely popular web languages such as JavaScript do not offer support for Personal Area Network (PAN) protocols such as Bluetooth or Zigbee. However, thanks to the RESTful API, connecting to the smart meters is reduced to being able to call a URI and parse JSON messages, which Web languages can do out-of-the-box.
+
+\subsection{Qualitative Evaluation}\label{energieVisibleDeployment}
+The Web UI and the \sg{} were released for public use as a packaged project named \newterm{Energie Visible} and are available on the Web for free~\citeweb{energievisible}. The software is a \newterm{download and run} application. At the time of writing, it was being used by a dozen of (mostly tech-savvy) people around the globe to monitor the energy consumption of their households. 
+In order to evaluate the suitability of the system to provide feedback in a real-world environment, Energie Visible was permanently deployed at the Cudrefin02 headquarters as described next. Then, we report on formative feedbacks on the usability of the system and the measures people applied due to the increased energy consumption awareness. However, since there existed no fine-grained data on the energy consumption before our deployment, we cannot quantify the energy savings that were achieved with our system. Furthermore, it is in general difficult to quantify savings as direct effect of a system, since such real world deployments contain numerous side effects that cannot be controlled or kept constant. Thereafter, we provide insights from the developer perspective gathered from experts who developed on top of our RESTful system after we released the open-source code. 
+
+\paragraph{Pilot Deployment at Cudrefin02}\label{energieVisiblePilot}
+The prototype was deployed at Cudrefin02, a private swiss foundation active in the field of sustainability and has been running reliably since November 2009. Regarding the given setting and the goal to raise consumption awareness, our prototype had to fulfill certain requirements. Due to the fixed setting in the office, the fact that continuous operation should be ensured and users were not technological affine, the prototype had to be easy to install and simple to use. Hence, the UI had to be developed in an attractive and easily accessible way (no additional software to learn or install) that allows both, staff and visitors, to become aware of the electricity consumption of appliances running at the headquarters. 
+
+From a feedback perspective, the breakdown of the entire energy consumption, e.g., for specific rooms, appliances, or times of the day, is a powerful way of establishing a direct link between action and effect. This considerably improves the intensity of reflection and interpretation of a measure or omission~\cite{Fischer2008-Energy}. However, besides providing this possibility to apportion the entire consumption to single devices, it is important to enable users gathering feedback frequently and in real-time. This allows for users to relate feedback to a certain behavior or device usage~\cite{Abrahamse2005} and thus take effective measures regarding the energy consumption. Continuous feedback has thereby been proven to be most effective~\cite{VanRaaijTheo1983}. In addition, only feedback that is at hand when needed is able to satisfy users' spontaneous curiosity.
+
+The system is deployed in the ground-floor office of the headquarters. There, the Ploggs are used to monitor the energy consumption of various devices such as a fridge, a kettle, two printers, a file-server, and computers including their screens. The \sg{} software is deployed on a small embedded computer consuming about 20 Watts, but also used as a file-server and multimedia station. At startup, the \sg{} discovers all Ploggs within communication distance and queries their consumption values every 20 seconds. The frequency of calls is the observed time needed to establish the Bluetooth communication with each plogg and get the data returned to the \sg{}. As a consequence, the system achieves only near real-time measurements. However, in case of a direct request the corresponding Plogg is queried right away and the value can be gathered in about 2 seconds. It is worth noting that according to further experiments this relatively slow communication time is due to the Bluetooth stack used by the Ploggs and can be improved at the firmware level. 
+
+During the whole time a large display in the shop-window of the office encouraged people passing by to experiment with the system. The staff used the system to monitor the consumption and remotely control the appliances by browsing to the web UI on their desktop computer.
+
+\subsubsection{User Formative Feedback}\label{eval}
+An exhaustive analysis of the system's impact on the electricity consumption of the users is outside of the scope of this thesis and is discussed in~\cite{Weiss2010,Mattern2010}. Nevertheless, to better understand the usage of the system and the feasibility of real-world Web-based smart meters, here we report on user feedback. This section is based on guided interviews with the foundation staff after eight month of operation and verified based on the logged data. 
+
+The aim of the deployment was to raise consumption transparency to help visitors as well as members of the staff to better understand how much energy different devices throughout the office consume in operation and in standby. At the beginning, staff members had to get used to the system and started exploring the energy consumption of different devices. By experimenting with the kettle and the different printers, for example, they learned that the amount of water heated up as well as the type of printer being used has a high impact on the energy consumption. Staff members also started instantly comparing how much energy their office desks consumed. After an intitial period of about a month, the staff members' initial curiosity was satisfied and they thus reported they started using the system less. However, they then looked more into details such as the standby consumption of different devices, the accumulated consumption over time, and once identified where electricity was wasted, took effective measures to conserve energy. For instance, they identified that the computer screens, even when completely turned off, still consumed a considerable amount of energy and that even when not used for several consecutive days, the file-server kept consuming about 30 Watts. To prevent this waste of energy, concrete technical and behavioral measures were implemented. In order to avoid residual electricity usage such as with the computer screens, all the appliances within the headquarters except for the fridge are now connected to a central power switch. As a policy, the last person leaving the office is now in charge of turning off the central power switch. Moreover, the computers and the file-server are now shutdown every evening. The information item at the bottom of the Web UI, which displays contextual hints, was also seen as very helpful. However, the staff reported that it would be better if the hints related to the current consumption. During the whole time the system has been demonstrated to visitors. They especially liked to remotely turn devices on or off and the possibility to see the accumulated consumption together with the monetary cost caused by the device. 
+
+Our formative evaluation hints that the prototypes' functionality is well suited to increase the consumption transparency and helps users to save energy. We realized that in the exploratory phase people like to interact with the system and are looking for a simple and fun way to identify the electricity consumption of different devices. Later, it becomes important to provide functionality that constitutes added value to keep users motivated. Therefore, it is not sufficient to provide feedback on the current consumption on appliance level, but also account for how much energy has been consumed over time. Thus, the system allowed users to identify sinks where energy was wasted. In addition, we identified it is important to relate the consumed energy to the incurred cost to draw conclusions and take effective measures. Furthermore, the suitability of a Web UI was confirmed as none of the users had problems understanding and using the Web page. 
+
+
+\subsubsection{The Developer Perspective}
+The main goal for offering a Web layer on top of the Ploggs is to illustrate the ease development of applications on top of an otherwise closed system. The Web-enabled smart power outlets thus offer a platform for the fast prototyping of energy awareness-related demonstrations and applications.
+
+Since the release of Energie Visible on the web, several development teams have asked for using our software to build new prototypes upon. As a consequence, the Webnergy project was open-sourced~\citeweb{webnergy} and the \sgs{} used in several projects, ranging from personal applications to commercial demonstrators. We followed two students (external to the project) who built applications on top of the Ploggs \sg{} and report on their feedback here. This, unstructured data complements the structured developers-evaluation presented in \sectRef{alternatives}.
+
+For the first developer, the idea was to build a new mobile energy monitoring application based on the iPhone and communicating with the Ploggs. The final application is shown in \figRef{emeter-ui}. The application offers three main functionalities. First it lets users get an aggregation of the consuption of all monitored devices in their environment. Then, a summary of the consumption of each discovered device (i.e., discovered Plogg) is presented in a list view. From this list, users can access the detailed information for each Plogg such as the consumption of the connected device over time and its expected electricity cost per year.
+
+In the second case, the goal was to demonstrate the use of a browser-based JavaScript Mashup editor with real-world services~\cite{Naef2009}. According to interviews we conducted with the students, they in particular highlighted the ease of use of a Web \quote{API} versus a custom \quote{API}. For the iPhone application a native API to Bluetooth did not exist at that time, but like for almost any platform an HTTP (and JSON) library was available. One of the developer mentioned a learning curve for REST, but emphasized the fact that it was still rather simple and that once it was learned the same principles could be used to interact with a large number of services, languages, and possibly soon also with \sts{}. The students finally outlined the direct integration to HTML and Web browsers as one of the most prevalent benefits. 
+
+They explained how this significantly eases the development on the vendor's side, since applications can be built on languages for which a plethora of libraries and frameworks are available. Furthermore, the use of popular languages makes it easier to find adequate developers. This also unveils the possibility for external developers to create small web applications and plug-ins on top of smart meters.
+
+\begin{figure}
+\imgLine{wsn/emeter.png}
+\caption{The mobile user interface built using the Ploggs RESTful API. First, the aggregated consuption is displayed. Then, from a list of connected devices the user can select a particular device and get details about its consumption over time. (Source~\cite{Weiss2010})}
+\label{fig:emeter-ui}
+\end{figure}
+
+\section{\shareLayer{}}\label{wsn-sharing}
+Thanks to the implementation of the \devLayer{} and the \findLayer{} for the \sunspots{} and the Ploggs, they can be shared using the \sac{} architecture described in \chapterRef{sharing}.
+
+We demonstrate this by sharing the \sunspots{} \sg{}: First, the \sg{} needs to be registered with the \sac{} server. This is done through the \sac{} API (see \sectRef{sharing}) with a \code{POST} on \RESTURLInLine{<SAC-BASE-URI>/gateways} with the following parameters (as a URL-encoded form):
+\begin{description}
+ \item[\code{gatewayBaseUri}] The base URI of the \sg{}.
+ \item[\code{subUri}] The sub-URI from which the sharing should be enabled, here \RESTURLInLine{/sunspots}. This can be useful to share just one type of \sts{} on a \sg{} that manages several (e.g., sharing just a particular \sunspot{}).
+ \item[\code{description}] A human-readable description of the \sg{}.
+ \item[\code{username}] The username part of the credentials that should be used to get access to the \sg{}.
+ \item[\code{password}] The password part of the credentials that should be used to get access to the \sg{}.
+ \item[\code{userId}] A list of \sac{} internal users (they need to be currently authenticated) that should be able to share resources managed by this \sg{}. The list of currently authenticated users and their identifiers can be retrieved using the \RESTURLInLine{/users/loggedIn} resource.
+\end{description}
+
+Once added, resources from the \sg{} can be shared with trusted connections using the API. For instance, sharing the \code{temperature} resource of a \sunspot{} requires a \code{POST} on \RESTURL{/gateways/{gatewayBaseUrl}/shares} and the following parameters:
+\begin{description}
+ \item[\code{resourceSubUri}] URI of the resource that should be shared, here
+ \\ \RESTURLInLine{/sunspots/spot1/temperature}.
+ \item[\code{userId}] \sac{} user sharing the resource (needs to be currently authenticated).
+ \item[\code{networkUserId}] \sac{} identifier of a trusted connection on a social network which can be retrieved using the \RESTURL{/users/{userId}/friends} resource.
+ \item[\code{networkUserName}] Social network identifier of the trusted connection to share with.
+\end{description}
+
+Once the sharing process is finished, a message will be posted directly to the trusted connection through the social network connector. The message contains a URI that can be used to access the shared \st{} resource through \sac{}. In the case of our example, the URI looks like \RESTURL{http://vswot.inf.ethz.ch:8091/gateways/vswot.inf.ethz.ch:8081/resources/sunspots/Spot1/sensors/temperature}
+where \RESTURLInLine{vswot.inf.ethz.ch:8081} is the \sg{} base-URI and \RESTURLInLine{/sunspots/Spot1/sensors/temperature} the relative URI of the shared temperature sensor. Finally, it is worth noting that \sac{} will grant access to this resource to the trusted connection if and only if she was successfully authenticated on her social network.
+
+One of the very interesting advantages of modeling the \sunspots{} and Ploggs with a RESTful architecture and in particular of the connectedness constraint, is that is allows the \sac{} to discover the resources and sub-resources the owner can share for a given \sg{}. This is achieved using the crawling algorithm introduced in \sectRef{discoveryByCrawling} where the the resource and sub-resources are extracted by following links in the HTML representation. Furthermore, the operations one can execute on resources are identified by calling the HTTP method \code{OPTION} for each resource. This returns the methods supported for a particular URI, e.g., \code{PUT}, \code{POST}, \code{GET}, etc.
+
+To illustrate this process, consider an owner who wants to share the RESTful Ploggs. The user gives the credentials to the Ploggs \sg{} alongside with its base URI, i.e., \RESTURLInLine{<BASE-URI>/smartmeter}. The crawling engine will browse that page and detect the links to the sub-resources of the Ploggs such as: \RESTURLInLine{/smartmeters/lamp} and \RESTURLInLine{/smartmeters/lamp/status}.
+
+For each resource, the crawler will also retrieves the HTTP methods it supports. For example, the \code{lamp} resource only supports \code{GET} whereas the \code{status} resource also supports \code{PUT} to switch on or off the device. The result of this process is a list of resources that can be shared. \figRef{crawledSpot} shows the example of such a list after crawling the \sunspots{} \sg{} with the Friends and Things Web application.
+\begin{figure}
+\imgLine{wsn/sharing-spots-fat}
+\caption{Screenshot of the Friends and Things Web user interface (built on top of the \sac{} API) after crawling the resources of a \sunspots{} \sg{}. All resources are extracted and ready to be shared with trusted connections.}
+\label{fig:crawledSpot}
+\end{figure}
+
+This approach is valuable because it only requires for \sts{} to be based on a truly RESTful architecture with no additional constraints on the embedded metadata. However, from the figure, it appears clearly that this is not the most intuitive type of representation that can be brought to users. More tailored representations, with better descriptions of the resources, can be extracted from implementations of the \stm{} model as explained in \sectRef{findLayerSpots}.
+
+\subsection{Quantitative Evaluation}
+To quantify the overhead of using a \sacLong{} we evaluated our implementation when sharing the \sunspots{}. We setup a scenario with two computers. Similarly to the evaluations proposed before, the \sg{} software is running on a server featuring Linux Ubuntu with an Intel dual-core PC 2.4 GHz with 2 GB of RAM and the Noelios Restlet Engine Web server (Restlet 1.1.7~\citeweb{restlet}). The \sunspots{} sync-based Device Driver is deployed in the \sg{} and a \sunspot{} node is bound to this driver through an IEEE 802.15.4 wireless link.
+
+Additionally, a laptop client is located one hop away from the server and both are connected through a Gigabit Ethernet link. The laptop client runs a Linux Ubuntu OS and is an Intel dual-core PC 2.67 GHz with 4 GB of RAM.
+
+After sharing the \sunspot{} as described before, we test the overhead of accessing it through \sac{}. The authentication and authorization process is using Facebook based on our \code{FacebookConnector} and accessing the URI shown in the first line of \lstRef{sacRequest}, i.e., requesting the light sensor of the \sunspot{} through the \sac{} authentication and authorization proxy. An extract of the actual HTTP request is shown in \lstRef{sacRequest}. It is worth noting that in order to be able to monitor the requests and results from an external tool, we do not use an encrypted channel. However, when deploying a \sac{}, encrypted HTTP communication should be systematically used to avoid attackers intercepting the social network authentication keys.
+
+\lstinputlisting[caption=HTTP request used to access the light sensor of a \sunspot{} through \sac{}. The request contains a cookie with the Facebook session keys that will be used to check whether the user is authenticated and authorized to access the resource., label=lst:sacRequest, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]{code/sac-request.txt}
+  
+We run 1000 sequential requests and back our data with several iterations of the 1000 test runs. An extract of results can be seen in \figRef{sac-spot-no-cache} where they are compared with the same requests when directly requesting the \sunspot{} resource, without going through \sac{}. Going through \sac{}, the requests have an average RTT of 218 ms ($min=204, max=830, SD=24$). Without \sac{} we observed an average RTT of 9 ms ($min=6, max=40, SD=2$). As a consequence we can conclude that in this setup \sac{} generates an overhead of about 200 ms.
+
+The overhead is reasonable for most applications we envision. However, these results can easily be explained since most of the RTT is due to the latency while contacting Facebook (located 14 hops away from the \sac{} server) to authenticate the user using OAuth. Indeed, in our implementation \sac{} will contact the social network and check the authentication before each request. Hence, the overhead could be greatly reduced by caching the authentication keys on the \sac{} server side. Rather than storing them by session (which does not respect the \important{Stateless Interactions} constraint of REST), these keys could be stored for each user and invalidated after a certain time (sometimes specified by the social network). However, such a cache is a tradeoff since systematically controlling the keys offers a better level of security.
+
+\begin{figure}
+\imgLine{wsn/rtt-sac-spot-no-cache}
+\caption{Round-trip time for 300 consecutive requests for the \RESTURLInLine{light} resource of a \sunspot{} with or without authentication through the \sac{} server. The authentication process has an overhead of a about 200 ms per request.}
+\label{fig:sac-spot-no-cache}
+\end{figure}
+
+For requests intensive applications (e.g., real-time monitoring applications) where the latency might play a role, the \sac{} server can be used for the initial subscription after which the content can be delivered by the sensor or \sg{} directly to the client through a secure Web push channel such as the one implemented by the \tpusher{} service over secure WebSockets~\cite{Lubbers2010} (see \sectRef{real-time-and-tpusher}) or simply through a secure (HTTPS) HTTP Callback mechanism.
+
+\newpage
+
+
+\section{\compoLayer{}: Cross-Device \pMashups{}}\label{wsn-mashup-editor}
+This section applies the idea of \important{\pMashups{}} as described in the \compoLayer{} to wireless sensor networks. Following the three levels of mashability introduced in the \compoLayer{}: \important{\mashupLevelA{}}, \important{\mashupLevelB{}} and \important{\mashupLevelC{}}, we propose, design and implement three \pMashups{} combining the RESTful \sunspots{}, the RESTful Ploggs and virtual services.
+
+\subsection{The Ambient Meter}\label{AmbientMeter}
+This first prototype is joint work with Vlad Trifa and was published in~\cite{Guinard2009,Trifa2010-location}. It demonstrates how real-world services provided by physical devices can be combined together thanks to their RESTful Web APIs. Hence, it can be classified as a \mashupLevelA{}. However, it further illustrates how the \sts{} themselves can communicate with one another to create new applications thanks to the ubiquitous availability of the HTTP protocol. 
+
+\begin{figure}
+\imgHalf{wsn/ambientMeter}
+\caption{Demonstration settings of the Ambient Meter. Every 5 seconds the Ambient Meter (implemented with a RESTful \sunspot{}) polls a URI for an assessment of the energy consumption observed by all the Ploggs the \sgs{} discovered.}
+\label{fig:ambientMeter}
+\end{figure}
+The Ambient Meter is a mobile device that displays the level of energy consumption of the place it is currently located in by changing its color. It can be taken from one place to the other and adapts to the place it monitors automatically, without the need for human intervention. Depending on the total amount of energy consumed in the room it is located in, the Ambient Meter changes its color from very green (i.e., the amount of energy consumed in the room is low) to very red (i.e., a lot of energy is currently consumed in this place). 
+
+The Ambient Meter is built with our implementation of the end-to-end HTTP \sunspot{} and it uses the Ploggs for energy monitoring as well as the Ploggs \sg{} deployed alongside with an LLDU (Local Lookup and Discovery Unit) for resolution of its current location. Every 5 seconds, the Ambient Meter will poll the following URI using the GET method on \RESTURL{http://localhost/webnergy/smartmeters/*.json}. When the meter is located in Room 1, as shown in \figRef{ambientMeter} (step 1) it is bound to the \sg{} 1, meaning that localhost in this context is bound to the address of \sg{} 1. Thus, the result of the call is going to be the JSON representation of the energy consumption of all the Ploggs discovered by the Ploggs' \sg{} 1. Placed in the hallway, the Ambient Meter binds itself to \sg{} 2. Using the same URI as before it will get the energy consumption of all the devices monitored. Again, the same process occurs in Room 2, where the Ambient Meter gets the load of the desktop computer and the lamp. 
+
+Integrating all the real-world devices of this prototype would have been rather time consuming if the \sg{}, the Ploggs and the \sunspots{} were only offering their native (proprietary) APIs. Thanks to the RESTful approach the integration work was reduced to building a simple Web mashup, where all the services are invoked by means of simple and lightweight HTTP requests.
+
+
+\subsection{With Clickscript}
+This second prototype illustrates how physical mashups can be created by end-users as well. In this use-case we use a RESTful \sunspot{} to actuate a RESTful Plogg when reaching a certain temperature. To implement this use-case we use the ClickScript Mashups Editor~\cite{Naef2009}. As shown in \figRef{clickscriptRule} we use the adapted version of the Clickscript presented in \sectRef{clickscript}.
+
+In this simple \pMashup{}, the room temperature is obtained through the \sunspots{}. This can be either obtained by regularly polling \RESTURL{/spot1/sensors/temperature} which requires an additional loop building-block or by subscribing, through WebSockets and the \tpusher{} service, to a new rule on the \sunspot{}. If this temperature exceeds 35 degrees, the Ploggs will be actuated and the attached fan will be turned on.
+\begin{figure}
+\imgLine{wsn/cs-35-deg-rule}
+\caption{A simple \pMashup{} using the adapted version of the Clickscript Mashup Editor. The temperature sensor of the RESTful \sunspots{} is used to actuate a RESTful Plogg.}
+\label{fig:clickscriptRule}
+\end{figure}
+
+Since Clickscript was written using purely Web languages (JavaScript and HTML) it cannot use resources based on the low-level proprietary service protocols of the Ploggs and the \sunspots{}. However, it can easily access RESTful services. Thus, it is straightforward to create Clickscript building-blocks representing the two devices. This is done by adding a small JavaScript snippet to the Clickscript environment. The snippet used to integrate the temperature sensor of the \sunspots{} is shown in \lstRef{csSunSpot}. The simplicity of this code illustrates well the ease of integration of \sts{} to Web tools and languages once they offer their services through a Web API.
+
+\lstinputlisting[caption=JavaScript code required to integrate temperature sensor of a RESTful \sunspot{} as a Clickscript building-block., label=lst:csSunSpot, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]{code/sunspot-cs.js} 
+
+\subsection{Energy-Aware Mobile Mashup Editor}\label{energyMashupEditor}
+In this second prototype, we use the API of the \pMashupsFw{} presented in \sectRef{mashupFw} to build a mashup editor that helps people managing their home devices and create simple rules to optimize their energy consumption. It further allows them to automate their homes in an ad-hoc, flexible manner.
+
+Rather than creating a desktop tool such as the editor presented before, we wanted the mashup editor to be able to run on mobile phones and tablet PCs. Indeed, several studies~\cite{Koskela2004a} over the past few years illustrated a clear trend for people to favor the use of their mobile devices while at home, a trend that was intensified thanks to the advent of tablet PCs such as the iPad or the Android Tablets. 
+
+In particular, mobile devices have been increasingly used to control smart home environments because of their portability and ubiquity~\cite{Koskela2004a}. Furthermore, by implementing the \devLayer{} as described in~\cite{Aguilar2010} a mobile phone becomes both a control device and a RESTful \st{} offering sensing capabilities (e.g., location sensing).
+
+Hence, we propose a mashup editor that allows managing smart homes implementing the \WoTA{} by creating simple rules and offering direct access to the appliances through a mobile phone interface. We present the \energyMashup{} which focuses on creating simple rules that help users optimize their home environment towards a better energy usage. We illustrate this by showing how the RESTful \sunspots{} and RESTful Ploggs can be easily discovered by the framework and integrated in user-customized home automation rules. Parts of this section were published in~\cite{Aguilar2010,Guinard2010-mashup-home,Kovatsch2010}.
+
+\subsubsection{Functional Overview}
+\begin{figure}
+\imgMedium{wsn/mobile-mashup-home}
+\caption{(Left) Home view of the \energyMashup. Users can choose three different wizards to create simple rules to automate their home. (Right) User interface for a \st{} once discovered by the \energyMashup{} through the \pMashupsFw{}. The \st{} can then be used in mashups.}
+\label{fig:mobileMashupHome}
+\end{figure}
+
+The home user interface of the \energyMashup{} is shown in \figRef{mobileMashupHome}. The upper part offers access to three sub-interfaces: \newterm{Wizards, Mashups} and \newterm{Things} that we describe here.
+
+\paragraph{Things: Discovery and Registration} 
+A click on \newterm{Things} provides access to the \sts{} management and discovery interface. One of the most important feature of the \energyMashup{} is the ability to discover and register \sts{} based on their description metadata. The application supports \sts{} that are described according to the \stm{} model proposed in \sectRef{std}.
+
+The application offers two ways of registering \sts. First, a user can manually type the root URI of a \st{}, e.g., \RESTURL{/spot1} for a RESTful \sunspot{}. However, since typing URIs is rather cumbersome on most mobile devices, the \energyMashup{} also features a QR-code recognition module that can be used to extract a \sts' root URI from a barcode.
+
+Once recognized, the URI is sent from the mobile phone to the \pMashupsFw{} where a \transService{} is used to extract resources and services from the retrieved \sts' description. The \pMashupsFw{} then returns the results to the mobile application where the extracted data is used to generate a new \st{} directly usable in mashups. The processed description metadata are then cached by the mobile application and accessible through the Things menu.
+
+\figRef{mobileMashupHome} (right) shows the results of discovering an Android mobile phone implementing the \devLayer{} and the \findLayer{} of the \WoTA{} that we will call RESTful phone hereafter. In particular, this screen-shot shows the discovered sensor resource \RESTURL{/gps} which has three sub-resources. First (\RESTURL{/location}), it allows to retrieve the current location (\newterm{mesurand}) of the mobile phone using a polling approach. Then, two events can be subscribed to: \RESTURL{/change} and \RESTURL{/proximity} providing clients with changes, respectively proximity alerts through an HTTP Callback mechanism.
+
+\paragraph{Wizards: Creating Mashups}
+\begin{figure}
+\imgMedium{wsn/mobile-mashup-wizards}
+\caption{Wizard to create a mashup based on information pushed by \sts{} (left). The form represents the parameters that have to be provided in order to subscribe to the RESTful phone GPS proximity event (right).}
+\label{fig:mobileMashupEvent}
+\end{figure}
+
+Rather than offering a box-and-pointer type of user interface which is challenging to use on devices with limited screen-size, the \energyMashup{} is based on the notion of wizards or assistants. In these wizards, the users are guided through a number of steps that help them creating simple rules.
+
+The application features three types of wizards as shown in \figRef{mobileMashupHome} (left):
+\begin{description}
+ \item[Wire Up Things Events] This wizard can be used to create mashups triggered by real-world events. Once the users discovered a \st{} that offers event-based services, they can use it to create a mashup that will be activated by a push from the \st{} in question. As an example, a mashup can be triggered when a certain temperature level is recorded by a RESTful \sunspot{}.
+ \figRef{mobileMashupEvent} (left) shows the wizard when selecting a subscription to the proximity event of the RESTful phone. The form is generated dynamically based on the JSON message returned by the phone \code{location} resource. Note that the \newterm{Callback URL} parameter cannot be edited since the \pMashupsFw{} generates and manages callbacks automatically. Once subscribed to an event, the wizard will ask for selecting a triggered action, i.e., for specifying a building-block that should be used when reacting to the event. \code{TargetBlock}s (including previously discovered \sts{}) or \code{ProcessingBlock}s can be triggered. As an example, the \code{status} resource of a RESTful Plogg could be updated so that the device attached to the Plogg is turned off or on when the event is triggered. 
+
+ \item[Monitoring Things] This wizard is used to pull information from a \st{}. This is especially suitable for \sts{} that do not support push mechanisms. The wizard first guides the user to selecting a previously discovered \st{} and selecting one of its resources. Once selected, the user is asked to specify a condition to be met to in order to trigger the execution of the next building-block as well as the polling frequency. As an example, \figRef{mobileMashupEvent} (right) shows the form for selecting a condition on the \RESTURL{/gps/location} resource of the RESTful phone. Again, this form is dynamically generated using reflection~\citeweb{relfection} based on JSON message retrieved when requesting a \code{GET} on the resource URI. Finally, the user has to provide a \code{TargetBlock} or \code{ProcessingBlock} that should be triggered when the condition is met.
+  
+ \item[Collections of Things] In order to create more complex mashups, the last wizard allows users to use collections of \sts{} (i.e., \code{RepositoryBlock}s) previously created with the \pMashupsFw{}. First, queries on these collections can be specified using the wizard. Then, the user is prompted to fill in the parameters of a \code{VisualizationBlock} where the queried data will be dynamically visualized using the Google Visualization API~\citeweb{googlevisu} (see \sectRef{blocks}). 
+ \end{description}
+
+\subsubsection{Use-Cases}
+The \energyMashup{} was tested in a formative evaluation. While these tests clearly do not demonstrate the usability of the system in real home environments and with end-users, their purpose is to illustrate the typical use-cases that we envisioned when creating the editor. Furthermore, it gave us feedback and ideas for future directions for home automation mashups.
+
+\paragraph{Methodology}
+The evaluation was conducted in a laboratory at ETH. Five participants, 4 of them computer-science students, gave about 40 minutes of their time to build physical mashups. Five \sts{} were provided:
+\begin{enumerate}
+ \item An Android-based mobile phone (HTC Hero) running the \energyMashup{} and used to create the physical mashups.
+ \item A virtual mobile phone which resources where accessible through a RESTful Web API and which location could be updated manually during the study, in a Wizard-of-Oz manner.
+ \item A fan table heater attached to a Plogg and Web-enabled through the Ploggs \sg{}.
+ \item A desktop lamp attached to another Plogg, Web-enabled through the same gateway as the heater.
+ \item A RESTful \sunspot{} implemented using the \sunspots{} \sg{}.
+\end{enumerate}
+
+Each of these devices was attached a QR-code containing the root URI of the device it was attached to.
+The five participants were given a small introduction on how to use the mobile application and were provided with four use-cases they should implement.
+
+\paragraph{Tasks}
+The exhaustive description of the use-cases is provided in~\cite{Aguilar2010}. Here we describe two of them to illustrate a concrete use of the \energyMashup{}.
+
+The first use-case was testing the use of event-based mashups. The participants were asked to create a mashup that would save energy by starting the heater only when they were approaching home.
+
+The task was solved by going through the following steps:
+\begin{enumerate}
+ \item Use the \code{Things} menu and scan the QR-code of the mobile phone to discover it.
+ \item Similarly, scan the heater (connected to a Plogg).
+ \item Use the \code{Wire Up Things Events} wizard:
+    \begin{enumerate}
+     \item Select the discovered mobile phone
+     \item Browse to the GPS $\rightarrow$ Proximity $\rightarrow$ Subscription resource
+     \item Subscribe to the resource and specify a radius (see \figRef{mobileMashupEvent})
+     \item Select the heater as the target building-block
+     \item Browse to the Power Status $\rightarrow$ Status resources
+     \item Select the desired value (on)
+     \item Save and run the mashup (which exports it and runs it on the \pMashupsFw{})
+    \end{enumerate}
+\end{enumerate}
+
+Technically, this mashup subscribes the \pMashupsFw{} to the proximity resource of the phone GPS. Whenever the phone is located within a certain radius (i.e., coming home) an HTTP \code{POST} request is sent to the \pMashupsFw{}. This event triggers the mashup which \code{POST}s \quote{\code{on}} to the Plogg \sg{}, resulting in starting the attached heater.
+
+In the second task, participants were asked to create another energy-saving rule that turns off the lights when the natural light level is high enough. The task was solved by going through the following steps:
+\begin{enumerate}
+ \item Use the \code{Things} menu and scan the QR-code of the \sunspot{}
+ \item Similarly, scan the lamp (connected to a Plogg)
+ \item Select the \code{Monitoring Things} wizard:
+    \begin{enumerate}
+     \item Select the discovered \sunspot{}
+     \item Browse to the TestSpot $\rightarrow$ Light sensor resource
+     \item Provide a monitoring condition (e.g., light value $> 200$)
+     \item Select the lamp as the target building-block
+     \item Browse to the Power Status $\rightarrow$ Status resources
+     \item Select the desired value (off)
+     \item Save and run the mashup (which exports it and runs it on the \pMashupsFw{})
+    \end{enumerate}
+\end{enumerate}
+ 
+In this case the \pMashupsFw{} will poll (\code{GET}) the light resource of the \sunspot{} on a regular basis and trigger a \code{PUT} \quote{\code{status=on}} on the lamp (connected to a Plogg), resulting in cutting the power of the attached lamp.
+
+The participants built two other use-cases in which the goal was to create a visualization of energy consumption data as well as to send an XMPP or Twitter message whenever the home temperature was reaching 30 degrees Celsius.
+
+\paragraph{Formative Users Feedback}
+Overall the users liked the idea of being able to re-wire their physical environment. For the 5 participants the idea of using a mobile phone was appealing because they always have it with them and are used to its interface. They liked being able to scan objects but had some difficulties getting them recognized and suggested the use of other types of tags, more straightforward to read with a mobile phone such as NFC (Near Field Communication) tags. This confirms our study~\cite{VonReischach2009} where we evaluated several object identification techniques and concluded that NFC was the fastest and easiest to operate for end-users.
+
+Besides a number of UI improvements~\cite{Aguilar2010}, they suggested concrete use-cases. Two examples are the creation of an energy monitor that can compute and present the energy costs for a particular device. Another use-case was the control, configuration and visualization of data from laboratory instruments such as scales, preventing work-interrupts for getting this data from a desktop computer.
+
+
+\section{Related Work}
+Because of their ubiquity, Wireless Sensor and Actuator Networks are a the center of many recent Internet of Things applications. Hence, reducing the complexity of developing applications on these platforms~\cite{Akyildiz2002} has interested several researchers over the last decade~\cite{Gershenfeld2006,Kindberg2002}.
+
+However, WSN application development still requires specific skills and are time consuming~\cite{Mottola2011}. Moreover, for each new deployment, a large amount of work must be devoted to re-implement basic functions and application-specific user interfaces, which is a waste of resources that could be used by developers to focus on the application logic. Ideally, developers should be able to quickly build applications on top of WSNs. 
+
+The advent of IP technologies for WSNs~\cite{Dunkels2003,Hui2008} combined with the creation of global consortia such as the IPSO alliance fostered the idea of using the Internet as an integration bus to facilitate application development. In this space, researchers proposed and evaluated the use of WS-* services~\cite{Helander2005,Priyantha2008,Jammes2005-DPWS}, in the SOCRADES project, we joined this research and explored the integration of WSNs to enterprise applications~\cite{DeSouza2008,Guinard2010-Search}.
+
+Further researchers questioned the suitability of WS-* services because of their important needs in terms of network, processing and storage resources~\cite{Yazar2009}. We shared these concerns and further argued that from a functional point of view an integration to true Web protocols would be highly relevant~\cite{Guinard2009-INSS}. The idea of using Web protocols and in particular RESTful architectures specifically for WSNs had been proposed by Drytkiewicz et al.~\cite{Drytkiewicz2004-pREST} and further explored by Luckenbach et al.~\cite{Luckenbach2005} building upon early conceptual work from Kindberg, Barton et al.~\cite{Kindberg2002,Barton2003}. These pioneering projects were showing the way towards Web integration of WSNs but they implemented the constraints of RESTful architectures only partially: They do not implement the connectedness constraint nor do they leverage mechanisms such as content-negotiation. This can be explained by the very prototypical state of the embedded Web in these early years.
+
+Recent research benefits from the new perspectives of IPv6 for WSNs over IEEE 802.15.4 (also known as 6loWPAN)~\cite{Hui2008} and the development of very small-footprint Web servers implementing full HTTP 1.1 stacks~\cite{Duquennoy2009}. As conceptually suggested in~\cite{Wilde2007,Stirbu2008} we joined further recent projects in exploring a systematic implementation of REST as presented in this chapter and published in~\cite{Guinard2009-INSS,Guinard2009,Guinard2010-WoT}. Building upon our work, Schor et al. proposed a native, application-gateway less, implementation of a RESTful architecture on WSN nodes~\cite{Schor2009}. 
+
+While we share with these works the lower layers of the \WoTA{} (i.e., closely related to the \devLayer{} we proposed), we take a more holistic approach and look at the integration issues from an application layer point of view. We are interested in the overall picture of integrating WSNs to the Web. We focus on the developer view-point and illustrate the benefits and architectures that can be leveraged once the sensor nodes are part of the Web. In this space, the sMAP~\cite{Dawson2010} project, conducted in parallel to our work, looks at the bigger picture of WSN Web integration but does not address cross-cutting layers such as the \compoLayer{} or \shareLayer{}.
+
+WSNs have been used to monitor energy consumption in several projects~\cite{Lifton2007,ShwetakPatel2007}. Similarly, the results of projects cited above could also be applied to the specifics of energy-aware WSNs. However, specifically looking at the use-case of smart meters, several research projects proposed the use of the Internet to facilitate their integration. Jiang et al.~\cite{Jiang2009} looked at integrating custom smart meters directly to IP networks. In~\cite{Schor2009} the authors propose a user interface for creating simple energy-awareness rules on top of their RESTful architecture (e.g., switch off the light automatically). Our contribution here differs since we took the approach of adapting an off-the-shelf smart meter WSN platform (through the use of a \sg{}) and demonstrated the benefits by building Web applications that help end-users monitor and control their electricity consumption. 
+
+
+
+\section{Discussion and Summary}
+In this chapter, we presented an implementation of the \WoTA{} for two different sensor networking platforms. First, with the \sunspots{}, we illustrated how the \WoTA{} can be leveraged as a valid candidate for a WSN common application platform.  Certainly, the presented approach is not the universal solution for every problem. Scenarios with specific requirements such as high performance real-time communication still benefit from tightly coupled systems based on traditional RPC-based approaches. However, for less constrained applications that are more oriented towards end-users and prototyping where ad-hoc interaction and serendipitous reuse are required, Web standards can simplify integration of WSN data and functionality.
+
+In applications where the raw performance and battery life-time are critical, for example when nodes run on battery in large-scale and long-lived deployments, optimized protocols that minimize network connection and latency will remain the best option. However, when devices are connected to a power source and when sub-second latency can be tolerated, then the advantages of HTTP clearly outweigh the loss in performance and latency.
+
+Based on our experience, we suggest that for many applications the drawbacks of Web architectures are largely offset by the simplification of the design, integration, and deployment processes~\cite{Guinard2010-WoT}. Although HTTP introduces a communication overhead and increases average response latency, recent research has shown that this overhead is still small enough to enable most WSN scenarios~\cite{Yazar2009,Priyantha2008,Trifa2009}. Our study of end-to-end HTTP and \sg{} mediated implementation of the \sunspots{} confirm these results and suggests that for sub-seconds WSN use-cases both approaches are useable. 
+
+Furthermore, we presented an easy to use WSN-based system for energy savings in home and office environments based on the \WoTA{}. Our contribution on the architecture level is twofold. Firstly, we extended the capabilities of the Ploggs by providing a \sg{} that discovers and integrates the available physical devices, and that provides a RESTful Web API that can be exploited by third-party applications. Secondly, we demonstrated how the approach eases application development and fosters interoperability of the system by showing how it was used for developing energy applications on Web-based and Mobile platforms.
+
+Finally, beyond integration at the device level, we demonstrated how WSNs can directly benefit from the other layers of the \WoTA{}: the \findLayer{} helps searching for WSN nodes directly on the Web, the \shareLayer{} architecture offers an easy and straightforward mechanism to share all kinds of sensor related resources. With the \compoLayer{} we show that similarly to how Web 2.0 mashups have significantly lowered the entry barrier for the development of Web applications, these techniques and protocols can be used to lower the entry barrier for creating end-user applications that are using WSNs.
+

@@ -1,0 +1,109 @@
+\documentclass[a4paper,10pt]{report}
+\usepackage[utf8x]{inputenc}
+\usepackage{url}
+
+%------------ My commands
+\newcommand{\footurl}[1]{\footnote{\url{http://#1}}}
+\newcommand{\notes}[1]{[NOTE: \textit{#1}]}
+\newcommand{\code}[1]{\texttt{\url{#1}}}
+\newcommand{\RESTURL}[1]{\\ \texttt{\url{#1}} \\}
+\newcommand{\todo}[1]{\\ \textbf{TODO:#1} \\}
+%-----------
+
+\title{PhD Outline: Integrating the Real-World with the World Wide Web - A Service
+Platform to Support Application Development}
+\author{Dominique Guinard}
+
+% PhD Structure
+% 
+% Intro: sensor, web, mashups, etc.:
+% 	explain the thesis and problems and thesis very early.
+% 	Bringing web and physical together
+% Thesis: demonstrate it's possible in a number of different domains
+% 	Validate it's easier.
+% 	Explain the design patterns.
+% 
+% WS-* should be a part of related work.
+% REST: these concepts have been developed by others, we apply them to the real-world
+%  
+
+\begin{document}
+
+\maketitle
+
+\chapter{Introduction}
+
+  \section{Real-World Service Integration Paradigms}
+    \subsection{WS-*}
+    \subsection{REST}
+    \subsection{UpnP}
+    \subsection{A Web-Service Integration Infrastructure for the Real-World}
+    SOCRADES Integration Architecture~\cite{souza_socrades:web_2008,guinard_tsc}.  In~\cite{dominique_guinard_are_2009} we implemented Web proxies for Smart Meters.
+
+  \section{Understanding Differences between Integration Models}
+    \subsection{Qualitative}
+    Show ease of use.
+    \todo{Still to SHOW that it does foster and make it easier to build apps upon, for that use: Distributed Sys. lecture, OSS eval.}
+    \subsection{Quantitative}
+    Studies of~\cite{guinard_resource_2010} and~\cite{guinard_giving_2010}
+    \subsection{Federative Architecture}
+    We proposed a system federating both RESTful and WS-* services for things in~\cite{guinard_tsc}.
+
+  \section{Empowering Users: Physical Mashups}
+    \subsection{Web 2.0 Web Mashups}
+    Explain Web Mashups.
+    \subsection{Physical Mashups}
+    Explain the concept introduced in~\cite{guinard_resource_2010}.
+
+\chapter{A Web Oriented Architecture for a Composable Ecosystem of Smart Things}
+  In~\cite{Guinard09b}, we introduced the Web of Things architecture which we further described in~\cite{guinard_resource_2010}.
+
+    \section{From the Internet of Things to the Web of Things}
+    \section{Designing RESTful Smart Things}
+      \subsection{Smart Gateways}
+      From this we derived the concept of Smart Gateways in~\cite{guinard_tsc} and~\cite{trifa_design_2009}.
+      \subsection{Modeling Functionality as Linked Resources}
+      \subsection{Representing Resources}
+      \subsection{Servicing Through a Uniform Interface}
+      \subsection{Syndicating Things}
+      \subsection{Real Time Web of Things}
+      \subsection{Finding and Describing Smart Things}
+      Infra-WOT, Microformats, etc.
+      \subsection{Sharing Smart Things}
+      We developed a sharing and service advertising platform making use of social networks~\cite{guinard_sharing_2010} (SAC and FAT). 
+      \todo{Evaluation of SAC/FAT?}
+      \subsection{Design Automatization}
+      Auto-WOT
+      \todo{Include discovery and real-time}
+
+\chapter{Wireless Sensors and Actuator Networks}
+  RESTful Sun SPOTs~\cite{Guinard09}, RESTful Ploggs~\cite{dominique_guinard_are_2009,Guinard09b,weiss_emeter:interactive_2009}
+  \subsection{Design}
+  \subsection{Prototyping}
+  \subsection{Home Mashups}
+  We evaluated different approaches and proposed a Web-oriented prototype in~\cite{kovatsch_embedding_2010} and~\cite{guinard_mashing_2010}.
+  Clickscript project, Energy Mobile Mashup, Physical Mashup Framework, etc.
+  \todo{Better publication/eval?}
+  \subsection{Evaluation}
+
+ \chapter{Resource-Oriented Auto-ID Networks}
+ RESTful EPCIS~\cite{guinard_giving_2010}
+ \todo{More to come thanks to the project at Auto-ID}
+  \subsection{Design}
+  \subsection{Prototyping}
+  \subsection{Evaluation}
+  \subsection{RFID Mashups}
+  Make it easy to build simple RFID apps.
+  \todo{``Clickscript'' for RFID}
+
+\chapter{Conclusion}
+
+
+%\nocite{*} % Cite all uncited papers in the bib.
+% References
+% Max 1 page
+\small
+\bibliographystyle{splncs} %acm
+\bibliography{../../phd}
+
+\end{document}          

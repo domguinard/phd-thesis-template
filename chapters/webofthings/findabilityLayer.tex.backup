@@ -1,0 +1,470 @@
+\section{\findLayer{}}\label{findLayer}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{figures/wot/findLayer}
+\end{center}
+By applying the architectural design presented in the \devLayer{}, \sts{} become seamlessly part of the Web. While this presents several advantages, it also raises important challenges. Amongst these is searching and finding relevant services: \important{Given an ecosystem of billions of \sts{}, how do we find their services to integrate them into composite applications?}
+
+The Web faced similar challenges when it moved from an hypertext of several thousands of documents to an application platform interconnecting an unprecedented number of documents, multimedia content and services. Rapidly, search engines such as Altavista, Yahoo and more recently Google appeared to offer search and indexes services.
+
+The \WoT{} will face similar problems, while finding \sts{} by browsing HTML pages with hyperlinks in a home environment is suitable and desirable, on a city, country or world-wide scale it becomes literally impossible. Hence, the ambient findability~\cite{Morville2005} of \sts{} need to be addressed, we need to make them searcheable and findable. 
+
+While we do not pretend providing the ultimate solution to this complex and heavily-researched problem~\cite{Tan2008,Romer2010}, we report on two aspects that we studied in the context of the \WoTLong{}. First, we look at the integration of \sts{} to existing search engines and propose the use of a description model implemented with semantic annotations to enable this. 
+
+Then, we illustrate the shortcomings of basing the findability of \sts{} solely on existing search engines and propose a lookup and registration infrastructure adapted to the particular needs of the \WoTLong{} and building upon the proposed description model. The combination of both solutions enables users and developers to run search queries such as looking for all the nearby temperature sensors or finding a device that can read video content in a particular building.
+
+\subsection{Search Engines and the Internet of Things}
+A Web page really becomes usable on the Web once it has been indexed by search engines. Thus, the most straightforward way of enabling the search for \sts{} is through these search engines. However, searching for things is significantly more complicated than searching for documents.
+
+First, \sts{} have no obvious easily indexable properties, such as human readable text in the case of documents. Then, they are tightly bound to contextual information, such as their absolute location (i.e., latitude and longitude), their abstract location (e.g., Room B, Floor 1) or current owner. 
+
+\subsubsection{A Smart Things Description Model and Microformats for the WoT}\label{std}
+\begin{figure}
+\imgLine{wot/things-description}
+\caption{The \st{} metadata model, containing the most important elements of the description of a \st{} required for their findability on the Web. This graph contains the static properties of \sts{}, \figRef{thingsDescription2} contains the dynamic properties.}
+\label{fig:thingsDescription}
+\end{figure}
+Hence, \sts{} need a mechanism to describe themselves and their services to be (automatically) discovered and used. Since both humans and machines are going to use the things, we need a mechanism to describe a \st{} on the Web so that both, humans and machines, can understand what services it provides. This problem is not inherent to \sts{}, but more generally a complex problem of describing services, which has always been an important challenge to be tackled in the Web research community, usually in the area of the Semantic Web. For the \WoT{}, the problem has also roots in the notion of \important{context} in Ubiquitous Computing~\cite{Schmidt1999-Context,Salber1999}. 
+
+Here, we propose a model~\cite{Guinard2010-Search} of the contextual information and metadata a \st{} should disclose on the Web to be searcheable and integrable into composite applications. We base our model on several surveys~\cite{Hong2010,Aguilar2010,Dober2009} of existing languages for semantically describing real-world objects and in particular, sensors~\cite{Botts2007} and industrial machines~\cite{Jammes2005-DPWS}. We describe a \st{} along 2 clusters of information each containing two sub-groups:
+\begin{itemize}
+ \item First, static properties, as shown in \figRef{thingsDescription} are metadata that will not evolve over the life-cycle of the object:
+
+    \begin{enumerate}
+    \item Product: contains a description of what the \sts{} is in terms of object.
+    \item Services: contains a description of the services a \st{} offers (e.g., temperature monitoring, MP3 play-back, etc.)
+    \end{enumerate}
+
+ \item Then, dynamic properties, as shown in \figRef{thingsDescription2} are those changing regularly depending on the context the object is located in:
+    \begin{enumerate}
+    \item Location: contains information about the place where the thing is currently located.
+    \item QoS (Quality of Service): contains information about how well the thing performs and performed.
+    \end{enumerate}
+\end{itemize}
+This model is not exhaustive but, according to our experience~\cite{Guinard2010-Search}, it covers the basic information required to describe \sts{} on the Web in order to make them and their services searcheable. Furthermore, the idea is to use this information as search engines do, i.e., in a best effort manner where the absence of some metadata does not mean the \st{} is not indexed. Rather it means that customization of its rendering or indexed keywords will simply be limited. 
+
+The description proposed here can potentially be materialized into several formats such as WSDL (Web Service Definition Language) files, DPWS Metadata~\cite{Jammes2005-DPWS} or SensorML~\cite{Botts2007} documents. Unfortunately they are not exposed on the Web as Web-browsers and search engines, for the most part, do not understand them.
+
+To overcome the rather limited descriptive power of resources on the Web, several languages have been proposed as standards. Two of them, RDFa~\citeweb{rdfa} and microformats~\citeweb{microformats} have the interesting feature of being used to semantically enhance the elements of HTML pages.
+
+Designed for both, human and machines, microformats provide a simple way to add semantics to Web resources~\cite{Allsopp2007}. There is not one single microformat, but rather a number of them, each one for a particular domain; a \code{geo} and \code{adr} microformat for describing places or an \code{hProduct} and \code{hReview} microformat for describing products and what people think about them.
+
+Microformats are especially interesting in the Web of Things for three reasons; first, like RDFa they are directly embedded into Web pages and thus can be used to semantically annotate the HTML representation of a thing's RESTful API. 
+Secondly, each microformat undergoes an open community-driven standardization process. This ensures that the number of formats stays relatively small and that their content is to be widely understood and used when accepted.  
+Finally, many microformats are already supported by search engines, such as Google and Yahoo, where they are used to enhance search results and render them differently. For example, the \code{geo} microformat is used to localize search results close to a user or \code{hReview} is used to rank search results according to the users' opinion. 
+
+As a consequence, we propose the use of microformats to describe \sts{} in the Web of Things. Rather than proposing a new microformat encompassing the model described in \figRef{thingsDescription}, we can re-use a compound of existing, standardized microformats. This helps the things to be directly searcheable by humans using existing general purpose or dedicated search engines, but it also helps them being discovered and understood by software applications in order to automatically use them and render adapted user interfaces.
+
+To illustrate this, we show that by using a compound of 5 microformats and by leveraging the structure of RESTful APIs, we can create a description of a sensor node that fulfills the model presented in \figRef{thingsDescription} and \figRef{thingsDescription2}.
+\begin{figure}
+\imgLine{wot/things-description2}
+\caption{Second part of the Smart Things Description (STD) model, containing the most important dynamic properties of the description of a \st{} required for the findability of their services on the Web. \figRef{thingsDescription} contains the static properties of the STD model.}
+\label{fig:thingsDescription2}
+\end{figure}
+\paragraph{Product Description} One of the most important metadata required in order to enable the search for \sts{} and their services is a description of what object they are. Web sites such as e-commerce services, are often based on unstructured product data which makes it hard for browsers and search engine to render and index useful metadata about products. The \important{hProduct}~\citeweb{hProduct} microformat was created to give a structure to this metadata. Through its vast usage, browsers, search engines and other Web applications have a way to help facilitate the best product choice for consumers. It also gives a way for manufacturers and retailers to better describe their products. Although it is officially still a draft microformat~\citeweb{hProduct} at the time of writing, hProduct is already widely used and implemented on the Web. As an example, the BestBuy e-commerce site uses it for providing metadata about all its products and Google~\citeweb{richSnippets} supports it to better render the results of product searches.
+ 
+Interestingly enough, the hProduct microformat provides information about the object itself and its manufacturer and covers most of the fields required in the Product description of the STD model. As shown in \tableRef{product}, except for the Owner and Manufacturer, hProduct covers all the STD model Product related fields. The Owner and Manufacturer is implemented using the hCard microformat that we will present below.
+\begin{table}
+\begin{center}
+\small
+  \begin{tabular}{ | l l l p{5cm} | }
+    \hline
+    \textbf{STDM element} & \textbf{Microformat} &\textbf{MF Attribute} & \textbf{Meaning}\\
+\hline
+    Unique ID & hProduct & identifier (type, value) & unique identifier for this object\\
+\hline
+    Name & hProduct & fn & human-friendly name of the \st{}\\
+\hline
+    Brand & hProduct & brand & company name\\
+\hline
+    Description & hProduct & description & human-friendly description\\
+\hline
+    Picture & hProduct & picture & image of the product\\
+\hline
+    Authoritative URL & hProduct & url & manufacturer's Web page containing information about the product\\
+\hline
+    Tags & hProduct and rel-tag & category (rel-tag) & tags describing the \st{}\\
+\hline
+    Owner & hCard & see \tableRef{location} & name and address of the owner\\
+\hline
+    Manufacturer & hCard & see \tableRef{location} & name and address of the manufacturer\\
+\hline
+  \end{tabular}
+  \caption{Elements of the STD model for the Product cluster that can be implemented in a Web-oriented way using standard microformats.}
+  \label{tab:product}
+\normalsize
+\end{center}
+\end{table}
+Listing~\ref{lst:sensorNodeProductMF} presents an example of how a generic sensor node could be represented using hProduct. Note that the microformats' attributes are directly embedded into the HTML representation of the \st{}. As a results, browsers, search engines and applications discovering the generic node by browsing will be able to render its UI and visualization in a metadata enhanced manner.
+
+In \lstRef{sensorNodeProductMF}, the \st{} unique identifier is implemented using an EPC number. Using Electronic Product Code numbers~\cite{Sarma2001} has the advantage of offering a world-wide, static way of identifying objects which is very valuable in the Web of Things where objects might move from one domain to the other, thus changing their absolute URI over time. We will discuss the properties of EPC numbers in greater details in \chapterRef{autoid}.
+
+
+\lstinputlisting[caption=Describing a \st{} using hProduct., label=lst:sensorNodeProductMF, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]{code/sensorNodeProductMF.html}
+
+\paragraph{Location} One of the most important differences between virtual and physical objects is that the latter have a location in a physical context. This information is very valuable and should be leveraged when providing metadata for \sts{}.
+
+Initially created to represent people, companies and organizations, the hCard microformat~\citeweb{hCard-mf} is a also simple and Web interoperable way of representing places. It is based on the vCard specification~\citeweb{vcard} and has reached the status of standard microformat. As a consequence, it is widely implemented on sites across the Web and used for adapted rendering and context extraction by several Web resources and applications. As an example, it is used by Google both to render special results for businesses, showing their location on a Map, as well as to enable their customers to \quote{export places} from Google Maps~\citeweb{googleSupportshCard}. Similarly, the Yahoo Local Search engine uses hCards to render the location of businesses and organizations~\citeweb{yahooSupportsMF}.
+
+In addition to hCard, the geo microformat~\citeweb{Geo-mf} makes it possible to embed absolute location information in Web pages in the form of geographic coordinates.
+
+In the context of \sts{}, we use hCards and geo to implement three parts of the STD model. First, for the static properties, hCards are used to describe the owner and manufacturer of an object. Then, for dynamic properties, we use hCard and geo to describe the location of a \st{}. The mapping of the STD model location properties to hCards attributes is quite natural and shown in \tableRef{location}. 
+
+\begin{table}[h]
+\begin{center}
+\small
+  \begin{tabular}{ | l l p{3cm} p{5cm} | }
+    \hline
+    \textbf{STDM element} & \textbf{Microformat} &\textbf{MF Attribute} & \textbf{Meaning}\\
+\hline
+    Latitude & geo & latitude & current latitude of the \st{}, owner or manufacturer\\
+\hline
+    Longitude & geo & longitude & current longitude\\
+\hline
+    Address & hCard & adr (street-address, locality, postal-code, country-name)  & comprehensive postal address\\
+\hline
+  \end{tabular}
+  \caption{Elements of the STD model for the Location cluster that can be implemented in a Web-oriented way using the hCard and Geo standard microformats.}
+  \label{tab:location}
+\normalsize
+\end{center}
+\end{table}
+It is worth noting that these microformats do not cover relative abstract locations. The reason behind this is that this part of a location cannot be leveraged globally in a standard way (e.g., by a search engine) as it requires a specific knowledge of the current environment. In \sectRef{lookupInfra} we propose a way to implement this part of the STD model using a lookup infrastructure.
+
+\paragraph{Quality of Service} In a Web of Things populated by billions of \sts{} quality of service information can be of great help to choose the right \st{} for the right application. Parameters such as bandwidth, up-time, average response time help taking the right decision. These data can be based on monitoring service~\cite{Guinard2010-Search} or provided by the \st{} manufacturer.
+
+However, with the advent of the Web 2.0, we increasingly rely on external user experiences when choosing our products and services.
+The strong influence of recommendation systems on the way people pick Web sites or buy products online has been extensively studied~\cite{Senecal2004} and demonstrated~\cite{Reischach2009}. For \sts{} we can take a similar approach and offer a standard way for providing user-generated reviews as well as performance information.
+
+hReview is a microformat for embedding reviews of products, services, businesses and events in Web representations and especially in HTML~\citeweb{hReview}. Several Web sites already implement hReview for their reviews. As an example, the New York Times Web site~\citeweb{travelny} and Yahoo Local search use it to rate listed venues such as restaurants and businesses.
+
+In the Web of Things context, we can use hReview to implement both QoS properties listed in the STD model. Indeed, as shown in \tableRef{qos} the standard attributes of hReview cover the metadata related to performances and user feedback.
+\begin{table}[h]
+\begin{center}
+\small
+  \begin{tabular}{ | l l p{3cm} p{5cm} | }
+    \hline
+    \textbf{STDM element} & \textbf{Microformat} &\textbf{MF Attribute} & \textbf{Meaning}\\
+\hline
+    Review & hReview & description \& type (product) & feedback from the owner/user of the \st{}\\
+\hline
+    Rating & hReview & rating (value, worst, best) & owner/user rating between worst and best or 1.0 to 5.0 if scale is omitted\\
+\hline
+    Address & hCard & adr (street-address, locality, postal-code, country-name)  & comprehensive postal address\\
+\hline
+    Service health & hReview \& rel-tag & tag (rel-tag) & specifies that a review is a service health parameter\\
+\hline
+    Network latency & hReview \& rel-tag & tag (rel-tag) & specifies that a review is a service health parameter\\
+\hline
+  \end{tabular}
+  \caption{Elements of the STD model for the QoS cluster that can be implemented in a Web-oriented way using the hReview standard microformat.}
+  \label{tab:qos}
+\normalsize
+\end{center}
+\end{table}
+\lstRef{sensorNodeQoSMF} shows how the QoS properties of the STD model can be implemented using hReview. The listing contains two QoS elements: First, the owner of the \st{} published a user feedback. Then, the \st{} generated a service health review.
+
+\begin{lstlisting}[caption=Quality of service for a \st{} described using the hReview microformat., label=lst:sensorNodeQoSMF, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+<div class="hReview">
+  <span><span class="rating">4</span> out of 5 stars</span>
+  <h4 class="summary">Good all purpose sensor node</h4>
+  <span class="reviewer vcard">Added by owner: <span class="fn">Dominique Guinard</span></span>
+  <div class="description item">I use this generic sensor node for monitoring the temperature inside my house. It is quite reliable but I turn it off on weekends.
+  </div>
+</div>
+<div class="hReview">
+  <span>
+    <a href="http://www.webofthings.com/tags/serviceHealth" rel="tag">Service Health:
+      <span class="value">70</span>/
+      <span class="best">100</span>
+    </a>
+    </span>
+    <h4 class="summary">Service health is good</h4>
+    <span class="reviewer vcard">Added by manufacturer: 
+      <span class="fn">Generic Electronics Company</span>
+    </span>
+    <div class="description item">The service health of this node is good, this means that most requests will succeed within less than 1 second.
+    </div>
+</div>
+\end{lstlisting}
+
+
+\paragraph{Service Description: Discovery by Crawling}\label{discoveryByCrawling}
+The last part of the STD model does not necessarily need to be supported by an explicit semantic description. Indeed, if we consider that the \devLayer{} was implemented as described, we can assume that all the \sts{} will serve their functionality through a RESTful interface.
+
+A direct consequence of respecting the constraints of REST is that useful meta information can be extracted simply by crawling their HTML representation~\cite{Mayer2011,Alarcon2010} and leveraging the HTTP protocol.
+
+From the root HTML page of the \st{}, a crawler typically is able to find a number of the service properties suggested in the STD model. First, to satisfy constraint C4 (Hypermedia Driving Application State, see \sectRef{APIforSmartThings}), the HTML representation of a \st{} should contains links to related and descendant resources. Hence, from this constraint a crawler can extract the Children, Parents and related URIs as specified in the STD model.
+
+With these URIs, the crawler can then use the HTTP \texttt{OPTION} method to retrieve all verbs supported for a particular resource, e.g., \texttt{PUT}, \texttt{POST}, \texttt{GET}, implementing the Operations property of the STD model. Finally, with content-negotiation as described in \sectRef{interfaceDesign}, the crawler gets information about the Service Format, Input and Output properties. 
+
+We implemented and empirically tested the described crawling algorithm in~\cite{Guinard2010-sharing,Mayer2011}. The pseudo code of this algorithm is shown in \lstRef{serviceCrawlingAlgo}.
+\begin{lstlisting}[caption=The \sts{} Service Description Crawling Algorithm., label=lst:serviceCrawlingAlgo, breaklines, numbers=left, numberstyle=\tiny, language={Java},
+xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+crawl(Link currentLink) {
+  new Resource() r;
+  r.setUri = currentLink.getURI();
+  r.setShortDescription = currentLink.text();
+  r.setLongDescription = currentLink.invokeVerb(GET).extractDescriptionFromResults();
+  r.setOperations = currentLink.invokeVerb(OPTIONS).getVerbs();
+  foreach (Format formats: currentFormat) {
+    r.setAcceptedFormats = currentLink.invokeVerb(GET).setAcceptHeader(currentFormat);
+  }
+  if (currentLink.hasNext()) crawl(currentLink.getNext());
+}
+foreach (Link currentPage.extractLinks(): currentLink);
+\end{lstlisting}
+
+The crawling approach to extract service metadata is interesting because it does not require the semantics of services to be represented in an additional format. As a consequence valuable information can be extracted even if the \st{} to index implements the \devLayer{} only. In fact the information that can be extracted by crawling is rich enough to index a \st{}, a few keywords and to locate all its resources. Hence, the \st{} already becomes searcheable.
+
+However, the crawling approach has two main limitations. First, the approach strongly relies on the respect of the REST constraints. As a consequence, for some \sts{}' APIs such as those based on hybrid architectures~\cite{Richardson2007} not fully respecting the constraints of REST, the service metadata might be only partially extracted~\cite{Alarcon2010}.
+
+Furthermore, the crawling approach requires many HTTP calls to extract a metadata profile that matches the service properties of the SDT model. This is problematic since HTTP calls are the most costly parts of the communication between clients and services~\cite{Souders2007}. As a consequence, a single HTTP call returning a significant amount of data is more efficient than several calls returning the same total amount of data. This is especially important in the context of the Web of Things where clients will interact with services deployed on resource constrained devices such as \sgs{} or \sts{}.
+
+Several solutions exist to provide service metadata for RESTful APIs. The most well known one is called WADL (Web Application Description Language~\cite{Richardson2007}). This language, directly inspired from the WSDL (Web Service Description Language), provides a way of describing HTTP based Web applications. A WADL document is an external document describing, from a client point of view, how to interact with a given HTTP based service. The main drawback of the approach in our context is that it requires clients to understand a new format. Furthermore, when compared to microformats, the rather low adoption rate of the WADL format~\cite{Richardson2007} does not enable applications to leverage existing search engines.
+
+hRESTs is a microformat~\cite{Kopecky2008} sharing similar goals with WADL, with the advantage of being directly embedded in the HTML representations of services. Because most of the metadata it offers is implicitly available in a well designed RESTful API, hRESTS is sometimes criticized by the Web community. More importantly, hREST is the work of three researchers and, at the date of writing it is not yet an official community-driven microformat which severely hinders its support by services such as search engines. 
+
+However, in practice hRESTs offers the advantage of providing the service metadata without crawling the resources. As a consequence, the metadata is more strictly organized and easier to extract which reduces the number of required HTTP calls. To benefit from this, hRESTs should be used to annotate a global description of the \st{}'s services, for example accessible at the root HTML page of the \st{}.
+
+%\todo{1: maybe describe how we would use hREST, in the API documentation.}
+
+\paragraph{Understanding the Benefits of Microformats}
+Following our guidelines, a \st{} is best described by a compound of five microformats covering the STD model: hProduct, hCard, hReview, rel-tag and possibly hRESTs.
+
+The benefits of this approach are manifolds. First, \sts{} become directly searcheable with traditional search engines such as Google or Yahoo. Moreover, these search engines can use the metadata to provide contextual search results. As an example, searching for a temperature sensor nearby from a mobile phone can use the geo microformat of the \sts{} to match the GPS coordinates of the mobile phone. Search engines will also be able to render the search results differently based on the metadata of \sts{}.
+
+Similarly, based on this metadata, clients such as Web browsers or mobile phone applications are able to render the user interfaces to \sts{} in a customized way, we illustrate this with examples of dynamically rendered UIs and mashup modules for Wireless Sensor Nodes in \chapterRef{wsn}.
+
+\paragraph{Towards an \transService{}}\label{translationService}
+While we suggest implementing the STD model using the proposed compound microformat for the best current integration experience, it is clear that this is not a one-size-fits-all format. From the history of metadata formats such as DPWS, WSDL, WADL, SensorML~\cite{Botts2007} or SA-REST~\cite{Sheth2007} it is quite clear that no metadata language can impose itself up to a point where others vanish, because there is no single best way of describing a \st{}. Hence, \sts{} will most likely be and already are described using other metadata formats.
+
+However, the format should not matter, what should is the metadata. Hence, the idea is to introduce a level of indirection in order to support a broad spectrum of metadata formats. As introduced in a common work with Simon Mayer~\cite{Mayer2011} as well as in~\cite{Guinard2010-Search,Aguilar2010}, we implement a \transService{} that acts as a converter. On the one hand-side it can extract (or crawl) information from several metadata formats and on the other end, through a RESTful Web API, it offers to clients to retrieved the extracted metadata using the representation they wish (if supported).
+
+\subsection{A Web-Oriented Discovery and Lookup Infrastructure}\label{lookupInfra}
+Relying on search engines to enable searching for \sts{} is interesting because it uses existing, well-known and widely adopted services. However, the approach has a number of limitations. First, because of their mobile nature, \sts{} tend to be moved from one context to another on a regular basis: sensors attached to shipments move from the factory to a warehouse. Mobile phones entirely change their context several times per day. Environmental monitoring systems are moved from one observation area to the other. While improving support for real-time search (e.g., through integration with real-time information services such as Twitter), search engines still largely function based on scheduled indexing and might not reflect the latest context of registered \sts{}. Thus, the need for \important{local search engines and lookup services for \sts{}}.
+
+Moreover, the bootstrapping of \sts{} is a problem: \important{How does a \st{} announce its existence in a particular context?} Currently, search engines discover new resources by following links. For the Web of Things, we need to be able to access \sts{} as soon as they connect thus the need for a \important{discovery service for the Web of Things}.
+
+We present a distributed and Web-oriented registration and lookup infrastructure for the \WoT{} federating our joint work in~\cite{Mayer2010,Trifa10book} as well as our work on defining a search and discovery process for real-world services running on \sts{}~\cite{Guinard2010-Search}\footnote{Parts of the described process was patented in~\cite{GuinardPatent2010}.}. We begin by demonstrating how the infrastructure offers a discovery protocol for \sts{}. We then show how this infrastructure can be used to perform local search queries.
+
+\subsubsection{Distributed Infrastructure}\label{distributedInfra}
+\begin{figure}
+\imgMedium{wot/infrawot-hierarchy}
+\caption{Hierarchical organization of the Local Lookup and and Discover Units (LLDU). Virtual LLDUs are can be located anywhere whereas Physical LLDUs are coupled with Smart Gateways.}
+\label{fig:thingsHierarchy}
+\end{figure}
+Our Discovery and Lookup infrastructure is composed of several Local Lookup and Discovery Units (LLDUs)~\cite{Guinard2010-Search,Mayer2010}. These software components allow \sts{} to announce themselves and clients to search for specific (local) services offered by connected \sts{}. The internal structure of an LLDU is shown in \figRef{llduImpl} and will be described in details in the next sections.
+
+Based on common work with Trifa et al.~\cite{Trifa2010-location} we suggest than rather than having a flat structure for LLDUs, we deploy them in a hierarchical way, reflecting the abstract locations of the current context in the resources' URIs. Using abstract location information in URIs has a great value since it facilitates browsing for \sts{} in a particular context. For instance it lets you navigate through all the \sts{} in a building, floor or room simply by pointing to the correct URI of following the provided hyperlinks structure.
+
+A typical hierarchy is shown in \figRef{thingsHierarchy}. The first three levels are virtual LLDUs. Virtual LLDUs can be deployed on any machine anywhere in the world and one physical machine can host several virtual LLDUs. Smart things do not directly communicate with them as their purpose is only to encapsulate the hierarchy of abstract locations and to serve search queries for these locations. As an example, in \figRef{thingsHierarchy} the \code{ethz, ifw, cab} and \code{floor-h} are virtual LLDUs all hosted on the same physical machine.
+
+Like virtual LLDUs, physical LLDUs serve search queries for the abstract locations they represent, however physical LLDUs also serve as Discovery Services for \sts{}. A physical LLDU is a software component that can be loaded in a Smart Gateway. As shown in \figRef{thingsHierarchy} the \code{office-107.1} LLDU node covers the abstract location encapsulated in the following URI: \RESTURL{/ethz/cab/floor-h/office-107.1/}. Directly below this node are attached the resource trees (see Section \ref{ROA-for-things}) formed by \sts{} managed by the smart gateway in \code{office-107.1}.
+
+Concretely, the LLDUs can be deployed and configured using a \code{PUT} request to the root URI of a running LLDU with a payload specifying its configuration and context. As an example \lstRef{configInfraWoT} is a JSON document that configures a new LLDU located at \RESTURLInLine{/eth}. The rest of the specified contextual information (e.g., latitude, longitude) will be inherited by \sts{} connected to this LLDU that cannot deliver a full STD model, for instance because they do not have a GPS module.
+
+\begin{lstlisting}[caption=JSON document that configures a LLDU called \quote{LLDU for ETH} and located at ETH., label=lst:configInfraWoT, breaklines, numbers=left, numberstyle=\tiny, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+{
+  "resourceUrl": "http://webofthings.com:2401",
+  "uuids": [{"uuidType": "infraWoT", "uuidValue": "eth"}],
+  "name": "LLDU for ETH", 
+  "context": {
+    "hierachical": {"hierarchyString": "eth/", "hierarchyDelimiter": "/"}, 
+    "postal": "Universitaetsstrasse 6, CH-8092 Zurich, Switzerland",
+    "geographical": {"longitude": 8.550003, "latitude": 47.367347}
+  }
+}
+\end{lstlisting}
+
+
+\subsubsection{Discovery Services}
+\begin{figure}
+\centering
+\imgLine{wot/discovery-sequence}
+\caption{Sequence diagram of the discovery process. The LLDU Discovery Service uses a \transService{} to extract metadata for the \st{}. The returned information is sent to the LLDU Registry Service which indexes and stores the metadata of the discovered \st{}.}
+\label{fig:discoverySequence}
+\end{figure}
+To solve the bootstrapping problem of \sts{}, physical LLDUs offer a Discovery Service. The discovery process is started by a \st{} wanting to be part of the Web of Things infrastructure. 
+
+As shown in \figRef{discoverySequence}, once connected to the local network, the \st{} or gateway issues a \code{POST} request to the \RESTURLInLine{/resources} end-point of the physical LLDU. As a payload of the request, the \st{} can either send its root URI or a payload describing its resources. The Discovery Service sends this to the \transService{} which will extract semantic metadata based on a best-effort principle, supporting several types of metadata formats. The \transService{} returns a JSON representation of the extracted data.
+
+The Discovery Service then binds the \st{} to the physical LLDU's absolute URI. As an example, after the discovery process, the \code{abstractNode1} in \figRef{discoverySequence} gets bound to \RESTURL{/ethz/cab/floor-h/office-107.1/smart-things/abstractNode1}.
+Then, the resources tree of the \code{abstractNode1} itself is also accessible through the LLDU as shown in \figRef{thingsHierarchy} below the \RESTURLInLine{abstractNode1} resource.
+
+Furthermore, to enable keywords-based search, the Discovery Service passes the STD model to a Registry Service. The role of this latter is to store the representation of the model as well as to extract two inverted indexes from it. Inverted indexes are a central component of search engines algorithms and are well suited for keywords-based textual searches~\cite{Zobel1998}. For each resource the Registry Service creates three different entries, as show on \lstRef{invertedindex}. First, it store the JSON string corresponding to the metadata of the resource in a file. It then adds entries into two inverted indexes. In the first index, it adds all the keywords that could be extracted from the resource's metadata. In the second index, it adds keywords extracted from the metadata related to the output of the resource.
+
+\begin{lstlisting}[caption={Indexing the resources in two inverted indexes based on extracted keywords of the STD model.}, label=lst:invertedindex, breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+// Store resource in table
+writeStringToFile(resource.toJSONObject().toString(), databaseCoreTable);			
+
+// Get keywords for the resource and add inverted index entries
+for (String keyword : resource.getKeywords()) writeReverseEntryToFile(keyword.toLowerCase(), resource.toJSONObject().toString(), keywordReverseTable);
+
+// Get REST Output from entity and add inverted index entries
+for (String restOutput : entity.getRESTOutput()) writeReverseEntryToFile(restOutput.toLowerCase(), entity.toJSONObject().toString(), restOutputReverseTable);
+\end{lstlisting}
+
+\subsubsection{Lookup Services}
+One of the benefits of deploying an infrastructure of LLDUs is the ability to perform localized search queries. The lookup service offers a query interface for clients such as developers looking for real-world services to integrate into their composite applications, end-users wanting to discover the registered services for a particular place or applications dynamically looking for simple services.
+
+\paragraph{Types of Parameters}
+The Query Service of LLDUs is built on top of the Registry Service. Clients can access it by sending a \code{POST} request to the \RESTURLInLine{<LLDU-URI>/query} resource on an LLDU. The actual query should be specified either through \code{application/x-www-form-urlencoded} parameters or as a JSON payload. Since queries will be distributed amongst the infrastructure of the LLDUs (traveling down or up the resources tree), LLDUs also pass queries to each-other using the same mechanism.
+
+Queries can be formulated according to the following parameters basically corresponding to most relevant fields of the STD model that were extracted by the \transService{} during the discovery process:
+
+\begin{description}
+ \item[Keywords] A number of free-text, unstructured keywords can be provided. The matching algorithm is a traditional keywords search process iterating through the following properties that were extracted from the device's representation of the STD model: name, category, brand, description and user provided tags. These keywords can then be extended by the system using external services as explained in \sectRef{queryAug}.
+ 
+ \item[Name] As several \sts{} support user provided names, searching for these might be really valuable to users and thus is offered by the API.
+
+ \item[Unique ID] Queries by universal unique identifiers e.g., Bluetooth IDs, Zigbee MAC addresses, IPs, Electronic Product Codes (EPC, see \sectRef{epcNet}), are a straightforward way for applications to search for a particular \st{}.
+
+ \item[Ratings] Clients can use user generated or \sts{} provided quality of service ratings as specified in the STD model. For instance this type of query parameters can be used to find the most reliable wireless sensor node of a certain type as in practice it is often the case that one node is more reliable than the other.
+
+ \item[REST Service] The matching algorithm activated by this parameter leverages the metadata enhanced description of RESTful APIs based on the hRESTs microformat. 
+\end{description}
+
+When performing a search, the results sets for each type of parameter are fetched and the intersection of all the sets is returned to the client through the RESTful Web query interface.
+
+\paragraph{Types of Queries}
+Parameters define the keywords of a query but thanks to the tree-structure formed by all LLDUs the locality of searches or scope can also be leveraged. This concept is encapsulated in the \code{queryType} parameter that has to be provided by clients when using the querying API.
+
+We consider three types of queries that can be performed on the LLDU infrastructure and illustrate their particular interest when looking for services provided by \sts{}:
+
+\begin{description}
+ \item[Exhaustive Queries] These queries start at the LLDU where the request originated and are pushed to all children LLDU nodes, eventually returning all the resources that matched within the subtree. Thus, such a query will go down to the leafs and up again through every node until the originator is reached again. As an example such a query can be used to retrieve all the temperature sensors in a city in order to compute an average temperature.
+
+  \item[Cardinality Queries] These queries are used to find exactly $n$ resources corresponding to the query parameters. The query process is launched on the children LLDU nodes and will be stopped as soon as $n$ services are found in the result set. However, since the process is distributed amongst several subtrees in its current implementation the process may retrieve more than $n$ services, hence the result set is eventually filtered to keep only $n$ results, giving more weight to LLDUs located higher in the subtree. Such a query could be used for instance to find pairs of smart meters that monitor a certain type of device (e.g., a fridge) to compare their actual energy consumption.
+ 
+  \item[Best Effort Queries] Such a query is in fact a Cardinality Query with a stopping condition of $n=1$. It is used to find the first resource that fits the user needs. As an example it can be used to find a usable printer in a facility.
+
+  \item[Located Queries] Since the other types of queries will start their tree-traversal only from the location of the originator LLDU, there is a need to support an arbitrary starting point. Located Queries implement this feature. When a hierarchical location is specified in a query, a Located Query is triggered and sent to the corresponding LLDU in the hierarchy where the query is started.
+  Such a query can be used for instance in the case a user is located in a particular room (bound to the physical LLDU in this room) but wants to query for the energy consumption of the whole department he is located in.
+ \end{description}
+
+%\todo{1: Figure with a tree of the queries}
+
+\paragraph{Query Augmentation Service}\label{queryAug}
+To provide better results without requiring additional semantics on the \sts{} side, the Query Service can be extended with a query with a Query Augmentation Service we proposed in~\cite{Guinard2010-Search}.
+
+In conventional service discovery applications, the keywords entered by the user are sent to a service repository to find types of services corresponding to the keywords. The problem with this simple keyword matching mechanism is that it lacks flexibility required in the special case of real-world objects. As an example lets assume a developer or a user who wants to find services offered by a \important{smart meter}, a term often used to describe a device that can measure the energy consumption of other devices and possibly control them depending on built-in logic. Typing \quote{smart meter} only, will likely not lead to finding all the corresponding services, because services dealing with energy consumption monitoring might not be tagged with the \newterm{smart meter} keywords but simply with \newterm{electronic powermeter}. However, since we want to avoid the construction of domain specific ontologies, and to minimize the amount of data that \sts{} need to provide upon network discovery and service registration, we propose a system that uses services on the Web to extend queries without involving communication with the \sts{} or requiring domain specific service descriptions from them.
+
+The basic idea is to use existing knowledge repositories such as Web encyclopedias (e.g., Wikipedia), search engines (e.g. Google, Yahoo! Web Search) or domain-specific portals (e.g., the Metering portal~\citeweb{metering}), in order to extract \important{lightweight ontologies}~\cite{Hepp2007} or vocabularies of terms from the Web resources' semi-structured results. The basic concept of the Query Augmentation is to call $1..n$ Web search engines or encyclopedias with the search terms provided by the user, for instance \quote{smart meter}. The HTML result page from each Web resource is then automatically downloaded and analyzed. The result is a list of keywords, which frequently appeared on pages related to \quote{smart meter}. A number of the resulting keywords are thus related to the initial keyword i.e., \quote{smart meter} and therefore can be used when searching for types of services corresponding to the initial input.
+
+\subparagraph{Software Architecture} An invocable Web-resource together with several filters and analysis applied to the results is called a \important{Query Strategy}. The structure is based on the Strategy Pattern \cite{Gamma1995},  which enables us to encapsulate algorithms into entirely independent and interchangeable classes. This eases the implementation of new strategies based on Web resources containing relevant terms for a particular domain. 
+A simplified class diagram of the Query Strategy framework is depicted on \figRef{archiStrategies}. Any Query Strategy has to implement the \code{AbstractStrategy} class which provides the general definition of the algorithm. As an example the \code{YahooStrategy} is a concrete implementation of this algorithm using the Yahoo! Search service. Furthermore, strategies can have extensions, adding more specific functionality to a concrete instance of a Query Strategy. As an example the \texttt{WikipediaStrategy} can be extended with the \code{WikipediaBacklinks} class. This particular extension is using the backlinks operation offered by Wikipedia in order to know what pages are linking to the currently analyzed page similarly to what the well-known PageRank used to rank websites \cite{Brin1998}. This information is then used by the \code{WikipediaStrategy} to browse to related pages and gather relevant keywords. As such, our approach builds on top of existing ranking and connectivity approaches on the Web.
+
+Furthermore, Query Strategies can be combined in order to get a final result that reflects the successive results of calling a number of Web-resources. The resulting list of related keywords is then returned to the user, where he can (optionally) remove keywords that are not relevant. The implementation of the Query Strategy architecture makes it easy to test combinations of several strategies together with their extensions. We implemented a number of these, and their evaluation is presented in \sectRef{searchEval}.
+\begin{figure}
+\imgLine{wot/query-strategies-class}
+\caption{Architectural overview of the Query Strategies based on the Strategy and Template software design patterns.}
+\label{fig:archiStrategies}
+\end{figure}
+
+\subparagraph{Context Extractor}
+One of the main differences between services provided by \sts{} and virtual services is that \sts{} services are directly linked to the physical world. As a consequence, the context in which a service exists as well as the context in which the user or user initiates the discovery of a service are highly relevant. Context is information that qualifies the physical world, and it can help in both reducing the number of services returned to the user, as well as in finding the most appropriate services for the current environment \cite{Balke2004}.
+
+To satisfy the requirements of real-world service discovery, we propose modeling the context into two distinct parts inspired from \cite{Schmidt1999-Context}: the \newterm{Digital Environment}, which we define as everything that is related to the virtual world the user is using, and the \newterm{Physical Environment}, which refers to properties of the physical situation the user currently is located in or wants to discover services about.
+
+The \newterm{Digital Environment} is composed of Application Context and Quality of Service. The \newterm{Application Context} describes the business application the user uses when trying to discover services, e.g., the type of application he is currently developing or the language currently set as default. Such information co-determines the services a user or developer is looking for and can reduce the discovery scope. 
+The \newterm{QoS Information} reflects the expectations of the user (or of the application he is currently using) in terms of how the discovered service is expected to perform. Our current implementation supports service health and network latency, i.e., the current status of the service and the network transmission delay usually measured when calling it.
+
+The Physical Environment is mainly composed of information about location. Developers are likely to be looking for real-world services located at a particular place, unlike when searching most virtual services. We decompose the location into two sub-parts following the Location API for Mobile Devices (as defined in Java Specification Request JSR-179). The Address encapsulates the virtual description of the current location, with information such as building name, floor, street, country, etc. and the Coordinates are GPS coordinates. In our implementation the location can either be automatically extracted e.g., if the user looks for a real-world service close to his location, or it can be explicitly specified if he wants a service located close to a particular location e.g., in a form of radius. 
+
+Extraction of the context on the user side is done when starting the query in the \sts{} lookup service Web user interface, the user can also influence these parameters by setting up preferences. It is worth noting that the context on the user side is meant to reflect the expectations or requirements with regard to the services that are going to be returned. As an example, during this phase the user can express the wish for a service to be physically close to his current location, or he can quantify the importance of context parameters such as Quality of Service. 
+
+This user-quality information is then going to be compared with the context stored on the LLDUs' indexes extracted by the \transService{} when discovering the \sts{}. This is done by the Service Ranking component in order to select and rank the most relevant resources.
+
+\subparagraph{Context of \sts{}}
+The Digital Environment context parameters such as the device description or Quality of Service, are extracted upon discovery by the Discovery Service based on the microformat implementation of the STD model. 
+
+Getting the context parameters related to the Physical Environment of a service instance is slightly more complicated. Indeed, as an example it can not be expected from each \sts{} to know its location. Thus, we suggest taking a best effort strategy, where each actor of the discovery process is trying to further fill-in the context object. As an example, consider a mobile sensor node without a coordinates-resolving module (e.g., a GPS). 
+
+Upon discovery by a LLDU, the sensor node does not know its location and thus can not fill-in the Address and Coordinates fields of the STD model. The LLDU however, is a usually immobile component and is configured at setup time with its location and current address as explained in \sectRef{distributedInfra}. As a consequence the LLDU can provided the Address and Coordinate information of the sensor node based on its own location (within a specific radius). While not entirely accurate with respect to the sensor's exact location, this information will already provide a useful approximation. Similarly, since we can not expect every LLDU to provide a full contextual profile, the LLDUs can also share their contextual information to complement one another. 
+
+\subparagraph{Ranking Service Lookup Results}\label{ranking}
+The Service Ranking component is responsible for sorting the resources according to their compliance with the context specified by the user or extracted from his machine. This component receives a number of service lookup results alongside with their context profiles. It then uses a Ranking Strategy to sort the list of results. For instance, a Ranking Strategy can use the network latency so that the services are listed sorted according to their network latency; another could rank instances according to their compliance with the current location of a user or the target location he provided. 
+
+As for Query Strategies, Ranking strategies can be well modeled using the Strategy pattern. In this way, new strategies can be easily implemented and integrated. Furthermore, we extend the pattern to support chained ranking strategies, in order for the resulting ranking to reflect a multi-criteria evaluation. Each ranking criterion can use both the context information of the instances gathered during the discovery process, and the context information extracted on the user side. Thus, instances can be ranked against each other and/or against the context of the user (e.g., his location). The output of the ranking process is an ordered list of running services offered by resources on \sts{} corresponding both to the extended keywords and to the requirements in terms of context expressed by the user either implicitly or explicitly. 
+
+\subsubsection{Lookup Process Summary}
+\begin{figure}
+\imgLandscape{wot/lookup-sequence}
+\caption{Sequence diagram of the lookup process. Clients contact the \RESTURLInLine{/query} resource on an LLDU, the keywords of the query can then be extended using the \code{QueryExtension} service. Once a lightweight ontology of keywords has been extracted, the query is distributed along the LLDU tree and results are aggregated and ranked before sending them back to the clients.}
+\label{fig:lookupSequence}
+\end{figure}
+A simplified summary of the complete lookup process is provided in \figRef{lookupSequence}. First the client (e.g., a user or client application) sends a query request to the LLDU of his choice. Then, the LLDU can contact the Query Extension service which will enrich the user query with a number of related keywords extracted from relevant Web services. Then, these keywords are packed with the query and sent to the relevant LLDUs, which LLDUs are relevant is determined by the type of query. This initiates a recursive tree exploration. Eventually, a result set is returned to the LLDU where the query started. There, the LLDU can use the Ranking service which will sort the results based on a chained list of ranking strategies and on the user specified (or extracted) context. A ranked list of resources (and their provided services) is returned to the client.
+
+\subsubsection{Software Implementation}
+\begin{figure}
+\imgLine{wot/lldu-and-sg}
+\caption{The modules of the Lookup and Discovery Infrastructure are integrated in the \sg{} framework through OGSi bundles. A LLDU is formed of 5 main services that are implemented as OSGi bundles running locally. Two additional services (Query Augmentation and Translation Service) can run outside the local environment (e.g., on the Web) as they can be used by several LLDUs.}
+\label{fig:llduImpl}
+\end{figure}
+To facilitate integration with \sg{} framework presented in \chapterRef{wot}, \sectRef{gateways}, the Lookup and Discovery infrastructure is implemented as several OSGi bundles that communicate with each other via OSGi declarative services (OSGi DS). The integration of these services to the \sg{} framework is shown in \figRef{llduImpl}. 
+
+Basically, an LLDU can run on any machine. As mentioned before, physical LLDUs are coupled with \sgs{} to simplify the deployment virtual LLDUs, that do not need physical access to the devices can be deployed anywhere.
+
+The implementation is based on 5 internal services (Registry Service, Lookup Service, Infrastructure Service, Discovery Service) that are to be deployed with each LLDU (virtual or physical). The two other services (Query Augmentation Service and the STD Model Translation Service) are ideally deployed outside (e.g., on the Web) because there is no benefit to run them locally as all LLDUs can use the same instance of these services.
+
+\subsection{Evaluation}
+We structure the evaluation into two parts. First, in a quantitative evaluation we analyze the response time when querying the lookup infrastructure. Then, we evaluate the Query Extensions mechanism with real-world data generated by 17 experienced developers during a user-study~\cite{Guinard2010-Search}.
+
+\paragraph{Evaluation of the Lookup Service}\label{searchEval}
+\begin{figure}
+\imgLine{wot/infrawot-eval}
+\caption{Tree representation of the LLDU infrastructure deployed for the evaluation. The \code{/cnb} node is a physical LLDU to which two concrete wireless sensor nodes are connected.}
+\label{fig:infraWoTEvalTree}
+\end{figure}
+A scenario was implemented in order to assess the feasibility of running service lookup queries on top of proposed distributed infrastructure of LLDUs.
+
+The tree structure of the implemented scenario is shown in \figRef{infraWoTEvalTree}. Each node in this three represents an instance of an LLDU. However, all instances were deployed on the same machine located in the \RESTURLInLine{cnb} building at ETH Zurich. A \sg{} is deployed in this LLDU and connected to two sensor nodes (\sunspots{} nodes, see \chapterRef{wsn}). One sensor node binds itself to the \RESTURL{europe/ch/ethz/cnb} LLDU and one to the \RESTURL{europe/ch/ethz/cnb/h/107-2/} LLDU. As a consequence, their resources trees becomes part of the overall resource tree of the infrastructure as show in \figRef{infraWoTEvalTree}. However, the depth of the tree used in a lookup comprises only the hierarchy of LLDUs and thus has a maximal depth of 6 because the rest of the actual \sts{} resources trees where already indexed upon discovery by LLDUs. To generate some noise, a total of 61 virtual resources were attached to the virtual and physical LLDUs.
+
+The machine on which the LLDU resources tree is deployed is a Linux Ubuntu Intel dual-core PC 2.4 GHz with 2 GB of RAM. The Web server used for this implementation is based on the Noelios Restlet Engine 1.1.7~\citeweb{restlet}.
+
+We perform 10000 keywords queries looking for services matching the \newterm{light} keyword. With this setup, the minimal observed response time is 12 ms, the maximum 3753 ms with an average response time of 619 ms as detailed in \figRef{infraWoTEval}.
+
+\begin{figure}
+\imgLine{wot/lldu-response-time}
+\caption{Response times when running a keyword query on the test deployment. Most queries get answered within 250 to 750 milliseconds.}
+\label{fig:infraWoTEval}
+\end{figure}
+
+The aim of this evaluation is not to prove that our implementation is performing best but rather to illustrate that the response times are reasonable. It is worth noting however, that in this scenario all LLDUs were run by the same machine and network latency between the LLDUs of an infrastructure would have to be taken into account in a real-world deployment.
+
+\paragraph{Evaluation of Types Query and Candidate Search}\label{sec:evalQuery}
+\begin{figure}
+\imgMedium{wot/queryAugmentation}
+\caption{Results for the Query Augmentation with Yahoo! and Wikipedia, the Query Augmentation has a positive impact on the number of services found but it also generates more false positives.}
+\label{fig:queryAugmentation}
+\end{figure}
+In this second part we evaluate the impact of the proposed query extensions mechanisms on the search for services provided by \sts{}.
+
+In order to have a neutral base of \sts{} and their services on which to perform the evaluation we selected seventeen experienced developers and asked them to write the description of a selected device and of at least two services it could offer. The developers were given the documentation of a concrete device according to the projects they were currently working on. Based on these descriptions we generated thirty types of services offered by sixteen different \sts{} ranging from RFID readers to robots and sensor boards. Out of these, 1000 devices were simulated on a host PC.
+
+It is worth noting that the STD model based service descriptions were generated as DPWS metadata~\cite{Guinard2010-Search}. However, as the expressive power of the microformat implementation of the STD model is greater than what can be expressed with DPWS metadata and as a \transService{} translates all metadata formats into a single internal representation, the results are applicable to any implementation of the STD model.
+
+The main idea of the evaluation was to find out whether: 
+\begin{enumerate}
+\item Augmenting users' input with related keywords could help in finding more services on \sts{}. 
+\item What type of combination of query strategies is the most suitable. 
+\end{enumerate}
+
+Two types of strategies were used. In the first we used a human generated index (i.e., Wikipedia), and in the second a robot generated index (i.e., Yahoo! Web Search). The input keywords were selected by seven volunteers, all working in IT. They provided seventy-one search terms (composed of one to two words) reflecting what they would use if they were to search for services provided by the seventeen \sts{} when wanting to develop new applications with these \sts{}. These terms were entered one by one and all the results were logged.
+
+The trends extracted from these experiments is shown in \figRef{queryAugmentation}. Two results can be drawn. First the Query Augmentation process does help in finding more \sts{} services. Without augmentation 75\% (plain gray line in \figRef{queryAugmentation}) of the resources corresponding to the queries were found and using the Query Augmentation up to a 100\%. 
+
+However, the Query Augmentation generates a number of false positives, i.e., resources that are returned even if they are not related to the provided keywords (depicted by the two lines at the bottom of \figRef{queryAugmentation}). Thus we need to restrict the number of keywords added to the initial ones. The observed optimum is between 5 and 10 added keywords, leading to less than 20\% false positives out of 95\% services found. The second result can be seen in \figRef{queryAugmentation} which reveals that using Yahoo!, the approach performs slightly better than when using Wikipedia. 
+
+Looking more at the details we see that approximately 50\% of the keywords used against Wikipedia did not lead to any page, simply because they do not have yet dedicated articles, even if Wikipedia is growing at a rate of more than 1000 articles per day (as of 2011)~\citeweb{wikipediasize}. However, when results where extracted from Wikipedia pages they were actually more relevant for the searched real-world services. Thus, a good solution would be to chain the strategies so that first human generated indexes are called and then robot generated ones, in case the first part did not lead to any results.
+
+The Ranking Service Lookup was evaluated based on a proof of concept implementation. We tested two chained ranking strategies for the generated services; one comparing service health and given weight of 30\% as well as one comparing network latency and given a weight of 50\%. They performed as expected, sorting the lists of retrieved service instances according to the ranking strategies which, we believe helps users finding their way across the results, but would need to be tested with neutral volunteers. 
+
+We implemented the sorting using the merge sort algorithm which has a complexity of $O(n \log n)$, and since the strategies can be chained we have an overhead for the ranking of $O(m n \log n)$ where $m$ is the number of strategies and $n$ the number of resource descriptions.
+
+\subsection{Summary and Applications}
+In this section we proposed a metadata model for describing \sts{} and their services. Furthermore, we proposed an implementation of the model based on microformats that are well understood on the Web for example by search engines. In \chapterRef{wsn} (see \sectRef{findLayerSpots}) we apply this model and its implementation to the description of a general purpose wireless sensor platform and illustrate how it can be leveraged to dynamically render UIs for interacting with \sts{} or to make them searcheable on the Web and in our lookup infrastructure. Furthermore, we will see the benefits of such a model in the next layers, the \shareLayer{} and the \compoLayer{}.
+
+We also presented an infrastructure that can be deployed together with \sgs{} in order to encapsulate the abstract location of \sts{} as well as to offer a localized discovery and lookup infrastructure. A concrete usage of this infrastructure is evaluated in \sectRef{findLayerSpots} as well.
+
+

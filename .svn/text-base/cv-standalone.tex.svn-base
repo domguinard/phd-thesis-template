@@ -1,0 +1,49 @@
+\documentclass[a4paper,twoside]{thesisharaldvladdom}
+\usepackage[margin=2.5cm, bindingoffset=12mm]{geometry} % eek. but required.
+\usepackage[T1]{fontenc}          % use 'ec' fonts 
+\usepackage[ngerman, english, american]{babel} % last lang (american) default
+\usepackage{supertabular}
+
+\begin{document}
+\chapter*{Curriculum Vitae}
+\pagestyle{empty}
+
+\thispagestyle{empty}
+
+{\LARGE Dominique Guinard}\\
+
+\begin{supertabular}{rp{10cm}}
+{\bf Personal Data} & \\
+Date of Birth & February 27, 1981 \\
+Birthplace & Fribourg \\
+Citizenship & Swiss \\
+\\
+{\bf Education} & \\
+2007--2011 & \emph{ETH Zurich}, Ph.D. Student in Pervasive Computing (Department of Computer Science), 
+Zurich Switzerland\\
+2010--2011 & \emph{MIT}, Visiting Researcher at the MIT Auto-ID Labs,
+Cambridge, USA\\
+2006--2007 & \emph{University of Lancaster}, Visiting Graduate Student in Ubiquitous Computing (Master thesis),
+Lancaster, UK\\
+2005--2007 & \emph{Universities of Fribourg and Bern}, M.Sc. in Computer Science, 
+Fribourg \& Bern, Switzerland\\
+2002--2005 & \emph{University of Fribourg}, B.Sc. in Computer Science and Business Management, 
+Fribourg, Switzerland\\
+1998--2001 & \emph{Coll\`{e}ge de Gambach}, Baccalaur\'{e}at in Business Administration
+(High school), Fribourg, Switzerland\\ 
+
+
+{\bf Employment} & \\
+2007 -- 2011 & Research Associate, \emph{SAP Research}, Zurich, Switzerland\\
+2009 -- 2011 & Research Assistant, \emph{Department of Computer Science, ETH Zurich}, Zurich, Switzerland\\
+2007 -- 2009 & Research Associate, \emph{ETH Auto-ID Labs}, Zurich, Switzerland\\
+2005 -- 2007 & External Scientific Collaborator, \emph{Software Engineering Group, University of Fribourg}, Fribourg, Switzerland\\ 
+2005 -- 2006 & Teaching Assistant, \emph{Pervasive and Artificial Intelligence Group, University of Fribourg}, Fribourg, Switzerland\\
+2002 -- 2006 & Professional Trainer in Web Development, \emph{Ecole-Club Migros}, Fribourg, Switzerland\\
+1999 -- 2006 & Co-founder, Project Manager, \emph{Spoker and GMIPSoft}, Fribourg, Switzerland\\
+2005 & Intern at the Software Practice, \emph{Sun Microsystems}, Gland, Switzerland\\
+1998 -- 2002 & Web Developer \& Webmaster, \emph{Fredi.org}, Fribourg, Switzerland\\
+1998 -- 1999 & Web Developer, \emph{Dartfish}, Fribourg, Switzerland\\
+\end{supertabular}
+
+\end{document}

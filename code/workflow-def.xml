@@ -1,0 +1,6 @@
+<process-definition name="my_workflow">
+	<sequence>
+		<participant ref="getTemperatureFromSensor"/>
+		<participant ref="applyRules"/>
+	</sequence>
+</process-definition>

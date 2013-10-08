@@ -1,0 +1,51 @@
+\section{Toolset for Implementing the \WoT{}}
+\todo{?: Should we talk about concrete tools in a thesis? I think it is valuable but...}
+
+\subsection{AutoWoT}
+\todo{0: this is pure copy-past from our Urban IOT paper, re-write}
+Digitally augmenting a device for its integration into the Web of Things currently requires a very good understanding of the REST principles and constraints as well as skills in programming web servers. These requirements are a barrier to the rapid prototyping of new devices in the WoT. This paper describes the \emph{AutoWoT Deployment Toolkit}, a meta-program that enables the rapid integration of devices into the Web of Things. AutoWoT supports the user in creating a hierarchical description of the services provided by a specific device and then automatically creates web server software that RESTfully exposes the functionality offered by the smart object. Featuring an intuitive graphical user interface, AutoWoT enables developers and tech-savvy users to rapidly implement Web of Things prototypes by automating the Web-enablement of resources. As developers are not anymore required to implement Web protocols, they can better focus on the core functionality of their prototypes. The automatic creation of the web server software furthermore guarantees that the resulting program follows the REST specifications, thus relieving AutoWoT users from having to learn them and avoiding common mistakes and misinterpretations of the guidelines.
+
+AutoWoT allows clients to interact with a device using multiple representational formats (i.e., JSON, XML and HTML). To foster machine-to-machine scenarios, it also provides Microformat-based semantic markup on the capabilities of the Web-enabled devices. The toolkit can furthermore be used in conjunction with virtual resources, for instance to enable Web-based interaction with databases. Within our efforts to populate the Web of Things, AutoWoT has proven to facilitate the integration of different resources, including RFID readers, LEGO NXT controllers, smart energy meters and Sun SPOT sensor platforms. To illustrate the benefits and ease of use of the toolkit, we have created an advanced physical/virtual mashup prototype that implements a personal presence awareness tool, i.e., analyzes a user's presence/absence characteristics for a specific location and uses this data to switch a lamp on the user's workplace.
+
+After a survey of related work in Section \ref{RelatedWork}, we will detail different aspects of the AutoWoT Deployment Toolkit, starting with a description of the common conceptional properties of resources from a RESTful/Web-standpoint in Section \ref{Conceptual}. After that, we are going to describe the AutoWoT software itself in Section \ref{Core} and elaborate on the structure and properties of the created web servers. To demonstrate the utility of this program when integrating resources into the Web of Things, an account of some devices that were Web-enabled using AutoWoT will be given in Section \ref{Prototypes} and their composition within our prototype mashup will be described. We will conclude and motivate further work in Section \ref{Conclusion}.
+
+\subsection{Things and the Cloud}
+Explain why the cloud makes the approach scalable and can be really used to leverage the idea of the WoT on a large scale.
+
+\subsection{Leveraging Software Modularity}
+\todo{1: Talk about how we use OSGi for enabling modular architectures based on plugins, especially in the case of smart gateways}.
+
+\subsection{REST Frameworks}
+Creating clients for RESTful Web Services is a rather straightforward task as it only requires for the used language to support HTTP, which most modern programming and scripting languages do. The implementation of a RESTful Web Services, on the other hand, is a task that should not be underestimated. Indeed, even if the set of REST constraints is seemingly small their implementation requires a careful software design.
+
+Most modern Web languages such as Ruby (especially in its Ruby on Rails form) or Python offer out-of-the-box support for RESTful Web Services. Similarly, the recent growing interest for lightweight service architectures based on REST has given birth to a number of frameworks that simplify the development of RESTful applications for enterprise-scale languages such as C\# or Java.
+
+\subsection{JAX-RS: A Standard Java API for RESTful Web Services}
+\index{JAX-RS}The Java community is particularly interesting one since it is known as one of the community with most WS-* tools and frameworks but also as one of the most eager to develop tools around REST (perhaps due to some frustrations with the WS-* type of services...).
+
+In particular, the Java galaxy has its own higher-level industrial standard for building RESTful Web Services: the JAX-RS API\footurl{jcp.org/en/jsr/detail?id=311} (also known as JSR 311). JAX-RS is especially interesting since it was developed by a consortium of people who are both Web-specialists and service developers. The result is a very lean API (well described in~\cite{burke_restful_2009}) that requires a good understanding of REST but offers straightforward solutions to implement in an elegant and efficient way most of the REST constraints.
+
+In short, JAX-RS is based on three main pillars. It first uses annotations of Java classes to turn them into resources (e.g., \code{@Path(``/location'')}, ensuring the \emph{Resource Identification} constraint. Annotations further help to define the resources' \emph{Uniform Interface} as it lets the developer specify allowed verbs (\code{@GET, @POST}) and served representations (e.g., \code{@Produces(MediaType.APPLICATION\\\_JSON)}).
+Beyond annotations, several framework classes make the developer life easier. \emph{Connectedness} is boosted by providing contextual \code{URI Builders}, letting the developer easily link resources together across representation. Finally, the use of the JAXB framework allows for Java Objects to be automatically serialized to an (extensible) number of representations such as XML, HTML, JSON and Atom thus making it easier to fulfill the constraint for \emph{Self-Describing Messages}.
+
+\index{Jersey}\index{Restlet}Besides Jersey\footurl{https://jersey.dev.java.net}, the reference implementation of JAX-RS, several frameworks such as RESTeasy, Apache Wink, Apache CFX and RESTlet are JAX-RS compliant which makes it rather easy to move code from one framework to the other.
+
+\subsection{Case-study: Using JAX-RS, Jersey and Abdera}
+%DG: show how we used Jersey
+As shown in Figure~\ref{fig:restfulepcisarchitecture}, the core of the RESTful EPCIS is based on the JAX-RS compliant, Jersey\footnote{https://jersey.dev.java.net} framework. Thus, it uses JAX-RS annotations and framework classes. The example below serves the representation of a \code{location} resource.
+\begin{lstlisting}[caption=, label=lst:infrawot:mflisting, breaklines, numbers=left, numberstyle=\tiny, language={}, xleftmargin=0.8cm, basicstyle=\small\ttfamily, backgroundcolor=\color{gray}, captionpos=b]
+    @Path(\location\{businessLocationID})
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML, MediaType.TEXT_HTML})
+    public Resource getSelectedBusinessLocation(@Context UriInfo context, @PathParam("businessLocationID") String businessLocation) {
+        QueryBusinessLogic logic = new QueryBusinessLogic();
+        return logic.getSelectedBusinessLocation(context, businessLocation);
+    }
+\end{lstlisting}
+Line 1 of this listing sets the URI of the resource, where \code{businessLocationID} is the \code{location} identifier which will be dynamically passed to the method \code{getSelectedBusinessLocation} at runtime. \code{@GET} specifies the method allowed on this resource, \code{@Produces} contains the representations that clients will be able to obtain through content negotiation. Note that these contents will be automatically generated at runtime from the \code{Resource} Java Object by the JAXB framework.
+
+As we can see, the RESTful EPCIS uses Jersey for managing the resources' representations and dispatching HTTP requests to the right resource depending on the request URL. When correctly dispatched to the RESTful EPCIS Core, every request on the querying or browsing interface is then translated to a WS-* request on the EPCIS. This makes the RESTful EPCIS entirely decoupled from any particular implementation of an EPCIS.
+
+\index{Abdera}While JAX-RS offers serving Atom representation of resources on-the-fly, implementations of JAX-RS do not have to offer a fully-featured Atom-Pub server with persistence. Thus, for the subscription interface we used Apache Abdera, which is an open-source implementation of an Atom-Pub server integrating well with most JAX-RS frameworks. Every time a client subscribes to a query, the RESTful EPCIS checks whether this feed already exists by checking the query parameters, in any order. If it is not the case it creates a query on the WS-* EPCIS and specifies the address of the newly created feed. As a consequence every update of the query is directly \code{POST}ed to the feed resource which creates a new entry using Abdera and stores it in an embedded SQLite\footurl{www.sqlite.org} database.
+
+Jersey, Abdera and SQLite are packaged with the RESTful EPCIS core in a WAR (Web Application Archive) that can be deployed in any Java compliant Web or Application Server. We tested it successfully on Glassfish\footurl{glassfish.org} and Apache Tomcat\footurl{tomcat.apache.org} and on the Grizzly embedded Web Server\footurl{grizzly.dev.java.net}.

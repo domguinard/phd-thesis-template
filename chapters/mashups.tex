@@ -1,0 +1,58 @@
+\chapter{Physical Mashups}
+\todo{massive rewrite of this chapter}
+Talk about the three layers of mashups:
+\begin{itemize}
+ \item Applications consuming data from different web-resources: for developers ease of integration with the tools they know
+ \item Widget-based dashboards: for domain experts
+ \item End-users mashup platforms: for end-users to recompose their world, e.g., appliances in a house
+\end{itemize}
+
+We evaluated different approaches and proposed a Web-oriented prototype in~\cite{kovatsch_embedding_2010} and~\cite{guinard_mashing_2010}.
+Clickscript project, Energy Mobile Mashup, Physical Mashup Framework, etc.
+\todo{Better publication/eval?}
+
+A seamless integration of smart things to the Internet brings them one step closer to the Web. Much is to gain from Web integration as it drastically eases the usually rather tedious development of applications on top of embedded computers.
+
+The first step towards this goal is to bring things to the Internet, either directly using technologies such as IPv6 (lowpan)~\cite{yazar_efficient_2009} or through translation gateways~\cite{guinard_architectingmashable_2010} (reverse proxies, in Web terms). Further, Web servers are needed on devices to truly achieve integration on the application, i.e. Web layer. Well established research in embedded Web servers and recent research in tiny Web servers makes this possible~\cite{Duquennoy09}. However, having a Web server running on an appliance is only the first step. Indeed, there is still a need for modeling access to the smart thing functionality in a Web-oriented manner~\cite{kindberg_people_2002}. Several projects, sometimes referred to as ``Web of Things'' projects, advocate using the REpresentational State Transfer (REST) architectural style for interfacing with smart things~\cite{guinard_architectingmashable_2010,drytkiewicz_prest:rest-based_2004,luckenbach_tinyrest_2005}. 
+
+The Web enabling of smart things also delivers more flexibility and customization possibilities for end-users. As an example, tech-savvy, i.e. end-users at ease with new technologies, can also build small applications on top of their devices. Following the trend of Web~2.0 participatory services and in particular Web mashups, users can create applications mixing real-world devices such as home appliances with virtual services on the Web. This type of applications is sometimes referred to as \textit{physical mashups}~\cite{guinard_architectingmashable_2010}. As an example, a HiFi system could be connected to Facebook or Twitter in order to post the songs one mostly listens to. On the Web this type of small, ad-hoc application is usually created through a mashup editor, e.g. Yahoo Pipes, which is a Web platform that enables people to visually create simple rules to compose Web sites and data sources. These concepts can now also be applied to empower users to create small applications on top of their smart things.
+
+Our contribution in this chapter is to outline a mashup framework that would support the creation of mashup editors for Web-enabled smart things.
+
+\section{Physical Mashups in the Web of Things}
+
+
+\section{Requirements of a Physical Mashup Platform}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/mashups/physical-mashups-framework-wot.png}
+\caption{Architecture of the physical mashup framework}
+\label{fig:mashupFwork}
+\end{figure}
+While this integration with Clickscript worked well, the tool is not meant for creating physical mashups and has some shortcomings that helped us to identify a number of requirements for a physical mashup platform:
+
+\textbf{R1: Support for several UIs and modalities:} Since interactions in the physical world usually occur beyond the desktop metaphor, it is hard to imagine creating a ``one-size-fits-all'' mashup editor. We rather suggest creating a mashup framework on which multiple editors (e.g. mobile, tablet, etc.) can be built. This also lets users create their mashups locally, e.g. on a mobile phone, and export them to a more robust framework for execution.
+
+\textbf{R2: Support for describing things:} Manually creating building blocks for each smart thing is not scalable to the diversity of the physical world. Thus the need for the mashup framework to support partially automated integration (aka service discovery) of things.
+
+\textbf{R3: Support for event based mashups:} While the pull-based interaction model of the Web is fine for controlling smart things, it is suboptimal for monitoring them (e.g. sensors). Thus, the mashup framework should be able to handle events coming from smart things.
+
+
+\section{Web 2.0 Web Mashups}
+Explain Web Mashups.
+    
+\subsection{Physical Mashups}
+Explain the concept introduced in~\cite{guinard_giving_2010}.
+
+
+\subsection{A Framework for Physical Mashups Editors}
+Based on these requirements we present our first prototype of a mashup framework for the Web of Things. As shown in figure~\ref{fig:mashupFwork}, the system is composed of four main parts. First, we have Web-enabled devices and appliances such as the RESTful Ploggs and Sun SPOTs. In our prototypes, we tag them with small 2-D bar-codes (QR codes) in order to ease the identification of their root URL with mobile phones. We then have ``virtual'' services on the Web such as Twitter, Google Visualization API, XMPP, etc. In the middle, the mashup server framework allows to compose services of different smart things as well as virtual services on the Web. It is in charge executing the workflows created by end-users in their mashup editors. It discovers, listens, and interacts with the smart things over their RESTful API. The last component are the mashup editors. These applications allow users to create their mashups in a very easy manner. 
+The mashup server framework is based on an open-source workflow engine called Ruote\footnote{openwferu.rubyforge.org/}. We extended Ruote in several ways in order to support our requirements. First, to fulfill R2, we created an RDFa schema and a compound Microformat that enables the discovery of smart things. Given the root URL of a smart things, the framework uses the RDFa or Microformat data to create a re-usable component representing the things' functionality. Then, by using Web Hooks (i.e. callback URLs), we enabled smart things to push data to the mashups, fulfilling R3. Finally, we created a RESTful API that allows creating mashup editors on top of the framework, fulfilling R1.
+
+
+\subsection{Summary}
+In this chapter we introduced the idea of physical mashups and illustrated it by presenting the early prototype of a framework for creating editors of physical mashups. We briefly introduced a requirements for physical mashups. While we began addressing these, there is still work to be done to fully tackle them. As mentioned earlier, HTTP was designed as a client-server architecture where clients pull data. This interaction model works fine for control-oriented applications, however, monitoring-oriented applications are often event-based and thus Web-enabled smart things should also be able to push data to mashup frameworks, rather than being continuously polled. Overcoming the client-server architecture is now a core research topic in the Web community. Standards such as HTML 5 (and its ``Web Sockets'') are also going towards asynchronous bi-directional communication. 
+
+Another major challenge for mashups in a Web of Things is search and discovery of smart things. Consider billions of things connected to the Web. Searching for the things to be included in mashups becomes very complicated. Thus, smart things also need to have means to describe themselves in order for users to find them and for mashup frameworks to be able to automatically create wrapper for them. How to describe a thing on the Web so that both humans and applications (e.g. mashup frameworks) can understand what services it provides? Here again, the recent developments in Microformats, RDFa and HTML 5 Microdata seem to be going in a promising direction to support describing tomorrow's Web of Things.
+
+

@@ -1,0 +1,223 @@
+%-------------------------------------------------------------------------
+%
+%   THESIS LATEX TEMPLATE
+%
+%	Written by Vlad TRIFA (vladounet@gmail.com) 
+%	You can reuse it, but pay me between 1$ and 5000$ (or more if you want)
+%
+%	Let me know if you add cool features, so you don't need to pay if 
+%   I find the new features cool! Okay?
+%
+%------------------------------------------------------------------------
+
+%% Set up page layout (margins, etc) 
+%%
+% Compensate for the default 1 inch margins
+\setlength{\hoffset}{-1in}
+\setlength{\voffset}{-1in}
+
+% Line spacing
+\setstretch{1.10}
+
+% This make spaces between paragraphs
+%\usepackage{parskip} 
+%\setlength{\parskip}{0.35cm plus2mm minus2mm}
+
+% The actual size is set depending on the choice of format
+\newif\ifbigformat    % Big version (A4)              (29.7x21.0 cm)
+\newif\ifsmallformat  % Small version (A5)            (21.0x14.8 cm)
+\newif\ifbookformat   % Yellow and blue book version  (24.0x16.5 cm)
+\newif\iffinal    	  % Set to true if it is the final doc and so prints the title, abstract and ack
+
+% Here we choose the kind of the thesis
+\normalformattrue 
+%\smallformattrue
+%\twosidetrue
+
+\ifnormalformat  % a4 layout (21.0x29.7 cm)
+\setlength{\textwidth}{16cm}  
+\setlength{\textheight}{24.5cm} 
+\setlength{\oddsidemargin}{2.63cm} 
+\addtolength{\topmargin}{0.4in}   
+\fi
+
+\ifsmallformat  % a5 layout (14.85x21.0 cm)
+\setlength{\textwidth}{11.0cm}
+\setlength{\textheight}{17cm}
+\setlength{\oddsidemargin}{2.5cm}
+\addtolength{\topmargin}{0.5cm}
+\fi
+
+\ifbookformat % yellow and blue LCAV thesis book (16.5x24.0 cm)
+\setlength{\textwidth}{12.0cm}
+\setlength{\textheight}{18.5cm}
+\setlength{\oddsidemargin}{2.5cm}
+\addtolength{\topmargin}{1.0cm}
+\fi
+
+\iftwoside % align even sides with odd sides for duplex printing
+\setlength{\evensidemargin}{\paperwidth}
+\addtolength{\evensidemargin}{-\textwidth}
+\addtolength{\evensidemargin}{-\oddsidemargin}
+\fi
+
+
+%###################################################
+%% Preamble
+%###################################################
+
+%\usepackage[german,french]{babel}        % Using french and german characters
+
+%\usepackage{natbib}                      
+%\usepackage{subfigure}
+%\usepackage{chapterbib}                  % Put References at the end of each chapter 
+                                          % Do not put 'sectionbib' option here. 
+                                          % Sectionbib option in 'natbib' will do.
+                                          
+%\usepackage{setspace}                    % Line spacing 
+%\doublespacing                           % Double line space
+
+%\usepackage{txfonts}                     % Public Times New Roman text & math font 
+
+%\usepackage{algorithm}			    	  % To insert nice algorithms
+%\usepackage{algorithmic}
+
+%\usepackage{code}						  % To insert pretty source code 
+
+%###################################################
+% For insertion of images
+%###################################################
+
+% Compile with pdflatex and set the width of the image
+\usepackage[pdftex]{graphicx} % Use very cool pictures..
+\graphicspath{{figures/}}  % This is the directory where the images are located
+%\usepackage[body={6.0in, 8.2in},left=1.25in,right=1.25in]{geometry} 
+                                         % Geometry package for easy page margin setup
+                                          
+%\usepackage{rotating}                   % Sideways of figures & tables 
+
+
+
+%###################################################
+% For mathematics
+%###################################################
+
+\usepackage{amsfonts}
+\usepackage{amsmath,amssymb}
+\usepackage{multirow} % In order to be able to insert rows spanning multiple lines
+
+%\usepackage{makeidx} % If you want an index uncomment
+%\makeindex
+
+% Page headers fancy style  
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% with this we ensure that the chapter and section
+% headings are in lowercase.
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection.\ #1}}
+\fancyhf{}             % delete current setting for header and footer
+\fancyhead[LE,RO]{\sffamily\thepage}
+\fancyhead[LO]{\sffamily\rightmark}
+\fancyhead[RE]{\sffamily\leftmark}
+\renewcommand{\headrulewidth}{0.5pt} 
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\headheight}{3.0pt}   % make space for the rule
+\fancypagestyle{plain}{
+  \fancyhead{}         % get rid of headers on plain pages
+  \renewcommand{\headrulewidth}{0pt}  % and the line
+}
+
+% Colored cool links 
+\usepackage[colorlinks=false,citecolor=blue,linkcolor=blue,urlcolor=blue]{hyperref}
+
+% Nice chapter headings
+% Other choices : Sonny, Lenny, Glenn, Conny, Rejne, Bjarne
+%\usepackage[Glenn]{fncychap}
+\usepackage[Lenny]{fncychap}
+
+% Macro for derivees
+\newcommand{\derive}[2]{\frac{\textrm{d}#1}{\textrm{d}#2}}
+
+
+% Renew each section so we get a tabulation after the section start
+\let\Oldsection\section
+\renewcommand{\section}[1]{\Oldsection{#1}\pg }
+\let\Oldsubsection\subsection
+\renewcommand{\subsection}[1]{\Oldsubsection{#1}\pg }
+
+% chapter without number (i.e. chapter*), fixed headers and add to TOC
+\newcommand{\schapter}[1]{
+  \chapter*{Appendix #1\markboth{#1}{#1}}
+  \addcontentsline{toc}{chapter}{Appendix #1}
+}
+
+
+% This is to insert the nice quote at the beginning of the chapter
+\newcommand{\cquote}[2]{
+	\pg
+	\begin{flushright}
+	\emph{"#1"}
+	\pg #2 \pg\pg\pg
+	\end{flushright}
+	\pg
+}
+
+% Inserts a picture as a figure with a reference 
+\newcommand{\pix}[3]{
+	\begin{figure}[!htb]
+	\begin{center}
+	\includegraphics[width=#2cm]{pictures/#1}
+	\end{center}
+	\caption{\label{fig:#1} #3}
+	\end{figure}
+}
+
+% inserts a picture as a figure with a reference.
+% #1 path to the picture
+% #2 name of the picture
+% #3 with of the picture
+% #4 label of the figure
+% #5 caption of the figure
+\newcommand{\pixPath}[5]{
+	\begin{figure}[!htb]
+	\begin{center}
+	\includegraphics[width=#3cm]{#1/#2}
+	\end{center}
+	\caption{\label{fig:#4} #5}
+	\end{figure}
+}
+
+% Inserts a picture as a figure with a reference 
+\newcommand{\dbpix}[4]{
+	\begin{figure}[!htb]
+	\begin{center}
+	\begin{minipage}{\linewidth}  % Choose here the width of the minipage
+	  \begin{minipage}{0.5\linewidth}
+		\includegraphics[width=\linewidth]{#1.jpg}
+	  \end{minipage}%
+	  \hspace{\fill}%
+	  \begin{minipage}{0.5\linewidth}%
+		\includegraphics[width=\linewidth]{#2.jpg}  
+	  \end{minipage}
+	\end{minipage}
+	\end{center}
+	\caption{\label{#3} #4}
+	\end{figure}
+}
+
+% Define underscore
+\def\us{\char`\_}
+
+
+
+%#################
+% some colors
+\definecolor{gray}{gray}{0.9} 
+
+\newcommand{\pg}{\paragraph{}}
+
+%#################
+% mini toc for each chapter
+\usepackage{minitoc}
+\usepackage{supertabular}
